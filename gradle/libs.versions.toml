@@ -1,16 +1,20 @@
 [versions]
 # libraries
+jna = "5.18.1"
 junit4 = "4.13.2"
 
 # plugins
 changelog = "2.5.0"
 intelliJPlatform = "2.16.0"
 kotlin = "2.3.21"
+spotless = "8.5.1"
 
 [libraries]
+jna = { group = "net.java.dev.jna", name = "jna", version.ref = "jna"}
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
 intelliJPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intelliJPlatform" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless"}

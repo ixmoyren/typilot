@@ -1,0 +1,20 @@
+[workspace]
+resolver = "3"
+members = ["xtask", "crates/*"]
+
+[workspace.package]
+edition = "2024"
+
+[workspace.dependencies]
+uniffi = { git = "https://github.com/mozilla/uniffi-rs.git", default-features = false }
+
+[profile.dev.package."*"]
+opt-level = 2
+
+[profile.dev-fast]
+inherits = "dev"
+opt-level = 2
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

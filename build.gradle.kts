@@ -11,12 +11,11 @@ plugins {
 }
 
 group = providers.gradleProperty("pluginGroup").get()
+
 version = providers.gradleProperty("pluginVersion").get()
 
 // Set the JVM language level used to build the project.
-kotlin {
-    jvmToolchain(25)
-}
+kotlin { jvmToolchain(25) }
 
 idea {
     module {
@@ -28,17 +27,17 @@ idea {
 repositories {
     mavenCentral()
 
-    // IntelliJ Platform Gradle Plugin Repositories Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
-    intellijPlatform {
-        defaultRepositories()
-    }
+    // IntelliJ Platform Gradle Plugin Repositories Extension - read more:
+    // https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
+    intellijPlatform { defaultRepositories() }
 }
 
 dependencies {
     implementation(libs.jna)
     testImplementation(libs.junit4)
 
-    // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
+    // IntelliJ Platform Gradle Plugin Dependencies Extension - read more:
+    // https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
         intellijIdea(providers.gradleProperty("platformVersion"))
         testFramework(TestFrameworkType.Platform)

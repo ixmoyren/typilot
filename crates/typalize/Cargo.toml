@@ -1,0 +1,12 @@
+[package]
+name = "typalize"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+name = "typalize"
+
+[dependencies]
+uniffi = { workspace = true, features = ["bindgen"] }
+typst-syntax = { git = "https://github.com/typst/typst.git" }

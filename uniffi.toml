@@ -1,0 +1,5 @@
+[crate-roots]
+typalize = "crates/typalize"
+
+[crates.typalize.bindings.kotlin]
+package_name = "com.github.ixmoyren.typilot"

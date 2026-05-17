@@ -4,3 +4,10 @@
 .intellijPlatform
 .kotlin
 build
+
+# rust
+target
+
+# bindgen
+src/main/kotlin/com/github/ixmoyren/typilot/typalize.kt
+src/main/resources/lib/libtypalize.so

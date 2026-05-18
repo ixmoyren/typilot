@@ -1,6 +1,6 @@
 package com.github.ixmoyren.typilot.toolWindow
 
-import com.github.ixmoyren.typilot.MyBundle
+import com.github.ixmoyren.typilot.TypilotBundle
 import com.github.ixmoyren.typilot.services.MyProjectService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
@@ -32,10 +32,10 @@ class MyToolWindowFactory : ToolWindowFactory {
 
         fun getContent() =
             JBPanel<JBPanel<*>>().apply {
-                val label = JBLabel(MyBundle["randomLabel", "?"])
+                val label = JBLabel(TypilotBundle["randomLabel", "?"])
 
                 add(label)
-                add(JButton(MyBundle["shuffle"]).apply { addActionListener { label.text = MyBundle["randomLabel", service.getRandomNumber()] } })
+                add(JButton(TypilotBundle["shuffle"]).apply { addActionListener { label.text = TypilotBundle["randomLabel", service.getRandomNumber()] } })
             }
     }
 }

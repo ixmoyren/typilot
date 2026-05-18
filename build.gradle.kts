@@ -40,6 +40,9 @@ dependencies {
     // https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
         intellijIdea(providers.gradleProperty("platformVersion"))
+        bundledPlugins(providers.gradleProperty("platformBundledPlugins").map { it.split(',') })
+        plugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
+        bundledModules(providers.gradleProperty("platformBundledModules").map { it.split(',') })
         testFramework(TestFrameworkType.Platform)
     }
 }
@@ -70,5 +73,5 @@ spotless {
 tasks.test {
     useJUnit()
     jvmArgs("--enable-native-access=ALL-UNNAMED")
-    systemProperty("java.library.path", file("src/main/resources").absolutePath)
+    systemProperty("java.library.path", file("src/main/resources/lib").absolutePath)
 }

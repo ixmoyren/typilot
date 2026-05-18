@@ -13,7 +13,15 @@
     <resource-bundle>messages.TypilotBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <!-- Typst file type -->
+        <fileType name="Typst"
+                  implementationClass="com.github.ixmoyren.typilot.language.TypstFileType"
+                  fieldName="INSTANCE"
+                  language="Typst"
+                  extensions="typ"/>
+
+
         <toolWindow factoryClass="com.github.ixmoyren.typilot.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.ixmoyren.typilot.startup.MyProjectActivity" />
+        <postStartupActivity implementation="com.github.ixmoyren.typilot.startup.MyProjectActivity"/>
     </extensions>
 </idea-plugin>

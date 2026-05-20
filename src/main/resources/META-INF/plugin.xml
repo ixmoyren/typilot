@@ -20,6 +20,9 @@
                   language="Typst"
                   extensions="typ"/>
 
+        <!-- Comment toggling (Ctrl+/ and Ctrl+Shift+/) -->
+        <lang.commenter language="Typst"
+                        implementationClass="com.github.ixmoyren.typilot.language.TypstCommenter"/>
 
         <toolWindow factoryClass="com.github.ixmoyren.typilot.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
         <postStartupActivity implementation="com.github.ixmoyren.typilot.startup.MyProjectActivity"/>

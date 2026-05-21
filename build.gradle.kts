@@ -33,7 +33,7 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.jna)
+    compileOnly(libs.jna)
     testImplementation(libs.junit4)
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more:
@@ -50,7 +50,7 @@ dependencies {
 spotless {
     kotlin {
         // version, style and all configurations here are optional
-        ktfmt("0.62").googleStyle().configure {
+        ktfmt("0.62").kotlinlangStyle().configure {
             it.setMaxWidth(180)
             it.setBlockIndent(4)
             it.setContinuationIndent(4)
@@ -61,7 +61,7 @@ spotless {
     }
     kotlinGradle {
         target("*.gradle.kts")
-        ktfmt("0.62").googleStyle().configure {
+        ktfmt("0.62").kotlinlangStyle().configure {
             it.setMaxWidth(180)
             it.setBlockIndent(4)
             it.setContinuationIndent(4)
@@ -70,8 +70,8 @@ spotless {
     }
 }
 
-tasks.test {
-    useJUnit()
-    jvmArgs("--enable-native-access=ALL-UNNAMED")
-    systemProperty("java.library.path", file("src/main/resources/lib").absolutePath)
+tasks {
+    test {
+        useJUnit()
+    }
 }

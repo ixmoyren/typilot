@@ -4,7 +4,6 @@ import com.intellij.lang.Language
 
 class TypstLanguage private constructor() : Language("Typst") {
     companion object {
-        @JvmField
-        val INSTANCE = TypstLanguage()
+        @JvmField val INSTANCE = TypstLanguage()
     }
 }

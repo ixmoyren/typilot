@@ -1,4 +1,5 @@
 mod task;
+mod util;
 
 use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
@@ -47,7 +48,8 @@ enum Action {
         crate_name: Option<String>,
 
         #[arg(help = "Path to the UDL file or compiled library (.so, .dll, .dylib, or .a)")]
-        source: Utf8PathBuf,
+        source: Option<Utf8PathBuf>,
+
         #[arg(long)]
         #[arg(
             long_help = indoc!("

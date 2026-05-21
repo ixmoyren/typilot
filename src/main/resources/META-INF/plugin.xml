@@ -1,5 +1,5 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
+<idea-plugin require-restart="true">
     <id>com.github.ixmoyren.typilot</id>
     <name>typilot</name>
     <vendor>ixmoyren</vendor>
@@ -27,4 +27,14 @@
         <toolWindow factoryClass="com.github.ixmoyren.typilot.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
         <postStartupActivity implementation="com.github.ixmoyren.typilot.startup.MyProjectActivity"/>
     </extensions>
+
+    <actions resource-bundle="messages.TypilotBundle">
+        <action id="Typst.Help"
+                class="com.github.ixmoyren.typilot.actions.TypstHelpAction"
+                icon="AllIcons.Actions.Help">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift H"/>
+        </action>
+    </actions>
 </idea-plugin>

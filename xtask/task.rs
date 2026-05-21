@@ -1,22 +1,25 @@
-use super::Result;
+use crate::{
+    Result,
+    util::{
+        LINUX_DLL_PREFIX, LINUX_DLL_SUFFIX, LINUX_RESOURCES_PATH, LINUX_TARGET, PACKAGE_NAME,
+        WINDOWS_DLL_PREFIX, WINDOWS_DLL_SUFFIX, WINDOWS_GUN_RESOURCES_PATH, WINDOWS_GUN_TARGET,
+        copy_to_resources, run,
+    },
+};
 use camino::Utf8PathBuf;
 use cargo_metadata::{CrateType, MetadataCommand};
 use snafu::{OptionExt, ResultExt};
-use std::{
-    env,
-    ffi::OsStr,
-    fs,
-    io::{BufRead, BufReader, Read},
-    process::{Command, Stdio},
-};
+use std::{fs, process::Command};
 use uniffi::{GenerateOptions, TargetLanguage};
 
 pub fn build(release: bool) -> Result<()> {
-    let args = if release {
+    let mut args = if release {
         vec!["build", "--release"]
     } else {
         vec!["build"]
     };
+    let mut targets = vec!["--target", LINUX_TARGET, "--target", WINDOWS_GUN_TARGET];
+    args.append(&mut targets);
     run(Command::new("cargo"), args).with_whatever_context(|_| "Failed to run cargo build")?;
     Ok(())
 }
@@ -26,45 +29,56 @@ pub fn copy_dylib() -> Result<()> {
         .exec()
         .with_whatever_context(|_| "Failed to obtain cargo metadata")?;
     let target_dir = &metadata.target_directory;
-    let release_dir = target_dir.join("release");
-    let typilot_package = metadata
+    let package = metadata
         .packages
         .iter()
-        .find(|p| p.name == "typalize")
+        .find(|p| p.name == PACKAGE_NAME)
         .whatever_context("No typalize package")?;
-    let dylib_name = typilot_package
+    let dylib_name = package
         .targets
         .iter()
         .find(|t| t.crate_types.contains(&CrateType::CDyLib))
         .map(|t| t.name.clone())
         .whatever_context("No cdylib target name")?;
     build(true)?;
-    let dylib_name = format!(
-        "{}{dylib_name}{}",
-        env::consts::DLL_PREFIX,
-        env::consts::DLL_SUFFIX
-    );
-    let dylib_name_str = dylib_name.as_str();
-    let dylib_path = release_dir.join(dylib_name_str);
-    let lib_path = env::current_dir()
-        .with_whatever_context(|_| "Failed to get current dir")?
-        .join("src/main/resources/lib");
-    fs::create_dir_all(&lib_path).with_whatever_context(|_| "Failed to crate lib dir")?;
-    let resources_path = lib_path.join(dylib_name_str);
-    fs::copy(dylib_path, resources_path).with_whatever_context(|_| "Failed to copy the dylib")?;
-    Ok(())
+    copy_to_resources(
+        target_dir,
+        &dylib_name,
+        LINUX_DLL_PREFIX,
+        LINUX_DLL_SUFFIX,
+        LINUX_TARGET,
+        LINUX_RESOURCES_PATH,
+    )?;
+    copy_to_resources(
+        target_dir,
+        &dylib_name,
+        WINDOWS_DLL_PREFIX,
+        WINDOWS_DLL_SUFFIX,
+        WINDOWS_GUN_TARGET,
+        WINDOWS_GUN_RESOURCES_PATH,
+    )
 }
 
 pub fn generate(
     out_dir: Option<Utf8PathBuf>,
     config: Option<Utf8PathBuf>,
     crate_name: Option<String>,
-    source: Utf8PathBuf,
+    source: Option<Utf8PathBuf>,
     metadata_no_deps: bool,
 ) -> Result<()> {
     let languages = vec![TargetLanguage::Kotlin];
     let out_dir = out_dir.unwrap_or_else(|| Utf8PathBuf::from("src/main/kotlin"));
     let config = config.or(Some(Utf8PathBuf::from("uniffi.toml")));
+    let source = source.unwrap_or_else(|| {
+        cfg_select! {
+            target_os = "windows" => {
+                Utf8PathBuf::from(WINDOWS_GUN_RESOURCES_PATH)
+            }
+            _ => {
+                Utf8PathBuf::from(LINUX_RESOURCES_PATH)
+            }
+        }
+    });
     fs::create_dir_all(&out_dir).with_whatever_context(|_| "Failed to create the output dir")?;
     uniffi::generate(GenerateOptions {
         languages,
@@ -86,39 +100,5 @@ pub fn generate(
         }
     }
 
-    Ok(())
-}
-
-pub fn run<I, S>(mut cmd: Command, args: I) -> Result<()>
-where
-    I: IntoIterator<Item = S>,
-    S: AsRef<OsStr>,
-{
-    let mut child = cmd
-        .args(args)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .with_whatever_context(|_| "Failed to spawn the command")?;
-    if let Some(stdout) = child.stdout.take() {
-        println_lines(stdout)
-    } else if let Some(stderr) = child.stderr.take() {
-        println_lines(stderr)
-    } else {
-        Ok(())
-    }
-}
-
-fn println_lines<T>(inner: T) -> Result<()>
-where
-    T: Read,
-{
-    let lines = BufReader::new(inner).lines();
-    for line in lines {
-        println!(
-            "{}",
-            line.with_whatever_context(|_| "Failed to obtain the command output")?
-        );
-    }
     Ok(())
 }

@@ -3,20 +3,18 @@ use crate::{
     util::{
         LINUX_DLL_PREFIX, LINUX_DLL_SUFFIX, LINUX_RESOURCES_PATH, LINUX_TARGET, PACKAGE_NAME,
         WINDOWS_DLL_PREFIX, WINDOWS_DLL_SUFFIX, WINDOWS_GUN_RESOURCES_PATH, WINDOWS_GUN_TARGET,
-        copy_to_resources, run,
+        copy_to_resources, get_lib_path_and_dylib_name, get_target_dir_and_dylib_name, run,
     },
 };
 use camino::Utf8PathBuf;
-use cargo_metadata::{CrateType, MetadataCommand};
-use snafu::{OptionExt, ResultExt};
+use snafu::ResultExt;
 use std::{fs, process::Command};
 use uniffi::{GenerateOptions, TargetLanguage};
 
 pub fn build(release: bool) -> Result<()> {
-    let mut args = if release {
-        vec!["build", "--release"]
-    } else {
-        vec!["build"]
+    let mut args = vec!["build", "--package", PACKAGE_NAME];
+    if release {
+        args.push("--release");
     };
     let mut targets = vec!["--target", LINUX_TARGET, "--target", WINDOWS_GUN_TARGET];
     args.append(&mut targets);
@@ -24,38 +22,26 @@ pub fn build(release: bool) -> Result<()> {
     Ok(())
 }
 pub fn copy_dylib() -> Result<()> {
-    let metadata = MetadataCommand::new()
-        .no_deps()
-        .exec()
-        .with_whatever_context(|_| "Failed to obtain cargo metadata")?;
-    let target_dir = &metadata.target_directory;
-    let package = metadata
-        .packages
-        .iter()
-        .find(|p| p.name == PACKAGE_NAME)
-        .whatever_context("No typalize package")?;
-    let dylib_name = package
-        .targets
-        .iter()
-        .find(|t| t.crate_types.contains(&CrateType::CDyLib))
-        .map(|t| t.name.clone())
-        .whatever_context("No cdylib target name")?;
+    let (target_dir, dylib) = get_target_dir_and_dylib_name()?;
     build(true)?;
-    copy_to_resources(
-        target_dir,
-        &dylib_name,
+    let (lib_path, dylib_name) = get_lib_path_and_dylib_name(
+        &dylib,
         LINUX_DLL_PREFIX,
         LINUX_DLL_SUFFIX,
-        LINUX_TARGET,
         LINUX_RESOURCES_PATH,
     )?;
-    copy_to_resources(
-        target_dir,
-        &dylib_name,
+    copy_to_resources(target_dir.as_std_path(), &dylib_name, lib_path.as_std_path(), LINUX_TARGET)?;
+    let (lib_path, dylib_name) = get_lib_path_and_dylib_name(
+        &dylib,
         WINDOWS_DLL_PREFIX,
         WINDOWS_DLL_SUFFIX,
-        WINDOWS_GUN_TARGET,
         WINDOWS_GUN_RESOURCES_PATH,
+    )?;
+    copy_to_resources(
+        &target_dir.as_std_path(),
+        &dylib_name,
+        &lib_path.as_std_path(),
+        WINDOWS_GUN_TARGET,
     )
 }
 
@@ -69,16 +55,31 @@ pub fn generate(
     let languages = vec![TargetLanguage::Kotlin];
     let out_dir = out_dir.unwrap_or_else(|| Utf8PathBuf::from("src/main/kotlin"));
     let config = config.or(Some(Utf8PathBuf::from("uniffi.toml")));
-    let source = source.unwrap_or_else(|| {
+    let (_target_dir, dylib_name) = get_target_dir_and_dylib_name()?;
+    let source = if let Some(source) = source {
+        source
+    } else {
         cfg_select! {
             target_os = "windows" => {
-                Utf8PathBuf::from(WINDOWS_GUN_RESOURCES_PATH)
+                let (lib_path, dylib_name) = get_lib_path_and_dylib_name(
+                    &dylib_name,
+                    WINDOWS_DLL_PREFIX,
+                    WINDOWS_DLL_SUFFIX,
+                    WINDOWS_GUN_RESOURCES_PATH,
+                )?;
+                lib_path.join(dylib_name)
             }
             _ => {
-                Utf8PathBuf::from(LINUX_RESOURCES_PATH)
+                let (lib_path, dylib_name) = get_lib_path_and_dylib_name(
+                    &dylib_name,
+                    LINUX_DLL_PREFIX,
+                    LINUX_DLL_SUFFIX,
+                    LINUX_RESOURCES_PATH,
+                )?;
+                lib_path.join(dylib_name)
             }
         }
-    });
+    };
     fs::create_dir_all(&out_dir).with_whatever_context(|_| "Failed to create the output dir")?;
     uniffi::generate(GenerateOptions {
         languages,

@@ -10,5 +10,5 @@ target
 
 # bindgen
 src/main/kotlin/com/github/ixmoyren/typilot/Typalize.kt
-src/main/resources/native/linux_x86_64/libtypalize.so
-src/main/resources/native/windows_x86_64/typalize.dll
+src/main/resources/native/linux-x86_64/libtypalize.so
+src/main/resources/native/windows-x86_64/typalize.dll

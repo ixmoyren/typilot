@@ -70,8 +70,4 @@ spotless {
     }
 }
 
-tasks {
-    test {
-        useJUnit()
-    }
-}
+tasks { test { useJUnit() } }

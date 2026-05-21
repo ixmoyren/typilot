@@ -15,12 +15,12 @@ pub const PACKAGE_NAME: &str = "typalize";
 pub const LINUX_TARGET: &str = "x86_64-unknown-linux-gnu";
 pub const LINUX_DLL_PREFIX: &str = "lib";
 pub const LINUX_DLL_SUFFIX: &str = ".so";
-pub const LINUX_RESOURCES_PATH: &str = "src/main/resources/native/linux-x86_64";
+pub const LINUX_RESOURCES_PATH: &str = "src/main/resources/linux-x86-64";
 
 pub const WINDOWS_GUN_TARGET: &str = "x86_64-pc-windows-gnu";
 pub const WINDOWS_DLL_PREFIX: &str = "";
 pub const WINDOWS_DLL_SUFFIX: &str = ".dll";
-pub const WINDOWS_GUN_RESOURCES_PATH: &str = "src/main/resources/native/windows-x86_64";
+pub const WINDOWS_GUN_RESOURCES_PATH: &str = "src/main/resources/win32-x86-64";
 
 pub fn get_target_dir_and_dylib_name() -> crate::Result<(Utf8PathBuf, String)> {
     let metadata = MetadataCommand::new()

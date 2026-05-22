@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use crate::token::{Flatten, Token};
+use crate::token::{EmitEvent, Event, Flatten, Token};
 
 #[derive(uniffi::Object)]
 pub struct TypstParser;
@@ -25,9 +25,12 @@ impl TypstParser {
         let root = typst_syntax::parse_math(&text);
         root.flatten()
     }
+
+    pub fn parse_markup_events(&self, text: String) -> Vec<Event> {
+        let root = typst_syntax::parse(&text);
+        root.emit_event()
+    }
 }
-
-
 
 #[cfg(test)]
 mod tests {

@@ -12,10 +12,6 @@ class TypstLexer : LexerBase() {
     private var tokens: List<Token> = emptyList()
     private var index: Int = 0
 
-    init {
-        ensureLoaded()
-    }
-
     override fun start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int) {
         this.buffer = buffer
         this.startOffset = startOffset
@@ -53,14 +49,9 @@ class TypstLexer : LexerBase() {
 
     override fun getState(): Int = index
 
-    private fun currentToken(): Token? =
-        if (index >= tokens.size) null else tokens[index]
+    private fun currentToken(): Token? = if (index >= tokens.size) null else tokens[index]
 
     companion object {
         val parser: TypstParser by lazy { TypstParser() }
-
-        fun ensureLoaded() {
-            parser
-        }
     }
 }

@@ -10,7 +10,7 @@ class TypstElementType(val kind: TypstSyntaxKind?, name: String = kind!!.name) :
     }
 }
 
-val elementTypeMap = TypstSyntaxKind.entries.associateWith { TypstElementType(it) }
+private val elementTypeMap = TypstSyntaxKind.entries.associateWith { TypstElementType(it) }
 
 val TypstSyntaxKind.elementType
     get() = elementTypeMap[this]!!

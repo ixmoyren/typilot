@@ -20,6 +20,10 @@
                   language="Typst"
                   extensions="typ"/>
 
+        <lang.parserDefinition
+                language="Typst"
+                implementationClass="com.github.ixmoyren.typilot.psi.TypstParserDefinition"/>
+
         <!-- Comment toggling (Ctrl+/ and Ctrl+Shift+/) -->
         <lang.commenter language="Typst"
                         implementationClass="com.github.ixmoyren.typilot.language.TypstCommenter"/>

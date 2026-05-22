@@ -1,6 +1,8 @@
 uniffi::setup_scaffolding!("Typalize");
 pub mod syntax_kind;
-mod syntax_mode;
+pub mod syntax_mode;
+pub mod parser;
+pub mod token;
 
 #[uniffi::export]
 pub fn version() -> String {

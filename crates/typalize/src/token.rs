@@ -34,7 +34,7 @@ fn flatten_into(node: &SyntaxNode, offset: &mut usize, tokens: &mut Vec<Token>) 
         }
     } else {
         let len = node.len();
-        let kind = SyntaxKind::from(node.kind());
+        let kind = node.kind();
         tokens.push(Token {
             kind,
             start: *offset as u32,
@@ -60,7 +60,7 @@ impl EmitEvent for SyntaxNode {
 
 fn emit_events(node: &SyntaxNode, events: &mut Vec<Event>) {
     if node.text().is_empty() {
-        let kind = SyntaxKind::from(node.kind());
+        let kind = node.kind();
         events.push(Event::Enter { kind });
         for child in node.children() {
             emit_events(child, events);
@@ -68,7 +68,7 @@ fn emit_events(node: &SyntaxNode, events: &mut Vec<Event>) {
         events.push(Event::Exit { kind });
     } else {
         events.push(Event::Leaf {
-            kind: SyntaxKind::from(node.kind()),
+            kind: node.kind(),
         });
     }
 }

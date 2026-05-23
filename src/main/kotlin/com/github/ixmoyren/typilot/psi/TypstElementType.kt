@@ -1,5 +1,7 @@
 package com.github.ixmoyren.typilot.psi
 
+import com.github.ixmoyren.typilot.Event
+import com.github.ixmoyren.typilot.Token
 import com.github.ixmoyren.typilot.TypstSyntaxKind
 import com.github.ixmoyren.typilot.language.TypstLanguage
 import com.intellij.psi.tree.IElementType
@@ -14,3 +16,10 @@ private val elementTypeMap = TypstSyntaxKind.entries.associateWith { TypstElemen
 
 val TypstSyntaxKind.elementType
     get() = elementTypeMap[this]!!
+
+val Event.type
+    get() = when (this) {
+        is Event.Enter -> kind.elementType
+        is Event.Exit -> kind.elementType
+        is Event.Leaf -> kind.elementType
+    }

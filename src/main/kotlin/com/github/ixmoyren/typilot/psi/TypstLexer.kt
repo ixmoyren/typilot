@@ -9,47 +9,40 @@ class TypstLexer : LexerBase() {
     private var buffer: CharSequence = ""
     private var startOffset: Int = 0
     private var endOffset: Int = 0
-    private var tokens: List<Token> = emptyList()
+    private lateinit var tokenList: List<Token>
     private var index: Int = 0
 
     override fun start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int) {
         this.buffer = buffer
         this.startOffset = startOffset
         this.endOffset = endOffset
-
         val text = buffer.subSequence(startOffset, endOffset).toString()
-        this.tokens = parser.parseMarkup(text)
+        this.tokenList = parser.parseMarkup(text)
         this.index = 0
+        if (initialState != 0) {
+            throw UnsupportedOperationException("The typst lexer couldn't restart.")
+        }
     }
 
     override fun advance() {
-        index++
+        index += 1
     }
 
-    override fun getBufferSequence(): CharSequence {
-        return buffer
-    }
+    override fun getBufferSequence(): CharSequence = buffer
 
-    override fun getTokenType(): IElementType? {
-        val token = currentToken() ?: return null
-        return token.kind.tokenType
-    }
+    override fun getTokenType(): IElementType? = currentToken()?.type
 
-    override fun getTokenStart(): Int {
-        val token = currentToken() ?: return endOffset
-        return startOffset + token.start.toInt()
-    }
+    override fun getTokenStart(): Int = currentToken()?.let { startOffset + it.start.toInt() } ?: endOffset
 
-    override fun getTokenEnd(): Int {
-        val token = currentToken() ?: return endOffset
-        return startOffset + token.end.toInt()
-    }
+    override fun getTokenEnd(): Int = currentToken()?.let { startOffset + it.end.toInt() } ?: endOffset
 
     override fun getBufferEnd(): Int = endOffset
 
-    override fun getState(): Int = index
+    override fun getState(): Int = currentToken()?.let { 1 } ?: 0
 
-    private fun currentToken(): Token? = if (index >= tokens.size) null else tokens[index]
+    override fun toString(): String = "Typst Lexer"
+
+    private fun currentToken(): Token? = tokenList.getOrNull(index)
 
     companion object {
         val parser: TypstParser by lazy { TypstParser() }

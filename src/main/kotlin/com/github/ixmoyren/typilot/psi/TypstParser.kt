@@ -27,8 +27,7 @@ class TypstParser : PsiParser {
                 }
                 is Event.Exit -> {
                     val marker = stack.removeLastOrNull() ?: continue
-                    val elementType = event.kind.elementType
-                    marker.done(elementType)
+                    marker.done(event.type)
                 }
             }
         }

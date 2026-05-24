@@ -24,8 +24,7 @@ class TypstParserDefinition : ParserDefinition {
 
     override fun getStringLiteralElements(): TokenSet = TokenSet.EMPTY
 
-    override fun createFile(viewProvider: FileViewProvider): PsiFile =
-        TypstPsiFile(viewProvider)
+    override fun createFile(viewProvider: FileViewProvider): PsiFile = TypstPsiFile(viewProvider)
 
     override fun createElement(node: ASTNode): PsiElement {
         return TypstPsiElement(node)

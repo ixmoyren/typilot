@@ -7,8 +7,7 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.FileViewProvider
 import com.jetbrains.rd.util.threading.coroutines.RdCoroutineScope.Companion.override
 
-class TypstPsiFile(viewProvider: FileViewProvider) :
-    PsiFileBase(viewProvider, TypstLanguage.INSTANCE) {
+class TypstPsiFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, TypstLanguage.INSTANCE) {
 
     override fun getFileType(): FileType = TypstFileType
 

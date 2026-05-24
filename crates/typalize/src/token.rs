@@ -7,11 +7,13 @@ pub struct Token {
     pub end: u32,
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, uniffi::Enum)]
-pub enum Event {
-    Enter { kind: SyntaxKind },
-    Leaf { kind: SyntaxKind },
-    Exit { kind: SyntaxKind },
+#[derive(Debug, Clone, Eq, PartialEq, Hash, uniffi::Record)]
+pub struct ASTNode {
+    pub kind: SyntaxKind,
+    pub is_leaf: bool,
+    pub is_error: bool,
+    pub error_message: Option<String>,
+    pub children_count: u32,
 }
 
 pub trait Flatten {
@@ -43,31 +45,41 @@ fn flatten_into(node: &SyntaxNode, offset: usize, tokens: &mut Vec<Token>, offse
     }
 }
 
-pub trait EmitEvent {
-    fn emit_event(&self) -> Vec<Event>;
+pub trait ASTBuilder {
+    fn build(&self) -> Vec<ASTNode>;
 }
 
-impl EmitEvent for SyntaxNode {
-    fn emit_event(&self) -> Vec<Event> {
-        let mut events = Vec::new();
+impl ASTBuilder for SyntaxNode {
+    fn build(&self) -> Vec<ASTNode> {
+        let mut nodes = Vec::new();
         for child in self.children() {
-            emit_events(&child, &mut events);
+            build_ast_nodes(&child, &mut nodes);
         }
-        events
+        nodes
     }
 }
 
-fn emit_events(node: &SyntaxNode, events: &mut Vec<Event>) {
-    if node.text().is_empty() {
-        let kind = node.kind();
-        events.push(Event::Enter { kind });
-        for child in node.children() {
-            emit_events(child, events);
-        }
-        events.push(Event::Exit { kind });
+fn build_ast_nodes(node: &SyntaxNode, nodes: &mut Vec<ASTNode>) {
+    let kind = node.kind();
+    let is_error = node.kind().is_error();
+    let error_message: Option<String> = if is_error {
+        node.errors()
+            .into_iter()
+            .next()
+            .map(|e| e.message.to_string())
     } else {
-        events.push(Event::Leaf {
-            kind: node.kind(),
-        });
+        None
+    };
+    let children = node.children().collect::<Vec<&SyntaxNode>>();
+    let is_leaf = children.is_empty();
+    nodes.push(ASTNode {
+        kind,
+        is_leaf,
+        is_error,
+        error_message,
+        children_count: children.len() as u32,
+    });
+    for child in &children {
+        build_ast_nodes(child, nodes);
     }
 }

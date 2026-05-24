@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use crate::token::{EmitEvent, Event, Flatten, Token};
+use crate::token::{ASTBuilder, ASTNode, Flatten, Token};
 use crate::util::Utf16Ext;
 
 #[derive(uniffi::Object)]
@@ -18,9 +18,9 @@ impl TypstParser {
         root.flatten(&offsets)
     }
 
-    pub fn parse_markup_events(&self, text: String) -> Vec<Event> {
+    pub fn parse_markup_events(&self, text: String) -> Vec<ASTNode> {
         let root = typst_syntax::parse(&text);
-        root.emit_event()
+        root.build()
     }
 }
 

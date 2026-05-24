@@ -15,32 +15,31 @@ pub enum Event {
 }
 
 pub trait Flatten {
-    fn flatten(&self) -> Vec<Token>;
+    fn flatten(&self, offsets: &[usize]) -> Vec<Token>;
 }
 
 impl Flatten for SyntaxNode {
-    fn flatten(&self) -> Vec<Token> {
+    fn flatten(&self, offsets: &[usize]) -> Vec<Token> {
         let mut tokens = Vec::new();
-        let mut offset = 0_usize;
-        flatten_into(self, &mut offset, &mut tokens);
+        flatten_into(self, 0, &mut tokens, offsets);
         tokens
     }
 }
 
-fn flatten_into(node: &SyntaxNode, offset: &mut usize, tokens: &mut Vec<Token>) {
-    if node.text().is_empty() {
-        for child in node.children() {
-            flatten_into(child, offset, tokens);
-        }
-    } else {
-        let len = node.len();
-        let kind = node.kind();
+fn flatten_into(node: &SyntaxNode, offset: usize, tokens: &mut Vec<Token>, offsets: &[usize]) {
+    let len = node.len();
+    let kind = node.kind();
+    if node.children().peekable().peek().is_none() {
         tokens.push(Token {
             kind,
-            start: *offset as u32,
-            end: (*offset + len) as u32,
+            start: offsets[offset] as u32,
+            end: offsets[offset + len] as u32,
         });
-        *offset += len;
+    }
+    let mut child_offset = offset;
+    for child in node.children() {
+        flatten_into(child, child_offset, tokens, offsets);
+        child_offset += child.len();
     }
 }
 

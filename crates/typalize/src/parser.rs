@@ -16,16 +16,6 @@ impl TypstParser {
         root.flatten()
     }
 
-    pub fn parse_code(&self, text: String) -> Vec<Token> {
-        let root = typst_syntax::parse_code(&text);
-        root.flatten()
-    }
-
-    pub fn parse_math(&self, text: String) -> Vec<Token> {
-        let root = typst_syntax::parse_math(&text);
-        root.flatten()
-    }
-
     pub fn parse_markup_events(&self, text: String) -> Vec<Event> {
         let root = typst_syntax::parse(&text);
         root.emit_event()
@@ -130,29 +120,5 @@ mod tests {
             },
         ];
         assert_eq!(tokens, results);
-    }
-
-    #[test]
-    fn test_math_parse() {
-        let p = TypstParser;
-        let tokens = p.parse_math("x^2".into());
-        let results = vec![
-            Token {
-                kind: SyntaxKind::MathText,
-                start: 0,
-                end: 1,
-            },
-            Token {
-                kind: SyntaxKind::Hat,
-                start: 1,
-                end: 2,
-            },
-            Token {
-                kind: SyntaxKind::MathText,
-                start: 2,
-                end: 3,
-            }
-        ];
-        assert_eq!(tokens, results)
     }
 }

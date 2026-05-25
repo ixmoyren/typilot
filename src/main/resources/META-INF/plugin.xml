@@ -9,6 +9,7 @@
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.java</depends>
 
     <resource-bundle>messages.TypilotBundle</resource-bundle>
@@ -39,6 +40,9 @@
         <additionalTextAttributes
                 scheme="Default"
                 file="colors/default.xml"/>
+
+        <!-- Language injection for typst code blocks -->
+        <multiHostInjector implementation="com.github.ixmoyren.typilot.injection.TypstCodeBlockInjector" />
 
         <!-- Comment toggling (Ctrl+/ and Ctrl+Shift+/) -->
         <lang.commenter language="Typst"

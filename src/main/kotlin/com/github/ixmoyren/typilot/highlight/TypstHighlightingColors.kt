@@ -24,7 +24,7 @@ private val TagPropertyMap =
             TypstHighlightTag.STRONG to key("TypstStrong"),
             TypstHighlightTag.LINK to key("TypstLink"),
             TypstHighlightTag.EMPH to key("TypstEmph"),
-            TypstHighlightTag.RAW to key("TypstRaw", DLHC.STRING),
+            TypstHighlightTag.RAW to key("TypstRaw", DLHC.IDENTIFIER),
             TypstHighlightTag.LABEL to key("TypstLabel", DLHC.LABEL),
             TypstHighlightTag.REF to key("TypstRef", DLHC.LABEL),
             TypstHighlightTag.HEADING to

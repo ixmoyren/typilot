@@ -14,6 +14,13 @@ class TypstPsiFactory(private val project: Project) {
 
     fun createRef(labelName: String): TypstRefElement = createFile("@$labelName").descendantsOfType<TypstRefElement>().first()
 
+    fun createRawBlock(lang: String, content: String): TypstRawBlockElement {
+        val code = "```$lang\n$content\n```"
+        return createFile(code)
+            .descendantsOfType<TypstRawBlockElement>()
+            .first()
+    }
+
     fun createFile(text: String): TypstPsiFile {
         return PsiFileFactory.getInstance(project).createFileFromText("temporary.typ", TypstFileType, text) as TypstPsiFile
     }

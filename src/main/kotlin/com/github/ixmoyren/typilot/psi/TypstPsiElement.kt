@@ -6,8 +6,10 @@ import com.github.ixmoyren.typilot.highlight.TypstHighlightTagKeys
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.LiteralTextEscaper
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiLanguageInjectionHost
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.PsiReference
 import com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -120,3 +122,30 @@ class TypstHeadingElement(node: ASTNode) : TypstCompositeElement(node)
 class TypstSetRuleElement(node: ASTNode) : TypstCompositeElement(node)
 
 class TypstShowRuleElement(node: ASTNode) : TypstCompositeElement(node)
+
+class TypstRawBlockElement(node: ASTNode) : ASTWrapperPsiElement(node), PsiLanguageInjectionHost {
+    fun langTag(): String? =
+        findChildByType<ASTWrapperPsiElement>(TypstSyntaxKind.RAW_LANG.elementType)
+            ?.text
+            ?.takeIf { it.isNotEmpty() }
+
+    fun isBlock(): Boolean {
+        val delim = firstChild ?: return false
+        return delim.node.elementType == TypstSyntaxKind.RAW_DELIM.elementType
+                && delim.textLength >= 3
+    }
+
+    fun textChildren(): List<PsiElement> =
+        children.filter { it.node.elementType == TypstSyntaxKind.TEXT.elementType }
+
+    override fun isValidHost(): Boolean = isBlock() && langTag() != null
+
+    override fun updateText(text: String): PsiLanguageInjectionHost {
+        val lang = langTag() ?: return this
+        val newRaw = TypstPsiFactory(project).createRawBlock(lang, text)
+        return replace(newRaw) as PsiLanguageInjectionHost
+    }
+
+    override fun createLiteralTextEscaper(): LiteralTextEscaper<TypstRawBlockElement> =
+        LiteralTextEscaper.createSimple(this)
+}

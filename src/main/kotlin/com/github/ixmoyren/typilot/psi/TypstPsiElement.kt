@@ -1,6 +1,8 @@
 package com.github.ixmoyren.typilot.psi
 
+import com.github.ixmoyren.typilot.TypstHighlightTag
 import com.github.ixmoyren.typilot.TypstSyntaxKind
+import com.github.ixmoyren.typilot.highlight.TypstHighlightTagKeys
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
@@ -9,25 +11,37 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.PsiReference
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 
 interface TypstPsiElement : PsiElement
 
 interface TypstNamedElement : TypstPsiElement, PsiNamedElement
 
-open class TypstLeafElement(type: TypstElementType, text: CharSequence) : LeafPsiElement(type, text), TypstPsiElement
-
-class TypstIdentElement(type: TypstElementType, text: CharSequence) : TypstLeafElement(type, text) {
-    override fun getName(): String = this.text
+open class TypstCompositeElement(node: ASTNode) : ASTWrapperPsiElement(node), TypstPsiElement {
+    val tag: TypstHighlightTag?
+        get() = node.getUserData(TypstHighlightTagKeys.TAG)
 }
 
-class TypstKeywordElement(type: TypstElementType, text: CharSequence) : TypstLeafElement(type, text)
-
-class TypstCommentElement(type: TypstElementType, text: CharSequence) : TypstLeafElement(type, text), PsiComment {
-    override fun getTokenType() = elementType
+open class TypstLeafElement(node: ASTNode) : ASTWrapperPsiElement(node), TypstPsiElement {
+    val tag: TypstHighlightTag?
+        get() = node.getUserData(TypstHighlightTagKeys.TAG)
 }
 
-open class TypstCompositeElement(node: ASTNode) : ASTWrapperPsiElement(node), TypstPsiElement
+class TypstIdentElement(node: ASTNode) : TypstLeafElement(node) {
+    override fun getName(): String? {
+        if (!isValid) return null
+        return this.text
+    }
+}
+
+class TypstKeywordElement(node: ASTNode) : TypstLeafElement(node)
+
+class TypstCommentElement(node: ASTNode) : TypstLeafElement(node), PsiComment {
+    override fun getTokenType(): IElementType {
+        return (node.elementType as? TypstElementType)?.kind?.tokenType!!
+    }
+}
 
 class TypstLetBindingElement(node: ASTNode) : TypstCompositeElement(node), TypstNamedElement {
     override fun getName(): String? = findChildByType<TypstIdentElement>(TypstSyntaxKind.IDENT.elementType)?.text
@@ -67,6 +81,7 @@ class TypstRefElement(node: ASTNode) : TypstCompositeElement(node), PsiReference
         val targetName = getCanonicalText()
         if (targetName.isEmpty()) return null
         val file = element.containingFile ?: return null
+        if (!file.isValid) return null
         return PsiTreeUtil.collectElementsOfType(file, TypstLabelElement::class.java).firstOrNull { it.getName() == targetName }
     }
 

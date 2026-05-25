@@ -9,6 +9,7 @@
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
 
     <resource-bundle>messages.TypilotBundle</resource-bundle>
 
@@ -27,6 +28,10 @@
         <lang.syntaxHighlighterFactory
                 language="Typst"
                 implementationClass="com.github.ixmoyren.typilot.highlight.TypstSyntaxHighlighterFactory"/>
+
+        <annotator
+                language="Typst"
+                implementationClass="com.github.ixmoyren.typilot.highlight.TypstHighlightAnnotator"/>
 
         <colorSettingsPage
                 implementation="com.github.ixmoyren.typilot.highlight.TypstColorSettingsPage"/>

@@ -28,24 +28,25 @@ class TypstParserDefinition : ParserDefinition {
     override fun createFile(viewProvider: FileViewProvider): PsiFile = TypstPsiFile(viewProvider)
 
     override fun createElement(node: ASTNode): PsiElement {
-        return when (val type = node.elementType as TypstElementType) {
-            TypstSyntaxKind.LET_BINDING.elementType -> TypstLetBindingElement(node)
-            TypstSyntaxKind.FUNC_CALL.elementType -> TypstFuncCallElement(node)
-            TypstSyntaxKind.FIELD_ACCESS.elementType -> TypstFieldAccessElement(node)
-            TypstSyntaxKind.MATH_FIELD_ACCESS.elementType -> TypstFieldAccessElement(node)
-            TypstSyntaxKind.CLOSURE.elementType -> TypstClosureElement(node)
-            TypstSyntaxKind.MODULE_IMPORT.elementType -> TypstModuleImportElement(node)
-            TypstSyntaxKind.MODULE_INCLUDE.elementType -> TypstModuleIncludeElement(node)
-            TypstSyntaxKind.REF.elementType -> TypstRefElement(node)
-            TypstSyntaxKind.LABEL.elementType -> TypstLabelElement(node)
-            TypstSyntaxKind.HEADING.elementType -> TypstHeadingElement(node)
-            TypstSyntaxKind.SET_RULE.elementType -> TypstSetRuleElement(node)
-            TypstSyntaxKind.SHOW_RULE.elementType -> TypstShowRuleElement(node)
-            in TypstElementType.IDENT_ELEMENTS -> TypstIdentElement(type, node.chars)
-            in TypstElementType.KEYWORD_ELEMENTS -> TypstKeywordElement(type, node.chars)
-            in TypstElementType.COMMENT_ELEMENTS -> TypstCommentElement(type, node.chars)
-            in TypstElementType.LITERAL_ELEMENTS,
-            in TypstElementType.OPERATOR_ELEMENTS -> TypstLeafElement(type, node.chars)
+        val type = node.elementType as TypstElementType
+        return when (type.kind) {
+            TypstSyntaxKind.LET_BINDING -> TypstLetBindingElement(node)
+            TypstSyntaxKind.FUNC_CALL-> TypstFuncCallElement(node)
+            TypstSyntaxKind.FIELD_ACCESS -> TypstFieldAccessElement(node)
+            TypstSyntaxKind.MATH_FIELD_ACCESS -> TypstFieldAccessElement(node)
+            TypstSyntaxKind.CLOSURE -> TypstClosureElement(node)
+            TypstSyntaxKind.MODULE_IMPORT -> TypstModuleImportElement(node)
+            TypstSyntaxKind.MODULE_INCLUDE -> TypstModuleIncludeElement(node)
+            TypstSyntaxKind.REF -> TypstRefElement(node)
+            TypstSyntaxKind.LABEL -> TypstLabelElement(node)
+            TypstSyntaxKind.HEADING-> TypstHeadingElement(node)
+            TypstSyntaxKind.SET_RULE -> TypstSetRuleElement(node)
+            TypstSyntaxKind.SHOW_RULE-> TypstShowRuleElement(node)
+            in TypstSyntaxKind.IDENT_SET -> TypstIdentElement(node)
+            in TypstSyntaxKind.KEYWORD_SET -> TypstKeywordElement(node)
+            in TypstSyntaxKind.COMMENT_SET -> TypstCommentElement(node)
+            in TypstSyntaxKind.OPERATOR_SET,
+            in TypstSyntaxKind.LITERAL_SET -> TypstLeafElement(node)
             else -> TypstCompositeElement(node)
         }
     }

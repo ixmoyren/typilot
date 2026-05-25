@@ -1,7 +1,9 @@
+use crate::{
+    token::{ASTBuilder, ASTNode, Flatten, Token},
+    util::Utf16Ext,
+};
 use std::sync::Arc;
 use typst_syntax::LinkedNode;
-use crate::token::{ASTBuilder, ASTNode, Flatten, Token};
-use crate::util::Utf16Ext;
 
 #[derive(uniffi::Object)]
 pub struct TypstParser;
@@ -21,16 +23,17 @@ impl TypstParser {
     }
 
     pub fn parse_markup_events(&self, text: String) -> Vec<ASTNode> {
+        let offsets = text.get_offset();
         let root = typst_syntax::parse(&text);
-        root.build()
+        let linked_node = LinkedNode::new(&root);
+        linked_node.build(&offsets)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use typst_syntax::{SyntaxKind, Tag};
-    use typst_syntax::Tag::MathOperator;
     use super::*;
+    use typst_syntax::SyntaxKind;
     #[test]
     fn test_simple_text() {
         let parser = TypstParser;
@@ -68,31 +71,26 @@ mod tests {
                 kind: SyntaxKind::HeadingMarker,
                 start: 0,
                 end: 1,
-                tag: None,
             },
             Token {
                 kind: SyntaxKind::Space,
                 start: 1,
                 end: 2,
-                tag: None,
             },
             Token {
                 kind: SyntaxKind::Text,
                 start: 2,
                 end: 9,
-                tag: None,
             },
             Token {
                 kind: SyntaxKind::Space,
                 start: 9,
                 end: 10,
-                tag: None,
             },
             Token {
                 kind: SyntaxKind::Text,
                 start: 10,
                 end: 19,
-                tag: None,
             },
         ];
         assert_eq!(tokens, results);
@@ -107,31 +105,26 @@ mod tests {
                 kind: SyntaxKind::Dollar,
                 start: 0,
                 end: 1,
-                tag: Some(Tag::MathDelimiter),
             },
             Token {
                 kind: SyntaxKind::MathText,
                 start: 1,
                 end: 2,
-                tag: None,
             },
             Token {
                 kind: SyntaxKind::Hat,
                 start: 2,
                 end: 3,
-                tag: Some(MathOperator),
             },
             Token {
                 kind: SyntaxKind::MathText,
                 start: 3,
                 end: 4,
-                tag: None,
             },
             Token {
                 kind: SyntaxKind::Dollar,
                 start: 4,
                 end: 5,
-                tag: Some(Tag::MathDelimiter),
             },
         ];
         assert_eq!(tokens, results);

@@ -1,21 +1,20 @@
 package com.github.ixmoyren.typilot.psi
 
 import com.github.ixmoyren.typilot.Token
+import com.github.ixmoyren.typilot.TypstHighlightTag
 import com.github.ixmoyren.typilot.TypstSyntaxKind
 import com.github.ixmoyren.typilot.language.TypstLanguage
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.IFileElementType
 import com.intellij.psi.tree.TokenSet
 
-class TypstTokenType(val kind: TypstSyntaxKind?, name: String = kind!!.name) : IElementType(name, TypstLanguage.INSTANCE) {
+data class TypstTokenType(val kind: TypstSyntaxKind?, val name: String = kind!!.name, var tag: TypstHighlightTag? = null) : IElementType(name, TypstLanguage.INSTANCE) {
     override fun toString(): String {
         return "TypstTokenType." + super.toString()
     }
 
     companion object {
-        private val tokenTypeMap: Map<TypstSyntaxKind, TypstTokenType> by lazy {
-            TypstSyntaxKind.entries.associateWith { TypstTokenType(it) }
-        }
+        private val tokenTypeMap: Map<TypstSyntaxKind, TypstTokenType> by lazy { TypstSyntaxKind.entries.associateWith { TypstTokenType(it) } }
 
         fun getTokenType(kind: TypstSyntaxKind): TypstTokenType = tokenTypeMap.getValue(kind)
 
@@ -31,4 +30,4 @@ val TypstSyntaxKind.tokenType
     get() = TypstTokenType.getTokenType(this)
 
 val Token.type
-    get() = this.kind.tokenType
+    get() = this.kind.tokenType.copy(tag = this.tag)

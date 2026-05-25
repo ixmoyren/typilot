@@ -41,20 +41,11 @@ class TypstParserDefinition : ParserDefinition {
             TypstSyntaxKind.HEADING.elementType -> TypstHeadingElement(node)
             TypstSyntaxKind.SET_RULE.elementType -> TypstSetRuleElement(node)
             TypstSyntaxKind.SHOW_RULE.elementType -> TypstShowRuleElement(node)
-
-            in TypstElementType.IDENT_ELEMENTS ->
-                TypstIdentElement(type, node.chars)
-
-            in TypstElementType.KEYWORD_ELEMENTS ->
-                TypstKeywordElement(type, node.chars)
-
-            in TypstElementType.COMMENT_ELEMENTS ->
-                TypstCommentElement(type, node.chars)
-
+            in TypstElementType.IDENT_ELEMENTS -> TypstIdentElement(type, node.chars)
+            in TypstElementType.KEYWORD_ELEMENTS -> TypstKeywordElement(type, node.chars)
+            in TypstElementType.COMMENT_ELEMENTS -> TypstCommentElement(type, node.chars)
             in TypstElementType.LITERAL_ELEMENTS,
-            in TypstElementType.OPERATOR_ELEMENTS ->
-                TypstLeafElement(type, node.chars)
-
+            in TypstElementType.OPERATOR_ELEMENTS -> TypstLeafElement(type, node.chars)
             else -> TypstCompositeElement(node)
         }
     }

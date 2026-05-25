@@ -12,17 +12,9 @@ class TypstPsiFactory(private val project: Project) {
         return file.descendantsOfType<TypstIdentElement>().first()
     }
 
-    fun createRef(labelName: String): TypstRefElement =
-        createFile("@$labelName")
-            .descendantsOfType<TypstRefElement>()
-            .first()
+    fun createRef(labelName: String): TypstRefElement = createFile("@$labelName").descendantsOfType<TypstRefElement>().first()
 
     fun createFile(text: String): TypstPsiFile {
-        return PsiFileFactory.getInstance(project)
-            .createFileFromText(
-                "temporary.typ",
-                TypstFileType,
-                text
-            ) as TypstPsiFile
+        return PsiFileFactory.getInstance(project).createFileFromText("temporary.typ", TypstFileType, text) as TypstPsiFile
     }
 }

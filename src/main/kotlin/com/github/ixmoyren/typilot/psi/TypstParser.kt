@@ -14,27 +14,20 @@ class TypstParser : PsiParser {
         val nodes = parser.parseMarkupEvents(text)
 
         val rootMarker = builder.mark()
-        val stack = ArrayDeque<Pair<PsiBuilder.Marker, Int>>()
+        val stack = ArrayDeque<Triple<PsiBuilder.Marker, IElementType, Int>>()
 
         for (node in nodes) {
-            while (stack.isNotEmpty() && stack.last().second == 0) {
-                val (_, _) = stack.removeLast()
-            }
-
             if (node.isLeaf) {
                 if (node.isError) builder.error(node.errorMessage ?: "syntax error")
                 builder.advanceLexer()
+                decrementAndClose(stack)
             } else {
                 val marker = builder.mark()
-                stack.addLast(Pair(marker, node.childrenCount.toInt()))
-            }
-
-            if (stack.isNotEmpty()) {
-                val (marker, remaining) = stack.removeLast()
-                if (remaining - 1 == 0) {
+                if (node.childrenCount.toInt() == 0) {
                     marker.done(node.type)
+                    decrementAndClose(stack)
                 } else {
-                    stack.addLast(Pair(marker, remaining - 1))
+                    stack.addLast(Triple(marker, node.type, node.childrenCount.toInt()))
                 }
             }
         }
@@ -63,6 +56,19 @@ class TypstParser : PsiParser {
             while (child != null) {
                 stack.add(child)
                 child = child.treeNext
+            }
+        }
+    }
+
+    private fun decrementAndClose(stack: ArrayDeque<Triple<PsiBuilder.Marker, IElementType, Int>>) {
+        while (stack.isNotEmpty()) {
+            val (marker, type, remaining) = stack.removeLast()
+            val newRemaining = remaining - 1
+            if (newRemaining == 0) {
+                marker.done(type)
+            } else {
+                stack.addLast(Triple(marker, type, newRemaining))
+                break
             }
         }
     }

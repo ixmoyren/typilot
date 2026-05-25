@@ -19,9 +19,6 @@ class TypstLexer : LexerBase() {
         val text = buffer.subSequence(startOffset, endOffset).toString()
         this.tokenList = parser.parseMarkup(text)
         this.index = 0
-        if (initialState != 0) {
-            throw UnsupportedOperationException("The typst lexer couldn't restart.")
-        }
     }
 
     override fun advance() {

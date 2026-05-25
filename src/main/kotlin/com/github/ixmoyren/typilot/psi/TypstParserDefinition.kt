@@ -1,5 +1,6 @@
 package com.github.ixmoyren.typilot.psi
 
+import com.github.ixmoyren.typilot.TypstSyntaxKind
 import com.intellij.lang.ASTNode
 import com.intellij.lang.ParserDefinition
 import com.intellij.lang.PsiParser
@@ -27,6 +28,34 @@ class TypstParserDefinition : ParserDefinition {
     override fun createFile(viewProvider: FileViewProvider): PsiFile = TypstPsiFile(viewProvider)
 
     override fun createElement(node: ASTNode): PsiElement {
-        return TypstPsiElement(node)
+        return when (val type = node.elementType as TypstElementType) {
+            TypstSyntaxKind.LET_BINDING.elementType -> TypstLetBindingElement(node)
+            TypstSyntaxKind.FUNC_CALL.elementType -> TypstFuncCallElement(node)
+            TypstSyntaxKind.FIELD_ACCESS.elementType -> TypstFieldAccessElement(node)
+            TypstSyntaxKind.MATH_FIELD_ACCESS.elementType -> TypstFieldAccessElement(node)
+            TypstSyntaxKind.CLOSURE.elementType -> TypstClosureElement(node)
+            TypstSyntaxKind.MODULE_IMPORT.elementType -> TypstModuleImportElement(node)
+            TypstSyntaxKind.MODULE_INCLUDE.elementType -> TypstModuleIncludeElement(node)
+            TypstSyntaxKind.REF.elementType -> TypstRefElement(node)
+            TypstSyntaxKind.LABEL.elementType -> TypstLabelElement(node)
+            TypstSyntaxKind.HEADING.elementType -> TypstHeadingElement(node)
+            TypstSyntaxKind.SET_RULE.elementType -> TypstSetRuleElement(node)
+            TypstSyntaxKind.SHOW_RULE.elementType -> TypstShowRuleElement(node)
+
+            in TypstElementType.IDENT_ELEMENTS ->
+                TypstIdentElement(type, node.chars)
+
+            in TypstElementType.KEYWORD_ELEMENTS ->
+                TypstKeywordElement(type, node.chars)
+
+            in TypstElementType.COMMENT_ELEMENTS ->
+                TypstCommentElement(type, node.chars)
+
+            in TypstElementType.LITERAL_ELEMENTS,
+            in TypstElementType.OPERATOR_ELEMENTS ->
+                TypstLeafElement(type, node.chars)
+
+            else -> TypstCompositeElement(node)
+        }
     }
 }

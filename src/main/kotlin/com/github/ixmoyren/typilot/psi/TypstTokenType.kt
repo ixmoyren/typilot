@@ -13,19 +13,22 @@ class TypstTokenType(val kind: TypstSyntaxKind?, name: String = kind!!.name) : I
     }
 
     companion object {
-        val WHITESPACE = TypstTokenType(null, "Whitespace")
+        private val tokenTypeMap: Map<TypstSyntaxKind, TypstTokenType> by lazy {
+            TypstSyntaxKind.entries.associateWith { TypstTokenType(it) }
+        }
+
+        fun getTokenType(kind: TypstSyntaxKind): TypstTokenType = tokenTypeMap.getValue(kind)
+
         val COMMENT_TOKEN_SET = TokenSet.create(TypstSyntaxKind.LINE_COMMENT.tokenType, TypstSyntaxKind.BLOCK_COMMENT.tokenType, TypstSyntaxKind.SHEBANG.tokenType)
 
-        val WHITESPACE_TOKEN_SET = TokenSet.create()
+        val WHITESPACE_TOKEN_SET = TokenSet.create(TypstSyntaxKind.SPACE.tokenType)
 
         val TYPST_FILE = IFileElementType("Typst", TypstLanguage.INSTANCE)
     }
 }
 
-private val tokenTypeMap = TypstSyntaxKind.entries.associateWith { TypstTokenType(it) }
-
 val TypstSyntaxKind.tokenType
-    get() = tokenTypeMap[this]!!
+    get() = TypstTokenType.getTokenType(this)
 
 val Token.type
     get() = this.kind.tokenType

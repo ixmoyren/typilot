@@ -13,8 +13,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IFileElementType
 import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.util.PsiTreeUtil.firstChild
-import com.intellij.psi.util.elementType
 
 class TypstParserDefinition : ParserDefinition {
     override fun createLexer(project: Project?): Lexer = TypstLexer()

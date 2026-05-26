@@ -1,7 +1,6 @@
 package com.github.ixmoyren.typilot.highlight
 
-import com.github.ixmoyren.typilot.psi.TypstCompositeElement
-import com.github.ixmoyren.typilot.psi.TypstLeafElement
+import com.github.ixmoyren.typilot.psi.TypstPsiElement
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
@@ -12,8 +11,7 @@ class TypstHighlightAnnotator : Annotator {
         if (!element.isValid) return
         val tag =
             when (element) {
-                is TypstCompositeElement -> element.tag
-                is TypstLeafElement -> element.tag
+                is TypstPsiElement -> element.tag
                 else -> null
             } ?: return
         val attrKey = tag.Color

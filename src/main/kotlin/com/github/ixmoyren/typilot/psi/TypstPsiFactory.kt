@@ -6,22 +6,15 @@ import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.util.descendantsOfType
 
 class TypstPsiFactory(private val project: Project) {
-    fun createIdent(name: String): TypstIdentElement {
-        val code = "#let $name = none"
-        val file = createFile(code)
-        return file.descendantsOfType<TypstIdentElement>().first()
-    }
-
-    fun createRef(labelName: String): TypstRefElement = createFile("@$labelName").descendantsOfType<TypstRefElement>().first()
-
-    fun createRawBlock(lang: String, content: String): TypstRawBlockElement {
+    fun createRawBlock(lang: String, content: String): TypstRawBlockPsiElement {
         val code = "```$lang\n$content\n```"
         return createFile(code)
-            .descendantsOfType<TypstRawBlockElement>()
+            .descendantsOfType<TypstRawBlockPsiElement>()
             .first()
     }
 
     fun createFile(text: String): TypstPsiFile {
-        return PsiFileFactory.getInstance(project).createFileFromText("temporary.typ", TypstFileType, text) as TypstPsiFile
+        return PsiFileFactory.getInstance(project)
+            .createFileFromText("temporary.typ", TypstFileType, text) as TypstPsiFile
     }
 }

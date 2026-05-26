@@ -1,6 +1,6 @@
 package com.github.ixmoyren.typilot.injection
 
-import com.github.ixmoyren.typilot.psi.TypstRawBlockElement
+import com.github.ixmoyren.typilot.psi.TypstRawBlockPsiElement
 import com.intellij.lang.Language
 import kotlin.jvm.java
 
@@ -107,7 +107,7 @@ class TypstCodeBlockInjector : MultiHostInjector {
         registrar: MultiHostRegistrar,
         context: PsiElement
     ) {
-        val rawBlock = context as? TypstRawBlockElement ?: return
+        val rawBlock = context as? TypstRawBlockPsiElement ?: return
         if (!rawBlock.isValidHost()) return
 
         val langTag = rawBlock.langTag() ?: return
@@ -133,5 +133,5 @@ class TypstCodeBlockInjector : MultiHostInjector {
     }
 
     override fun elementsToInjectIn(): List<Class<out PsiElement>> =
-        listOf(TypstRawBlockElement::class.java)
+        listOf(TypstRawBlockPsiElement::class.java)
 }

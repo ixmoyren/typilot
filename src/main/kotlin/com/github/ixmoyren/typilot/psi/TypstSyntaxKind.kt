@@ -98,9 +98,3 @@ val TypstSyntaxKind.Companion.OPERATOR_SET: Set<TypstSyntaxKind> by lazy {
         TypstSyntaxKind.MATH_ALIGN_POINT
     )
 }
-
-val TypstSyntaxKind.Companion.RAW_SET: Set<TypstSyntaxKind> by lazy {
-    setOf(
-        TypstSyntaxKind.RAW, TypstSyntaxKind.RAW_DELIM, TypstSyntaxKind.RAW_LANG, TypstSyntaxKind.RAW_TRIMMED
-    )
-}

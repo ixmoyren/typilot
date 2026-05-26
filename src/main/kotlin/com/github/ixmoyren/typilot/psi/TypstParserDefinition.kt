@@ -42,7 +42,7 @@ class TypstParserDefinition : ParserDefinition {
             TypstSyntaxKind.HEADING-> TypstHeadingElement(node)
             TypstSyntaxKind.SET_RULE -> TypstSetRuleElement(node)
             TypstSyntaxKind.SHOW_RULE-> TypstShowRuleElement(node)
-            in TypstSyntaxKind.RAW_SET -> TypstRawBlockElement(node)
+            TypstSyntaxKind.RAW -> TypstRawBlockElement(node)
             in TypstSyntaxKind.IDENT_SET -> TypstIdentElement(node)
             in TypstSyntaxKind.KEYWORD_SET -> TypstKeywordElement(node)
             in TypstSyntaxKind.COMMENT_SET -> TypstCommentElement(node)

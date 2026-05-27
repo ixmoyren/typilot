@@ -19,11 +19,11 @@ class TypstParserDefinition : ParserDefinition {
 
     override fun createParser(project: Project?): PsiParser = TypstParser()
 
-    override fun getFileNodeType(): IFileElementType = TypstTokenType.TYPST_FILE
+    override fun getFileNodeType(): IFileElementType = TypstElementType.TYPST_FILE
 
-    override fun getWhitespaceTokens(): TokenSet = TypstTokenType.WHITESPACE_TOKEN_SET
+    override fun getWhitespaceTokens(): TokenSet = TypstElementType.WHITESPACE_TOKEN_SET
 
-    override fun getCommentTokens(): TokenSet = TypstTokenType.COMMENT_TOKEN_SET
+    override fun getCommentTokens(): TokenSet = TypstElementType.COMMENT_TOKEN_SET
 
     override fun getStringLiteralElements(): TokenSet = TokenSet.EMPTY
 
@@ -33,7 +33,6 @@ class TypstParserDefinition : ParserDefinition {
         val kind =
             when (val type = node.elementType) {
                 is TypstElementType -> type.kind!!
-                is TypstTokenType -> type.kind!!
                 else -> return ASTWrapperPsiElement(node)
             }
         if (kind == TypstSyntaxKind.RAW && isRawBlock(node)) {
@@ -53,7 +52,6 @@ class TypstParserDefinition : ParserDefinition {
         val firstType =
             when (val type = firstChild.elementType) {
                 is TypstElementType -> type.kind!!
-                is TypstTokenType -> type.kind!!
                 else -> return false
             }
         if (firstType != TypstSyntaxKind.RAW_DELIM && firstChild.textLength >= 3) return false
@@ -62,7 +60,6 @@ class TypstParserDefinition : ParserDefinition {
         val secondType =
             when (val type = secondChild.elementType) {
                 is TypstElementType -> type.kind!!
-                is TypstTokenType -> type.kind!!
                 else -> return false
             }
         return secondType == TypstSyntaxKind.RAW_LANG && secondChild.textLength >= 1

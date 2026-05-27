@@ -20,7 +20,6 @@ sealed interface TypstPsiElement : NavigatablePsiElement {
         get() =
             when (val type = node.elementType) {
                 is TypstElementType -> type.kind
-                is TypstTokenType -> type.kind
                 else -> return null
             }
 
@@ -1104,7 +1103,6 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
             .children()
             .filter { child ->
                 when (val type = child.elementType) {
-                    is TypstTokenType -> type.kind == TypstSyntaxKind.TEXT
                     is TypstElementType -> type.kind == TypstSyntaxKind.TEXT
                     else -> false
                 }

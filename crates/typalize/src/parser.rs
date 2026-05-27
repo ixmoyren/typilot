@@ -15,14 +15,14 @@ impl TypstParser {
         Arc::new(Self)
     }
 
-    pub fn parse_markup(&self, text: String) -> Vec<Token> {
+    pub fn tokenize(&self, text: String) -> Vec<Token> {
         let offsets = text.get_offset();
         let root = typst_syntax::parse(&text);
         let linked_node = LinkedNode::new(&root);
         linked_node.flatten(&offsets)
     }
 
-    pub fn parse_markup_events(&self, text: String) -> Vec<ASTNode> {
+    pub fn parse(&self, text: String) -> Vec<ASTNode> {
         let offsets = text.get_offset();
         let root = typst_syntax::parse(&text);
         let linked_node = LinkedNode::new(&root);
@@ -37,7 +37,7 @@ mod tests {
     #[test]
     fn test_simple_text() {
         let parser = TypstParser;
-        let tokens = parser.parse_markup("hello".to_owned());
+        let tokens = parser.tokenize("hello".to_owned());
         assert_eq!(tokens.len(), 1);
         let token = tokens.first().unwrap();
         assert_eq!(token.kind, SyntaxKind::Text);
@@ -49,7 +49,7 @@ mod tests {
     fn test_hashtag_code() {
         let parser = TypstParser;
         let doc = "#let x = 1";
-        let tokens = parser.parse_markup(doc.to_owned());
+        let tokens = parser.tokenize(doc.to_owned());
         let token = tokens[0];
         assert_eq!(token.kind, SyntaxKind::Hash);
         let token = tokens[3];
@@ -65,7 +65,7 @@ mod tests {
     #[test]
     fn test_markup_heading() {
         let parser = TypstParser;
-        let tokens = parser.parse_markup("= Heading\nSome text".to_owned());
+        let tokens = parser.tokenize("= Heading\nSome text".to_owned());
         let results = vec![
             Token {
                 kind: SyntaxKind::HeadingMarker,
@@ -99,7 +99,7 @@ mod tests {
     #[test]
     fn test_math() {
         let parser = TypstParser;
-        let tokens = parser.parse_markup("$x^2$".to_owned());
+        let tokens = parser.tokenize("$x^2$".to_owned());
         let results = vec![
             Token {
                 kind: SyntaxKind::Dollar,

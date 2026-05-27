@@ -23,27 +23,14 @@ val TypstSyntaxKind.Companion.KEYWORD_SET: Set<TypstSyntaxKind> by lazy {
         TypstSyntaxKind.RETURN,
         TypstSyntaxKind.IMPORT,
         TypstSyntaxKind.INCLUDE,
-        TypstSyntaxKind.AS
-    )
+        TypstSyntaxKind.AS)
 }
 
-val TypstSyntaxKind.Companion.IDENT_SET: Set<TypstSyntaxKind> by lazy {
-    setOf(
-        TypstSyntaxKind.IDENT, TypstSyntaxKind.MATH_IDENT
-    )
-}
+val TypstSyntaxKind.Companion.IDENT_SET: Set<TypstSyntaxKind> by lazy { setOf(TypstSyntaxKind.IDENT, TypstSyntaxKind.MATH_IDENT) }
 
-val TypstSyntaxKind.Companion.COMMENT_SET: Set<TypstSyntaxKind> by lazy {
-    setOf(
-        TypstSyntaxKind.LINE_COMMENT, TypstSyntaxKind.BLOCK_COMMENT, TypstSyntaxKind.SHEBANG
-    )
-}
+val TypstSyntaxKind.Companion.COMMENT_SET: Set<TypstSyntaxKind> by lazy { setOf(TypstSyntaxKind.LINE_COMMENT, TypstSyntaxKind.BLOCK_COMMENT, TypstSyntaxKind.SHEBANG) }
 
-val TypstSyntaxKind.Companion.SPACE_SET: Set<TypstSyntaxKind> by lazy {
-    setOf(
-        TypstSyntaxKind.SPACE
-    )
-}
+val TypstSyntaxKind.Companion.SPACE_SET: Set<TypstSyntaxKind> by lazy { setOf(TypstSyntaxKind.SPACE) }
 
 val TypstSyntaxKind.Companion.LITERAL_SET: Set<TypstSyntaxKind> by lazy {
     setOf(
@@ -56,8 +43,7 @@ val TypstSyntaxKind.Companion.LITERAL_SET: Set<TypstSyntaxKind> by lazy {
         TypstSyntaxKind.LINK,
         TypstSyntaxKind.LABEL,
         TypstSyntaxKind.MATH_TEXT,
-        TypstSyntaxKind.MATH_SHORTHAND
-    )
+        TypstSyntaxKind.MATH_SHORTHAND)
 }
 
 val TypstSyntaxKind.Companion.OPERATOR_SET: Set<TypstSyntaxKind> by lazy {
@@ -95,6 +81,5 @@ val TypstSyntaxKind.Companion.OPERATOR_SET: Set<TypstSyntaxKind> by lazy {
         TypstSyntaxKind.ARROW,
         TypstSyntaxKind.ROOT,
         TypstSyntaxKind.BANG,
-        TypstSyntaxKind.MATH_ALIGN_POINT
-    )
+        TypstSyntaxKind.MATH_ALIGN_POINT)
 }

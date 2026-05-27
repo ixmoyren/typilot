@@ -30,11 +30,12 @@ class TypstParserDefinition : ParserDefinition {
     override fun createFile(viewProvider: FileViewProvider): PsiFile = TypstPsiFile(viewProvider)
 
     override fun createElement(node: ASTNode): PsiElement {
-        val kind = when(val type = node.elementType) {
-            is TypstElementType -> type.kind!!
-            is TypstTokenType -> type.kind!!
-            else -> return ASTWrapperPsiElement(node)
-        }
+        val kind =
+            when (val type = node.elementType) {
+                is TypstElementType -> type.kind!!
+                is TypstTokenType -> type.kind!!
+                else -> return ASTWrapperPsiElement(node)
+            }
         if (kind == TypstSyntaxKind.RAW && isRawBlock(node)) {
             return TypstRawBlockPsiElement(node)
         }
@@ -49,19 +50,21 @@ class TypstParserDefinition : ParserDefinition {
 
         if (firstChild.elementType != node.lastChildNode.elementType) return false
 
-        val firstType = when(val type = firstChild.elementType) {
-            is TypstElementType -> type.kind!!
-            is TypstTokenType -> type.kind!!
-            else -> return false
-        }
+        val firstType =
+            when (val type = firstChild.elementType) {
+                is TypstElementType -> type.kind!!
+                is TypstTokenType -> type.kind!!
+                else -> return false
+            }
         if (firstType != TypstSyntaxKind.RAW_DELIM && firstChild.textLength >= 3) return false
 
         val secondChild = children[1]
-        val secondType =  when(val type = secondChild.elementType) {
-            is TypstElementType -> type.kind!!
-            is TypstTokenType -> type.kind!!
-            else -> return false
-        }
+        val secondType =
+            when (val type = secondChild.elementType) {
+                is TypstElementType -> type.kind!!
+                is TypstTokenType -> type.kind!!
+                else -> return false
+            }
         return secondType == TypstSyntaxKind.RAW_LANG && secondChild.textLength >= 1
     }
 }

@@ -17,13 +17,9 @@ class TypstTokenType(val kind: TypstSyntaxKind?, val name: String = kind!!.name)
 
         fun getTokenType(kind: TypstSyntaxKind): TypstTokenType = tokenTypeMap.getValue(kind)
 
-        val COMMENT_TOKEN_SET by lazy {
-            TokenSet.create(*TypstSyntaxKind.COMMENT_SET.map { it.tokenType }.toTypedArray())
-        }
+        val COMMENT_TOKEN_SET by lazy { TokenSet.create(*TypstSyntaxKind.COMMENT_SET.map { it.tokenType }.toTypedArray()) }
 
-        val WHITESPACE_TOKEN_SET by lazy {
-            TokenSet.create(*TypstSyntaxKind.SPACE_SET.map { it.tokenType }.toTypedArray())
-        }
+        val WHITESPACE_TOKEN_SET by lazy { TokenSet.create(*TypstSyntaxKind.SPACE_SET.map { it.tokenType }.toTypedArray()) }
 
         val TYPST_FILE = IFileElementType("Typst", TypstLanguage.INSTANCE)
     }

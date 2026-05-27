@@ -25,10 +25,7 @@ abstract class TypstPsiElementVisitor : PsiElementVisitor() {
     /** Plain text without markup. */
     open fun visitText(element: TypstTextPsiElement) = visitTypstElement(element)
 
-    /**
-     * Whitespace. Contains at most one newline in markup, as more indicate a
-     * paragraph break.
-     */
+    /** Whitespace. Contains at most one newline in markup, as more indicate a paragraph break. */
     open fun visitSpace(element: TypstSpacePsiElement) = visitTypstElement(element)
 
     /** A forced line break: `\`. */
@@ -40,10 +37,7 @@ abstract class TypstPsiElementVisitor : PsiElementVisitor() {
     /** An escape sequence: `\#`, `\u{1F5FA}`. */
     open fun visitEscape(element: TypstEscapePsiElement) = visitTypstElement(element)
 
-    /**
-     * A shorthand for a Unicode codepoint. For example, `~` for non-breaking
-     * space or `-?` for a soft hyphen.
-     */
+    /** A shorthand for a Unicode codepoint. For example, `~` for non-breaking space or `-?` for a soft hyphen. */
     open fun visitShorthand(element: TypstShorthandPsiElement) = visitTypstElement(element)
 
     /** A smart quote: `'` or `"`. */
@@ -64,7 +58,7 @@ abstract class TypstPsiElementVisitor : PsiElementVisitor() {
     /** A raw delimiter consisting of 1 or 3+ backticks: `` ` ``. */
     open fun visitRawDelim(element: TypstRawDelimPsiElement) = visitTypstElement(element)
 
-    /** A sequence of whitespace to ignore in a raw text: `    `. */
+    /** A sequence of whitespace to ignore in a raw text: ` `. */
     open fun visitRawTrimmed(element: TypstRawTrimmedPsiElement) = visitTypstElement(element)
 
     /** A hyperlink: `https://typst.org`. */
@@ -151,16 +145,10 @@ abstract class TypstPsiElementVisitor : PsiElementVisitor() {
     /** A right square bracket, terminating a content block: `]`. */
     open fun visitRightBracket(element: TypstRightBracketPsiElement) = visitTypstElement(element)
 
-    /**
-     * A left round parenthesis, starting a grouped expression, collection,
-     * argument or parameter list: `(`.
-     */
+    /** A left round parenthesis, starting a grouped expression, collection, argument or parameter list: `(`. */
     open fun visitLeftParen(element: TypstLeftParenPsiElement) = visitTypstElement(element)
 
-    /**
-     *  A right round parenthesis, terminating a grouped expression, collection,
-     *  argument or parameter list: `)`.
-     */
+    /** A right round parenthesis, terminating a grouped expression, collection, argument or parameter list: `)`. */
     open fun visitRightParen(element: TypstRightParenPsiElement) = visitTypstElement(element)
 
     /** A comma separator in a sequence: `,`. */
@@ -169,10 +157,7 @@ abstract class TypstPsiElementVisitor : PsiElementVisitor() {
     /** A semicolon terminating an expression: `;`. */
     open fun visitSemicolon(element: TypstSemicolonPsiElement) = visitTypstElement(element)
 
-    /**
-     * A colon between name/key and value in a dictionary, argument or
-     * parameter list, or between the term and body of a term list term: `:`.
-     */
+    /** A colon between name/key and value in a dictionary, argument or parameter list, or between the term and body of a term list term: `:`. */
     open fun visitColon(element: TypstColonPsiElement) = visitTypstElement(element)
 
     /** The strong text toggle, multiplication operator, and wildcard import symbol: `*`. */

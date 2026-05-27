@@ -11,7 +11,7 @@ import com.intellij.psi.tree.IElementType
 class TypstParser : PsiParser {
     override fun parse(root: IElementType, builder: PsiBuilder): ASTNode {
         val text = builder.originalText.toString()
-        val nodes = parser.parseMarkupEvents(text)
+        val nodes = parser.parse(text)
 
         val rootMarker = builder.mark()
         val stack = ArrayDeque<Triple<PsiBuilder.Marker, IElementType, Int>>()

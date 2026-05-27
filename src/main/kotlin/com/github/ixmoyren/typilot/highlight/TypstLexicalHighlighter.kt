@@ -27,9 +27,9 @@ class TypstLexicalHighlighter : SyntaxHighlighterBase() {
             TypstSyntaxKind.RAW -> arrayOf(TypstHighlightTag.RAW.Color)
             TypstSyntaxKind.STR -> arrayOf(TypstHighlightTag.STRING.Color)
             in TypstSyntaxKind.COMMENT_SET -> arrayOf(TypstHighlightTag.COMMENT.Color)
-            in TypstSyntaxKind.KEYWORD_SET-> arrayOf(TypstHighlightTag.KEYWORD.Color)
+            in TypstSyntaxKind.KEYWORD_SET -> arrayOf(TypstHighlightTag.KEYWORD.Color)
             in TypstSyntaxKind.IDENT_SET -> arrayOf(TypstHighlightTag.INTERPOLATED.Color)
-            else ->  arrayOf()
+            else -> arrayOf()
         }
     }
 }

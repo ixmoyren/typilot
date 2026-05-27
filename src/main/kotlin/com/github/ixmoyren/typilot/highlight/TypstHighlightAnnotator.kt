@@ -15,10 +15,6 @@ class TypstHighlightAnnotator : Annotator {
                 else -> null
             } ?: return
         val attrKey = tag.Color
-        holder
-            .newSilentAnnotation(HighlightInfoType.SYMBOL_TYPE_SEVERITY)
-            .range(element.textRange)
-            .textAttributes(attrKey)
-            .create()
+        holder.newSilentAnnotation(HighlightInfoType.SYMBOL_TYPE_SEVERITY).range(element.textRange).textAttributes(attrKey).create()
     }
 }

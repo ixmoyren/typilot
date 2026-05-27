@@ -8,13 +8,10 @@ import com.intellij.psi.util.descendantsOfType
 class TypstPsiFactory(private val project: Project) {
     fun createRawBlock(lang: String, content: String): TypstRawBlockPsiElement {
         val code = "```$lang\n$content\n```"
-        return createFile(code)
-            .descendantsOfType<TypstRawBlockPsiElement>()
-            .first()
+        return createFile(code).descendantsOfType<TypstRawBlockPsiElement>().first()
     }
 
     fun createFile(text: String): TypstPsiFile {
-        return PsiFileFactory.getInstance(project)
-            .createFileFromText("temporary.typ", TypstFileType, text) as TypstPsiFile
+        return PsiFileFactory.getInstance(project).createFileFromText("temporary.typ", TypstFileType, text) as TypstPsiFile
     }
 }

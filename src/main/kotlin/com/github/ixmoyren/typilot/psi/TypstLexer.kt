@@ -17,7 +17,7 @@ class TypstLexer : LexerBase() {
         this.startOffset = startOffset
         this.endOffset = endOffset
         val text = buffer.subSequence(startOffset, endOffset).toString()
-        this.tokenList = parser.parseMarkup(text)
+        this.tokenList = parser.tokenize(text)
         this.index = 0
     }
 

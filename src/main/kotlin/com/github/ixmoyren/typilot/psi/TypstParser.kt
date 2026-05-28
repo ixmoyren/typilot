@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiParser
 import com.intellij.psi.tree.IElementType
+
 class TypstParser : PsiParser {
     override fun parse(root: IElementType, builder: PsiBuilder): ASTNode {
         val text = builder.originalText.toString()
@@ -30,6 +31,13 @@ class TypstParser : PsiParser {
         val stack = ArrayDeque<Triple<PsiBuilder.Marker, AstNode, Int>>()
 
         for (node in nodes) {
+            if (node.isTrivia) {
+                if (node.isLeaf && !this.eof()) {
+                    this.advanceLexer()
+                }
+                stack.decrementAndClose()
+                continue
+            }
             val marker = this.mark()
             if (node.isLeaf) {
                 if (!this.eof()) this.advanceLexer()
@@ -58,7 +66,7 @@ class TypstParser : PsiParser {
     fun ArrayDeque<Triple<PsiBuilder.Marker, AstNode, Int>>.decrementAndClose() {
         while (this.isNotEmpty()) {
             val (marker, node, remaining) = this.removeLast()
-            if (remaining  == 1) {
+            if (remaining == 1) {
                 marker.marked(node)
             } else {
                 this.addLast(Triple(marker, node, remaining - 1))

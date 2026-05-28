@@ -38,11 +38,16 @@ class TypstParser : PsiParser {
             if (node.isLeaf) {
                 if (!this.eof()) this.advanceLexer()
                 stack.decrementAndClose()
+            } else if (node.isError) {
+                val marker = this.mark()
+                if (!this.eof()) this.advanceLexer()
+                marker.error(node.errorMessage ?: "syntax error")
+                stack.decrementAndClose()
             } else {
                 val marker = this.mark()
                 val childCount = node.childrenCount.toInt()
                 if (childCount == 0) {
-                    marker.marked(node)
+                    marker.done(node.type)
                     stack.decrementAndClose()
                 } else {
                     stack.addLast(Triple(marker, node, childCount))
@@ -51,19 +56,11 @@ class TypstParser : PsiParser {
         }
     }
 
-    fun PsiBuilder.Marker.marked(node: AstNode) {
-        if (node.isError) {
-            this.error(node.errorMessage ?: "syntax error")
-        } else {
-            this.done(node.type)
-        }
-    }
-
     fun ArrayDeque<Triple<PsiBuilder.Marker, AstNode, Int>>.decrementAndClose() {
         while (this.isNotEmpty()) {
             val (marker, node, remaining) = this.removeLast()
             if (remaining == 1) {
-                marker.marked(node)
+                marker.done(node.type)
             } else {
                 this.addLast(Triple(marker, node, remaining - 1))
                 break

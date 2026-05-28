@@ -35,12 +35,11 @@ class TypstParser : PsiParser {
                 stack.decrementAndClose()
                 continue
             }
-            val marker = this.mark()
             if (node.isLeaf) {
                 if (!this.eof()) this.advanceLexer()
-                marker.marked(node)
                 stack.decrementAndClose()
             } else {
+                val marker = this.mark()
                 val childCount = node.childrenCount.toInt()
                 if (childCount == 0) {
                     marker.marked(node)

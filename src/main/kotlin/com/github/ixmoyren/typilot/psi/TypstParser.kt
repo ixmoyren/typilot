@@ -19,7 +19,7 @@ class TypstParser : PsiParser {
                     node.tag?.let { put(node.start.toLong() shl 32 or node.end.toLong(), it) }
                 }
             }
-        val rootMark = builder.mark();
+        val rootMark = builder.mark()
         builder.replayTree(nodes)
         rootMark.done(root)
         val astRoot = builder.treeBuilt
@@ -31,8 +31,8 @@ class TypstParser : PsiParser {
         val stack = ArrayDeque<Triple<PsiBuilder.Marker, AstNode, Int>>()
 
         for (node in nodes) {
-            if (node.isTrivia) {
-                stack.decrementAndClose()
+            if (node.isSpace || node.isComment) {
+                // if (!this.eof()) this.advanceLexer()
                 continue
             }
             if (node.isLeaf) {

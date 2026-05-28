@@ -1079,7 +1079,7 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
             .children()
             .filter { child ->
                 when (val type = child.elementType) {
-                    is TypstElementType -> type.kind == TypstSyntaxKind.TEXT
+                    is TypstTokenType -> type.kind == TypstSyntaxKind.TEXT
                     else -> false
                 }
             }
@@ -1090,7 +1090,7 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
         var start = -1
         var end = -1
         for (child in node.children()) {
-            if (child.elementType == TypstSyntaxKind.TEXT.elementType) {
+            if (child.elementType == TypstSyntaxKind.TEXT.tokenType) {
                 if (start == -1) {
                     start = child.startOffsetInParent
                 }

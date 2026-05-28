@@ -1,4 +1,4 @@
-use typst_syntax::{highlight, LinkedNode, SyntaxKind, Tag};
+use typst_syntax::{LinkedNode, SyntaxKind, Tag, highlight};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, uniffi::Record)]
 pub struct Token {
@@ -74,8 +74,7 @@ fn build_ast_nodes<'a>(node: &LinkedNode, nodes: &mut Vec<ASTNode>, offsets: &[u
     } else {
         None
     };
-    let children = node.children().collect::<Vec<LinkedNode>>();
-    let is_leaf = children.is_empty();
+    let is_leaf = node.children().peekable().peek().is_none();
     nodes.push(ASTNode {
         kind,
         start,
@@ -84,9 +83,12 @@ fn build_ast_nodes<'a>(node: &LinkedNode, nodes: &mut Vec<ASTNode>, offsets: &[u
         is_leaf,
         is_error,
         error_message,
-        children_count: children.len() as u32,
+        children_count: node
+            .children()
+            .filter(|child| !child.kind().is_trivia())
+            .count() as u32,
     });
-    for child in &children {
-        build_ast_nodes(child, nodes, offsets);
+    for child in node.children() {
+        build_ast_nodes(&child, nodes, offsets);
     }
 }

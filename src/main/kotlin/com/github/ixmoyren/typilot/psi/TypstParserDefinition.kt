@@ -1,6 +1,7 @@
 package com.github.ixmoyren.typilot.psi
 
 import com.github.ixmoyren.typilot.TypstSyntaxKind
+import com.github.ixmoyren.typilot.language.TypstLanguage
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.lang.ParserDefinition
@@ -14,28 +15,32 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IFileElementType
 import com.intellij.psi.tree.TokenSet
 
+val TYPST_FILE = IFileElementType("Typst", TypstLanguage.INSTANCE)
+
 class TypstParserDefinition : ParserDefinition {
     override fun createLexer(project: Project?): Lexer = TypstLexer()
 
     override fun createParser(project: Project?): PsiParser = TypstParser()
 
-    override fun getFileNodeType(): IFileElementType = TypstElementType.TYPST_FILE
+    override fun getFileNodeType(): IFileElementType = TYPST_FILE
 
-    override fun getWhitespaceTokens(): TokenSet = TypstElementType.WHITESPACE_TOKEN_SET
+    override fun getWhitespaceTokens(): TokenSet = TypstTokenType.WHITESPACE_TOKEN_SET
 
-    override fun getCommentTokens(): TokenSet = TypstElementType.COMMENT_TOKEN_SET
+    override fun getCommentTokens(): TokenSet = TypstTokenType.COMMENT_TOKEN_SET
 
     override fun getStringLiteralElements(): TokenSet = TokenSet.EMPTY
 
     override fun createFile(viewProvider: FileViewProvider): PsiFile = TypstPsiFile(viewProvider)
 
     override fun createElement(node: ASTNode): PsiElement {
+        val type = node.elementType
         val kind =
-            when (val type = node.elementType) {
+            when (type) {
                 is TypstElementType -> type.kind!!
+                is TypstTokenType -> type.kind!!
                 else -> return ASTWrapperPsiElement(node)
             }
-        if (kind == TypstSyntaxKind.RAW && isRawBlock(node)) {
+        if (kind == TypstSyntaxKind.RAW && type is TypstElementType && isRawBlock(node)) {
             return TypstRawBlockPsiElement(node)
         }
         return TypstSyntaxKindToPsiElementMap[kind]?.let { it(node) } ?: TypstErrorPsiElement(node)
@@ -51,15 +56,15 @@ class TypstParserDefinition : ParserDefinition {
 
         val firstType =
             when (val type = firstChild.elementType) {
-                is TypstElementType -> type.kind!!
+                is TypstTokenType -> type.kind!!
                 else -> return false
             }
-        if (firstType != TypstSyntaxKind.RAW_DELIM && firstChild.textLength >= 3) return false
+        if (firstType != TypstSyntaxKind.RAW_DELIM || firstChild.textLength < 3) return false
 
         val secondChild = children[1]
         val secondType =
             when (val type = secondChild.elementType) {
-                is TypstElementType -> type.kind!!
+                is TypstTokenType -> type.kind!!
                 else -> return false
             }
         return secondType == TypstSyntaxKind.RAW_LANG && secondChild.textLength >= 1

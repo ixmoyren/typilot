@@ -32,9 +32,6 @@ class TypstParser : PsiParser {
 
         for (node in nodes) {
             if (node.isTrivia) {
-                if (node.isLeaf && !this.eof()) {
-                    this.advanceLexer()
-                }
                 stack.decrementAndClose()
                 continue
             }

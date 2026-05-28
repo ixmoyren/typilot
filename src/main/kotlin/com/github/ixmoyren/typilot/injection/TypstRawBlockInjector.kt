@@ -8,7 +8,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import kotlin.jvm.java
 
-class TypstCodeBlockInjector : MultiHostInjector {
+class TypstRawBlockInjector : MultiHostInjector {
     private val languageAliases: Map<String, String> =
         mapOf(
             "java" to "JAVA",

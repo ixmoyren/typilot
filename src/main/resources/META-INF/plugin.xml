@@ -15,7 +15,6 @@
     <resource-bundle>messages.TypilotBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Typst file type -->
         <fileType name="Typst"
                   implementationClass="com.github.ixmoyren.typilot.language.TypstFileType"
                   fieldName="INSTANCE"
@@ -41,10 +40,12 @@
                 scheme="Default"
                 file="colors/default.xml"/>
 
-        <!-- Language injection for typst code blocks -->
-        <multiHostInjector implementation="com.github.ixmoyren.typilot.injection.TypstCodeBlockInjector" />
+        <multiHostInjector implementation="com.github.ixmoyren.typilot.injection.TypstRawBlockInjector" />
 
-        <!-- Comment toggling (Ctrl+/ and Ctrl+Shift+/) -->
+        <lang.elementManipulator
+                implementationClass="com.github.ixmoyren.typilot.injection.TypstRawBlockManipulator"
+                forClass="com.example.TypstRawBlockPsiElement"/>
+
         <lang.commenter language="Typst"
                         implementationClass="com.github.ixmoyren.typilot.language.TypstCommenter"/>
 

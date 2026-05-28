@@ -7,6 +7,7 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.lang.tree.util.children
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.ElementManipulators
 import com.intellij.psi.LiteralTextEscaper
 import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
@@ -192,37 +193,12 @@ class TypstEmphPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstMarkupPa
 }
 
 /** Raw text with optional syntax highlighting: `` `...` ``. */
-class TypstRawPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstMarkupPart, TypstCodePart, PsiLanguageInjectionHost {
+class TypstRawPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstMarkupPart, TypstCodePart {
     override fun accept(visitor: TypstPsiElementVisitor) {
         visitor.visitRaw(this)
     }
 
     override fun clone() = TypstRawPsiElement(node.clone() as ASTNode)
-
-    override fun isValidHost(): Boolean {
-        return true
-    }
-
-    override fun updateText(text: String): PsiLanguageInjectionHost {
-        return this
-    }
-
-    override fun createLiteralTextEscaper(): LiteralTextEscaper<out PsiLanguageInjectionHost?> {
-        return object : LiteralTextEscaper<TypstRawPsiElement>(this) {
-            override fun decode(rangeInsideHost: TextRange, outChars: StringBuilder): Boolean {
-                outChars.append(rangeInsideHost.substring(originalElement.text))
-                return true
-            }
-
-            override fun getOffsetInHost(offset: Int, rangeInsideHost: TextRange): Int {
-                return offset + rangeInsideHost.startOffset
-            }
-
-            override fun isOneLine(): Boolean {
-                return false
-            }
-        }
-    }
 }
 
 /** A language tag at the start of raw text: ``typ ``. */
@@ -1110,15 +1086,42 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
             .map { node -> node.psi!! }
             .toCollection(mutableListOf())
 
+    fun getContentRange(): TextRange {
+        var start = -1
+        var end = -1
+        for (child in node.children()) {
+            if (child.elementType == TypstSyntaxKind.TEXT.elementType) {
+                if (start == -1) {
+                    start = child.startOffsetInParent
+                }
+                end = child.startOffsetInParent + child.textLength
+            }
+        }
+        return if (start == -1) TextRange.EMPTY_RANGE else TextRange(start, end)
+    }
+
     override fun isValidHost(): Boolean = langTag() != null
 
     override fun updateText(text: String): PsiLanguageInjectionHost {
-        val lang = langTag() ?: return this
-        val newRaw = TypstPsiFactory(project).createRawBlock(lang, text)
-        return replace(newRaw) as PsiLanguageInjectionHost
+        return ElementManipulators.handleContentChange(this, text)
     }
 
-    override fun createLiteralTextEscaper(): LiteralTextEscaper<out PsiLanguageInjectionHost?> = LiteralTextEscaper.createSimple(this)
+    override fun createLiteralTextEscaper(): LiteralTextEscaper<out PsiLanguageInjectionHost?> {
+        return object : LiteralTextEscaper<TypstRawBlockPsiElement>(this) {
+            override fun decode(rangeInsideHost: TextRange, outChars: StringBuilder): Boolean {
+                outChars.append(rangeInsideHost.substring(originalElement.text))
+                return true
+            }
+
+            override fun getOffsetInHost(offset: Int, rangeInsideHost: TextRange): Int {
+                return offset + rangeInsideHost.startOffset
+            }
+
+            override fun isOneLine(): Boolean {
+                return false
+            }
+        }
+    }
 
     override fun accept(visitor: TypstPsiElementVisitor) {
         visitor.visitRawBlock(this)

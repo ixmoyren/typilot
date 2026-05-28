@@ -30,7 +30,7 @@ val TypstSyntaxKind.Companion.IDENT_SET: Set<TypstSyntaxKind> by lazy { setOf(Ty
 
 val TypstSyntaxKind.Companion.COMMENT_SET: Set<TypstSyntaxKind> by lazy { setOf(TypstSyntaxKind.LINE_COMMENT, TypstSyntaxKind.BLOCK_COMMENT, TypstSyntaxKind.SHEBANG) }
 
-val TypstSyntaxKind.Companion.SPACE_SET: Set<TypstSyntaxKind> by lazy { setOf(TypstSyntaxKind.SPACE) }
+val TypstSyntaxKind.Companion.SPACE_SET: Set<TypstSyntaxKind> by lazy { setOf(TypstSyntaxKind.SPACE, TypstSyntaxKind.PARBREAK) }
 
 val TypstSyntaxKind.Companion.LITERAL_SET: Set<TypstSyntaxKind> by lazy {
     setOf(

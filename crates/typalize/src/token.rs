@@ -59,6 +59,9 @@ impl<'a> ASTBuilder for LinkedNode<'a> {
 }
 
 fn build_ast_nodes<'a>(node: &LinkedNode, nodes: &mut Vec<ASTNode>, offsets: &[usize]) {
+    if node.kind().is_trivia() {
+        return;
+    }
     let kind = node.kind();
     let offset = node.offset();
     let start = offsets[offset] as u32;
@@ -86,6 +89,9 @@ fn build_ast_nodes<'a>(node: &LinkedNode, nodes: &mut Vec<ASTNode>, offsets: &[u
             .count() as u32,
     });
     for child in node.children() {
+        if child.kind().is_trivia() {
+            continue;
+        }
         build_ast_nodes(&child, nodes, offsets);
     }
 }

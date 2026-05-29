@@ -21,10 +21,6 @@ class TypstParser : PsiParser {
         val stack = ArrayDeque<Triple<PsiBuilder.Marker, AstNode, Int>>()
 
         for (node in nodes) {
-            if (node.isSpace || node.isComment) {
-                // if (!this.eof()) this.advanceLexer()
-                continue
-            }
             if (node.isLeaf) {
                 if (!this.eof()) this.advanceLexer()
                 stack.decrementAndClose()

@@ -40,10 +40,55 @@ class TypstParserDefinition : ParserDefinition {
                 is TypstTokenType -> type.kind!!
                 else -> return ASTWrapperPsiElement(node)
             }
+        if (kind == TypstSyntaxKind.IDENT && type is TypstTokenType) {
+            return dealWithIdentNode(node)
+        }
         if (kind == TypstSyntaxKind.RAW && type is TypstElementType && isRawBlock(node)) {
             return TypstRawBlockPsiElement(node)
         }
         return TypstSyntaxKindToPsiElementMap[kind]?.let { it(node) } ?: TypstErrorPsiElement(node)
+    }
+
+    private fun dealWithIdentNode(node: ASTNode): PsiElement {
+        var current: ASTNode? = node
+        var parent: ASTNode? = node.treeParent
+        while (parent != null) {
+            when (parent.elementType) {
+                TypstSyntaxKind.PARAMS.tokenType, TypstSyntaxKind.LET_BINDING.tokenType -> {
+                    return TypstIdentDeclPsiElement(node)
+                }
+                TypstSyntaxKind.SPREAD.tokenType, TypstSyntaxKind.DESTRUCTURING.tokenType -> Unit
+                TypstSyntaxKind.NAMED.tokenType -> {
+                    val beforeColon = generateSequence(current) { it.treeNext }
+                        .any { it.elementType == TypstSyntaxKind.COLON.tokenType }
+                    if (beforeColon) Unit else return TypstIdentRefPsiElement(node)
+                }
+                TypstSyntaxKind.CLOSURE.tokenType -> {
+                    when {
+                        parent.treeParent.elementType == TypstSyntaxKind.LET_BINDING.tokenType -> {
+                            val beforeEq = generateSequence(current) { it.treeNext }
+                                .any { it.elementType == TypstSyntaxKind.EQ.tokenType }
+                            return if (beforeEq) TypstIdentDeclPsiElement(node) else TypstIdentRefPsiElement(node)
+                        }
+                        parent.treeParent.elementType == TypstSyntaxKind.CONTEXTUAL.tokenType -> {
+                            return TypstIdentRefPsiElement(node)
+                        }
+                        else -> {
+                            val beforeArrow = generateSequence(current) { it.treeNext }
+                                .any { it.elementType == TypstSyntaxKind.ARROW.tokenType }
+                            return if (beforeArrow) TypstIdentDeclPsiElement(node) else TypstIdentRefPsiElement(node)
+                        }
+                    }
+                }
+
+                else -> {
+                    return TypstIdentRefPsiElement(node)
+                }
+            }
+            current = parent
+            parent = parent.treeParent
+        }
+        return TypstIdentRefPsiElement(node)
     }
 
     private fun isRawBlock(node: ASTNode): Boolean {

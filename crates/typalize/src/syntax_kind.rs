@@ -68,34 +68,28 @@ pub enum TypstSyntaxKind {
     TermItem,
     /// Introduces a term item: `/`.
     TermMarker,
-
     /// A mathematical equation: `$x$`, `$ x^2 $`.
     Equation,
+
     /// The contents of a mathematical equation: `x^2 + 1`.
     Math,
-    /// A lone text fragment in typalize: `x`, `25`, `3.1415`, `=`, `|`, `[`.
+    /// A lone text fragment in math: `x`, `25`, `3.1415`, `=`, `|`, `[`.
     MathText,
-    /// An identifier in typalize: `pi`.
+    /// An identifier in math: `pi`.
     MathIdent,
-    /// A field access in typalize: `arrow.r.long.double.bar`.
-    MathFieldAccess,
-    /// A shorthand for a unicode codepoint in typalize: `a <= b`.
+    /// A shorthand for a unicode codepoint in math: `a <= b`.
     MathShorthand,
-    /// An alignment point in typalize: `&`.
+    /// An alignment point in math: `&`.
     MathAlignPoint,
-    /// A function call in typalize: `mat(delim: "[", a, b; ..#($c$,), d)`.
-    MathCall,
-    /// Function arguments in typalize: `(delim: "[", a, b; ..#($c$,), d)`.
-    MathArgs,
-    /// Matched delimiters in typalize: `[x + y]`.
+    /// Matched delimiters in math: `[x + y]`.
     MathDelimited,
-    /// A base with optional attachments in typalize: `a_1^2`.
+    /// A base with optional attachments in math: `a_1^2`.
     MathAttach,
-    /// Grouped primes in typalize: `a'''`.
+    /// Grouped primes in math: `a'''`.
     MathPrimes,
-    /// A fraction in typalize: `x/2`.
+    /// A fraction in math: `x/2`.
     MathFrac,
-    /// A root in typalize: `√x`, `∛x` or `∜x`.
+    /// A root in math: `√x`, `∛x` or `∜x`.
     MathRoot,
 
     /// A hash that switches into code mode: `#`.
@@ -124,7 +118,7 @@ pub enum TypstSyntaxKind {
     /// The strong text toggle, multiplication operator, and wildcard import
     /// symbol: `*`.
     Star,
-    /// Toggles emphasized text and indicates a subscript in typalize: `_`.
+    /// Toggles emphasized text and indicates a subscript in math: `_`.
     Underscore,
     /// Starts and ends a mathematical equation: `$`.
     Dollar,
@@ -132,10 +126,12 @@ pub enum TypstSyntaxKind {
     Plus,
     /// The unary negation and binary subtraction operator: `-`.
     Minus,
-    /// The division operator and fraction operator in typalize: `/`.
+    /// The division operator and fraction operator in math: `/`.
     Slash,
-    /// The superscript operator in typalize: `^`.
+    /// The superscript operator in math: `^`.
     Hat,
+    /// The prime in math: `'`.
+    Prime,
     /// The field access and method call operator: `.`.
     Dot,
     /// The assignment operator: `=`.
@@ -166,8 +162,6 @@ pub enum TypstSyntaxKind {
     Arrow,
     /// A root: `√`, `∛` or `∜`.
     Root,
-    /// An exclamation mark; groups with directly preceding text in typalize: `!`.
-    Bang,
 
     /// The `not` operator.
     Not,
@@ -289,3 +283,4 @@ pub enum TypstSyntaxKind {
     /// A destructuring assignment expression: `(x, y) = (1, 2)`.
     DestructAssignment,
 }
+

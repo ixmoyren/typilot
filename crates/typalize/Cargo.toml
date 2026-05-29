@@ -9,4 +9,4 @@ name = "typalize"
 
 [dependencies]
 uniffi = { workspace = true, features = ["bindgen"] }
-typst-syntax = { git = "https://github.com/typst/typst.git" }
+typst-syntax = "0.14.2"

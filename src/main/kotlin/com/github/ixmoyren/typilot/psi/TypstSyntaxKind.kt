@@ -80,6 +80,5 @@ val TypstSyntaxKind.Companion.OPERATOR_SET: Set<TypstSyntaxKind> by lazy {
         TypstSyntaxKind.DOTS,
         TypstSyntaxKind.ARROW,
         TypstSyntaxKind.ROOT,
-        TypstSyntaxKind.BANG,
         TypstSyntaxKind.MATH_ALIGN_POINT)
 }

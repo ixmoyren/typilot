@@ -403,12 +403,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68ab91017fe16c622486840e4c83c9a37afeff978bd239b5293d61ece587de66"
 
 [[package]]
-name = "libm"
-version = "0.2.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6d2cec3eae94f9f509c767b45932f1ada8350c4bdb85af2fcab4a3c14807981"
-
-[[package]]
 name = "linux-raw-sys"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -890,7 +884,8 @@ dependencies = [
 [[package]]
 name = "typst-syntax"
 version = "0.14.2"
-source = "git+https://github.com/typst/typst.git#de6f400976f9bf6ab8b923d13a068722959d0070"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a95d9192060e23b1e491b0b94dff676acddc92a4d672aeb8ca3890a5a734e879"
 dependencies = [
  "ecow",
  "rustc-hash",
@@ -908,7 +903,8 @@ dependencies = [
 [[package]]
 name = "typst-timing"
 version = "0.14.2"
-source = "git+https://github.com/typst/typst.git#de6f400976f9bf6ab8b923d13a068722959d0070"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7be94f8faf19841b49574ef5c7fd7a12e2deb7c3d8deba5a596f35d2222024cd"
 dependencies = [
  "parking_lot",
  "serde",
@@ -918,14 +914,13 @@ dependencies = [
 [[package]]
 name = "typst-utils"
 version = "0.14.2"
-source = "git+https://github.com/typst/typst.git#de6f400976f9bf6ab8b923d13a068722959d0070"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3966c92e8fa48c7ce898130d07000d985f18206d92b250f0f939287fbccdee3"
 dependencies = [
- "libm",
  "once_cell",
  "portable-atomic",
  "rayon",
  "rustc-hash",
- "semver",
  "siphasher",
  "thin-vec",
  "unicode-math-class",

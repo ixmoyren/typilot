@@ -1,8 +1,6 @@
 package com.github.ixmoyren.typilot.psi
 
-import com.github.ixmoyren.typilot.TypstHighlightTag
 import com.github.ixmoyren.typilot.TypstSyntaxKind
-import com.github.ixmoyren.typilot.highlight.TypstHighlightTagKeys
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.lang.tree.util.children
@@ -23,9 +21,6 @@ sealed interface TypstPsiElement : NavigatablePsiElement {
                 is TypstElementType -> type.kind
                 else -> return null
             }
-
-    val tag: TypstHighlightTag?
-        get() = node.getUserData(TypstHighlightTagKeys.TAG)
 }
 
 sealed class ATypstPsiElement(node: ASTNode) : ASTWrapperPsiElement(node), TypstPsiElement {

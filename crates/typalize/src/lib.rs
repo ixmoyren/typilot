@@ -1,6 +1,5 @@
 uniffi::setup_scaffolding!("Typalize");
 
-pub mod highlight_tag;
 pub mod syntax_kind;
 pub mod parser;
 pub mod token;

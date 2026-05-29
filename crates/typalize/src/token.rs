@@ -1,4 +1,4 @@
-use typst_syntax::{LinkedNode, SyntaxKind, Tag, highlight};
+use typst_syntax::{LinkedNode, SyntaxKind};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, uniffi::Record)]
 pub struct Token {
@@ -12,7 +12,6 @@ pub struct ASTNode {
     pub kind: SyntaxKind,
     pub start: u32,
     pub end: u32,
-    pub tag: Option<Tag>,
     pub is_leaf: bool,
     pub is_error: bool,
     pub error_message: Option<String>,
@@ -64,7 +63,6 @@ fn build_ast_nodes<'a>(node: &LinkedNode, nodes: &mut Vec<ASTNode>, offsets: &[u
     let offset = node.offset();
     let start = offsets[offset] as u32;
     let end = offsets[offset + node.len()] as u32;
-    let tag = highlight(node);
     let is_error = node.kind().is_error();
     let error_message: Option<String> = if is_error {
         node.errors()
@@ -79,7 +77,6 @@ fn build_ast_nodes<'a>(node: &LinkedNode, nodes: &mut Vec<ASTNode>, offsets: &[u
         kind,
         start,
         end,
-        tag,
         is_leaf,
         is_error,
         error_message,

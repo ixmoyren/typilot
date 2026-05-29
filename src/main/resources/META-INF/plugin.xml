@@ -35,10 +35,10 @@
 
         <colorSettingsPage
                 implementation="com.github.ixmoyren.typilot.highlight.TypstColorSettingsPage"/>
-
-        <additionalTextAttributes
-                scheme="Default"
-                file="colors/default.xml"/>
+        <additionalTextAttributes scheme="High contrast" file="colors/high-contrast.xml"/>
+        <additionalTextAttributes scheme="Light" file="colors/light.xml"/>
+        <additionalTextAttributes scheme="Intellij Light" file="colors/light.xml"/>
+        <additionalTextAttributes scheme="Darcula" file="colors/darcula.xml"/>
 
         <multiHostInjector implementation="com.github.ixmoyren.typilot.injection.TypstRawBlockInjector" />
 

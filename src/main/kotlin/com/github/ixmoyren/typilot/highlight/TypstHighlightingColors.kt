@@ -1,40 +1,68 @@
 package com.github.ixmoyren.typilot.highlight
 
-import com.intellij.openapi.editor.DefaultLanguageHighlighterColors as DLHC
+import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
+import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey
+import com.intellij.openapi.options.colors.AttributesDescriptor
 
-val DefaultColor: TextAttributesKey = DLHC.IDENTIFIER
+fun TextAttributesKey.resolve() = defaultScheme.getAttributes(this)!!
 
-// private val TagPropertyMap =
-//    EnumMap(
-//        mapOf(
-//            TypstHighlightTag.COMMENT to key("TypstComment", DLHC.LINE_COMMENT),
-//            TypstHighlightTag.PUNCTUATION to key("TypstPunctuation", DLHC.BRACKETS),
-//            TypstHighlightTag.ESCAPE to key("TypstEscape", DLHC.VALID_STRING_ESCAPE),
-//            TypstHighlightTag.STRONG to key("TypstStrong"),
-//            TypstHighlightTag.LINK to key("TypstLink"),
-//            TypstHighlightTag.EMPH to key("TypstEmph"),
-//            TypstHighlightTag.RAW to key("TypstRaw", DLHC.IDENTIFIER),
-//            TypstHighlightTag.LABEL to key("TypstLabel", DLHC.LABEL),
-//            TypstHighlightTag.REF to key("TypstRef", DLHC.LABEL),
-//            TypstHighlightTag.HEADING to
-//                key(
-//                    "TypstHeading",
-//                ),
-//            TypstHighlightTag.LIST_MARKER to key("TypstListMarker", DLHC.KEYWORD),
-//            TypstHighlightTag.LIST_TERM to key("TypstListTerm", DLHC.KEYWORD),
-//            TypstHighlightTag.MATH_DELIMITER to key("TypstMathDelimiter", DLHC.BRACKETS),
-//            TypstHighlightTag.MATH_OPERATOR to key("TypstOperator", DLHC.OPERATION_SIGN),
-//            TypstHighlightTag.MATH_GROUPING_PARENS to key("TypstMathGroupingParens", DLHC.PARAMETER),
-//            TypstHighlightTag.KEYWORD to key("TypstKeyWord", DLHC.KEYWORD),
-//            TypstHighlightTag.OPERATOR to key("TypstOperator", DLHC.OPERATION_SIGN),
-//            TypstHighlightTag.NUMBER to key("TypstNumber", DLHC.NUMBER),
-//            TypstHighlightTag.STRING to key("TypstString", DLHC.STRING),
-//            TypstHighlightTag.FUNCTION to key("TypstFunction", DLHC.FUNCTION_CALL),
-//            TypstHighlightTag.INTERPOLATED to key("TypstInterpolated", DLHC.IDENTIFIER),
-//            TypstHighlightTag.ERROR to key("TypstError", DLHC.INVALID_STRING_ESCAPE),
-//        ))
+val defaultScheme get() = EditorColorsManager.getInstance().globalScheme
 
-private fun key(name: String, fallback: TextAttributesKey) = TextAttributesKey.createTextAttributesKey(name, fallback)
+class TextAttributeHelper(val displayName: String, val parent: TextAttributesKey?) {
+    val id: String = "TYPST_" + displayName
+        .replace(" ", "_")
+        .replace("//", "__")
+        .replace("+", "and")
+        .uppercase()
+    val key: TextAttributesKey = parent?.let { createTextAttributesKey(id, it) } ?: createTextAttributesKey(id)
+    val array = arrayOf(key)
+    val descriptor = AttributesDescriptor(displayName, key)
+}
+data object TypstHighlightingColors {
+    private val collection = mutableListOf<TextAttributeHelper>()
 
-private fun key(name: String) = TextAttributesKey.createTextAttributesKey(name)
+    private fun attribute(
+        displayName: String,
+        parent: TextAttributesKey? = null,
+    ): TextAttributeHelper {
+        val helper = TextAttributeHelper(displayName, parent)
+        collection.add(helper)
+        return helper
+    }
+
+    val descriptors = collection.map { it.descriptor }.toTypedArray()
+
+    val KEYWORD = attribute("Code//Keyword", DefaultLanguageHighlighterColors.KEYWORD)
+    val KEYWORD_LITERAL = attribute("Code//Keyword Literal", KEYWORD.key)
+    val OPERATOR = attribute("Code//Operator", DefaultLanguageHighlighterColors.OPERATION_SIGN)
+    val NUMERIC_LITERAL = attribute("Code//Numeric literal", DefaultLanguageHighlighterColors.NUMBER)
+    val STRINGS = attribute("Code//String", DefaultLanguageHighlighterColors.STRING)
+    val BLOCK_COMMENT = attribute("BlockComment", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
+    val LINE_COMMENT = attribute("LineComment", DefaultLanguageHighlighterColors.LINE_COMMENT)
+    val RAWS = attribute("Raw", DefaultLanguageHighlighterColors.IDENTIFIER)
+    val LABELS = attribute("Label", DefaultLanguageHighlighterColors.LABEL)
+    val ESCAPES = attribute("Markup//Escape", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
+    val REFERENCES = attribute("Markup//Reference", DefaultLanguageHighlighterColors.LABEL)
+    val SHORTHANDS = attribute("Markup//Shorthand", DefaultLanguageHighlighterColors.KEYWORD)
+    val LINKS = attribute("Markup//Link", DefaultLanguageHighlighterColors.HIGHLIGHTED_REFERENCE)
+    val EMPH = attribute("Markup//Emphasis")
+    val STRONG = attribute("Markup//Strong")
+    val HEADING = attribute("Markup//Heading")
+    val TERM = attribute("Markup//Term")
+    val MATHS = attribute("Math//Math", DefaultLanguageHighlighterColors.STRING)
+    val RAINBOW = (1..12).map {
+        attribute("Rainbow//Color $it")
+    }
+
+    val RAINBOW_BACK_WEAK = (1..12).map {
+        attribute("Rainbow background weak//Color $it")
+    }
+
+    val RAINBOW_BACK_STRONG = (1..12).map {
+        attribute("Rainbow background strong//Color $it")
+    }
+
+    val TEST_KEY = attribute("Test")
+}

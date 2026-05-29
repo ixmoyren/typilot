@@ -7,6 +7,7 @@ import com.intellij.openapi.options.colors.AttributesDescriptor
 import com.intellij.openapi.options.colors.ColorDescriptor
 import com.intellij.openapi.options.colors.ColorSettingsPage
 import javax.swing.Icon
+import kotlin.to
 
 class TypstColorSettingsPage : ColorSettingsPage {
     override fun getIcon(): Icon = TypstFileType.icon
@@ -17,61 +18,71 @@ class TypstColorSettingsPage : ColorSettingsPage {
 
     override fun getColorDescriptors(): Array<ColorDescriptor> = ColorDescriptor.EMPTY_ARRAY
 
-    override fun getAdditionalHighlightingTagToDescriptorMap(): Map<String, TextAttributesKey>? = null
+    override fun getAdditionalHighlightingTagToDescriptorMap(): Map<String, TextAttributesKey> = mapOf(
+        "strong" to TypstHighlightingColors.STRONG.key,
+        "em" to TypstHighlightingColors.EMPH.key,
+        "heading" to TypstHighlightingColors.HEADING.key,
+        "term" to TypstHighlightingColors.TERM.key,
+        "label" to TypstHighlightingColors.LABELS.key,
+        "reference" to TypstHighlightingColors.REFERENCES.key,
+        "shorthand" to TypstHighlightingColors.SHORTHANDS.key,
+        "keyword" to TypstHighlightingColors.KEYWORD.key,
+        "math" to TypstHighlightingColors.MATHS.key,
+        "num" to TypstHighlightingColors.NUMERIC_LITERAL.key,
+        "string" to TypstHighlightingColors.STRINGS.key,
+        "escape" to TypstHighlightingColors.ESCAPES.key,
+        "link" to TypstHighlightingColors.LINKS.key
+    ) + (1..12).associate { "rc$it" to TypstHighlightingColors.RAINBOW[it - 1].key }
 
     override fun getDemoText(): String =
         """
-        // Line comment  
-        /* Block comment */  
+        This <strong>*is*</strong> just <em>_formatting_</em>. It's <strong>*</strong><emst>_composable_</emst><strong>*</strong>.
+        
+        <heading>= Headings</heading>
+        
+        <term>/ Term:</term> this is.
 
-        = Heading 1  
-        == Heading 2  
+        (Unfortunately, color settings page doesn't support custom effects mixing)
+        
+        There are <label><labels></label> and <reference>@references</reference>. Shorthands are highlighted <shorthand>---</shorthand> like this.
+        
+        <rc8>-</rc8> List
+            <rc4>-</rc4> markers,
+          <rc4>-</rc4> as well as
+            <rc11>+</rc11> enum
+          <rc4>+</rc4> markers,
+            <rc11>+</rc11> are highlighted
+              <rc7>+</rc7> based on their level
+        
+        <keyword>#let</keyword> f = <num>1</num>
+        <rc7>#[</rc7>The color of the hashes depends on the context<rc7>];</rc7> and so is the color of the semicolons.
+        
+        // These are comments.
+        /*
+            These are as well.
+        */
+        
+        Rainbowifying can be disabled in plugin's settings.
+        
+        (This demonstrates the colors, not the highlighting.)
+        <rc1>1</rc1> <rc2>2</rc2> <rc3>3</rc3> <rc4>4</rc4> <rc5>5</rc5> <rc6>6</rc6> <rc7>7</rc7> <rc8>8</rc8> <rc9>9</rc9> <rc10>10</rc10> <rc11>11</rc11> <rc12>12</rc12>
+        
+        Кириллица тоже прекрасно работает!
+        <keyword>#</keyword>let и-юникод-идентификаторы = [seem to work as well ]
 
-        Plain *strong* _emph_ text with \#escape.  
-        - List item  
-        + Enum item  
-        / Term: Description  
+        <keyword>#</keyword>for i in range<rc7>(</rc7><num>5</num><rc7>)</rc7> <rc3>{</rc3>
+            for x in range<rc9>(</rc9>i<rc9>)</rc9> <rc5>{</rc5>
+                for y in range<rc11>(</rc11>x<rc11>)</rc11> <rc7>{</rc7>
+                    <rc2>[</rc2>1<rc2>]</rc2>
+                <rc7>}</rc7>
+            <rc5>}</rc5>
+        <rc3>}</rc3>
+        
+        <string>#"string with <escape>\n</escape> escapes"</string>, links: <link>https://typst.app/</link>
+        
+        <math>${'$'}{'$'} A_n^d m a t h${'$'}{'$'}</math>
+        ""${'"'} 
+        """.trimIndent()
 
-        https://typst.org  
-        <my-label>  
-        @my-label  
-
-        `raw text`  
-        `` `raw with lang` ``  
-
-        ${'$'} x^2 + y_1 = z/2 ${'$'}  
-
-        #let f(x) = x + 1  
-        #f(42)  
-        #let name = "Alice"  
-        #let count = 3.14  
-        #name  
-        """
-            .trimIndent()
-
-    override fun getAttributeDescriptors(): Array<AttributesDescriptor> =
-        arrayOf(
-            //            AttributesDescriptor("Comment", TypstHighlightTag.COMMENT.Color),
-            //            AttributesDescriptor("Punctuation", TypstHighlightTag.PUNCTUATION.Color),
-            //            AttributesDescriptor("Escape sequence", TypstHighlightTag.ESCAPE.Color),
-            //            AttributesDescriptor("Markup//Strong", TypstHighlightTag.STRONG.Color),
-            //            AttributesDescriptor("Markup//Emphasized", TypstHighlightTag.EMPH.Color),
-            //            AttributesDescriptor("Markup//Hyperlink", TypstHighlightTag.LINK.Color),
-            //            AttributesDescriptor("Markup//Raw text", TypstHighlightTag.RAW.Color),
-            //            AttributesDescriptor("Markup//Label", TypstHighlightTag.LABEL.Color),
-            //            AttributesDescriptor("Markup//Reference", TypstHighlightTag.REF.Color),
-            //            AttributesDescriptor("Markup//Heading", TypstHighlightTag.HEADING.Color),
-            //            AttributesDescriptor("Markup//List marker", TypstHighlightTag.LIST_MARKER.Color),
-            //            AttributesDescriptor("Markup//List term", TypstHighlightTag.LIST_TERM.Color),
-            //            AttributesDescriptor("Math//Delimiter ($)", TypstHighlightTag.MATH_DELIMITER.Color),
-            //            AttributesDescriptor("Math//Operator", TypstHighlightTag.MATH_OPERATOR.Color),
-            //            AttributesDescriptor("Math//Grouping parentheses", TypstHighlightTag.MATH_GROUPING_PARENS.Color),
-            //            AttributesDescriptor("Code//Keyword", TypstHighlightTag.KEYWORD.Color),
-            //            AttributesDescriptor("Code//Operator", TypstHighlightTag.OPERATOR.Color),
-            //            AttributesDescriptor("Code//Number", TypstHighlightTag.NUMBER.Color),
-            //            AttributesDescriptor("Code//String", TypstHighlightTag.STRING.Color),
-            //            AttributesDescriptor("Code//Function name", TypstHighlightTag.FUNCTION.Color),
-            //            AttributesDescriptor("Code//Interpolated variable", TypstHighlightTag.INTERPOLATED.Color),
-            //            AttributesDescriptor("Error", TypstHighlightTag.ERROR.Color),
-            )
+    override fun getAttributeDescriptors(): Array<AttributesDescriptor> = TypstHighlightingColors.descriptors
 }

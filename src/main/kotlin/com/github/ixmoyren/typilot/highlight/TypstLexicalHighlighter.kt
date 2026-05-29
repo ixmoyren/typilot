@@ -1,5 +1,8 @@
 package com.github.ixmoyren.typilot.highlight
 
+import com.github.ixmoyren.typilot.TypstSyntaxKind
+import com.github.ixmoyren.typilot.psi.KEYWORD_SET
+import com.github.ixmoyren.typilot.psi.OPERATOR_SET
 import com.github.ixmoyren.typilot.psi.TypstLexer
 import com.github.ixmoyren.typilot.psi.TypstTokenType
 import com.intellij.lexer.Lexer
@@ -17,9 +20,14 @@ class TypstLexicalHighlighter : SyntaxHighlighterBase() {
     override fun getTokenHighlights(tokenType: IElementType?): Array<out TextAttributesKey?> {
         val typstToken = tokenType as? TypstTokenType ?: return arrayOf()
         return when (typstToken.kind) {
-            // in TypstSyntaxKind.COMMENT_SET -> arrayOf(TypstHighlightTag.COMMENT.Color)
+            TypstSyntaxKind.LINE_COMMENT -> arrayOf(TypstHighlightingColors.LINE_COMMENT.key)
+            TypstSyntaxKind.BLOCK_COMMENT -> arrayOf(TypstHighlightingColors.BLOCK_COMMENT.key)
+            TypstSyntaxKind.LABEL -> arrayOf(TypstHighlightingColors.LABELS.key)
+            TypstSyntaxKind.STR -> arrayOf(TypstHighlightingColors.STRINGS.key)
+            in TypstSyntaxKind.KEYWORD_SET -> arrayOf(TypstHighlightingColors.KEYWORD.key)
+            in TypstSyntaxKind.OPERATOR_SET -> arrayOf(TypstHighlightingColors.OPERATOR.key)
             else -> arrayOf()
-        }
+        } as Array<out TextAttributesKey?>
     }
 }
 

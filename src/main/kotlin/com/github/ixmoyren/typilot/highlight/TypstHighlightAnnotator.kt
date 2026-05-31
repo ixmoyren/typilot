@@ -12,73 +12,57 @@ import com.intellij.psi.util.firstLeaf
 import com.intellij.psi.util.lastLeaf
 import java.awt.Color
 import java.awt.Font
-import kotlin.math.max
-import kotlin.math.min
 
 class TypstHighlightAnnotator : Annotator {
-    private lateinit var holder: AnnotationHolder
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        this.holder = holder
         if (element !is TypstPsiElement) return
-
-        val children = element.children
-        if (children.isNotEmpty()) {
-            return
-        } else {
-            val colorize = when (element) {
-                is TypstHashPsiElement -> element.nextSibling.firstLeaf().parent
-                is TypstSemicolonPsiElement -> {
-                    element.prevSibling.takeIf { it is TypstEmbeddedCodePsiElement }?.lastLeaf()?.parent ?: element
-                }
-                else -> element
+        if (element.children.isNotEmpty()) return
+        val colorize = when (element) {
+            is TypstHashPsiElement -> element.nextSibling.firstLeaf().parent
+            is TypstSemicolonPsiElement -> {
+                element.prevSibling.takeIf { it is TypstEmbeddedCodePsiElement }?.lastLeaf()?.parent ?: element
             }
-
-            val textKey = computeTextKey(colorize)
-            val textAttr = textKey?.let { mergeAttributes(*it.map { it.resolve() }.toTypedArray()) }
-            if (textAttr != null)
-                holder.newSilentAnnotation(HighlightInfoType.SYMBOL_TYPE_SEVERITY)
-                    .range(element.textRange)
-                    .enforcedTextAttributes(textAttr)
-                    .create()
+            else -> element
         }
+        val textKey = computeTextKey(colorize) ?: return
+        val textAttr = mergeAttributes(*textKey.map { it.resolve() }.toTypedArray())
+            ?: return
+        holder.newSilentAnnotation(HighlightInfoType.SYMBOL_TYPE_SEVERITY)
+            .range(element.textRange)
+            .enforcedTextAttributes(textAttr)
+            .create()
     }
 
     private fun mergeAttributes(vararg attrs: TextAttributes): TextAttributes? {
         if (attrs.isEmpty()) return null
-
         if (attrs.size == 1) return attrs[0]
-
         val result = attrs[0].clone()
-
-        result.fontType = attrs.map { it.fontType }.reduce(::mergeFontType)
-
+        result.fontType = attrs.map { it.fontType }.reduce{ a, b -> ((a or b) and Font.BOLD) or ((a xor b) and Font.ITALIC) }
         result.foregroundColor =
             mixColors(attrs.mapNotNull { it.foregroundColor }, attrs.size, defaultScheme.defaultForeground)
         result.backgroundColor =
             mixColors(attrs.mapNotNull { it.backgroundColor }, attrs.size, defaultScheme.defaultBackground)
-
         val builder = TextAttributesEffectsBuilder.create(attrs[0])
         attrs.drop(1).fold(builder) { it, next -> it.coverWith(next) }.applyTo(result)
         return result
     }
 
-    private fun mergeFontType(a: Int, b: Int): Int {
-        val bold = (a and Font.BOLD) or (b and Font.BOLD)
-        val italic = (a and Font.ITALIC) xor (b and Font.ITALIC)
-        return bold or italic
-    }
-
-    fun Int.clip(lower: Int, upper: Int) = max(lower, min(this, upper))
-
+    @Suppress("UseJBColor")
     private fun mixColors(components: List<Color>, n: Int, default: Color): Color {
-        val redDiff = components.sumOf { it.red - default.red }
-        val greenDiff = components.sumOf { it.green - default.green }
-        val blueDiff = components.sumOf { it.blue - default.blue }
-        val n = components.size // Experimental change
-        val red = default.red + redDiff // * (n) / (n + 1)
-        val green = default.green + greenDiff // * (n) / (n + 1)
-        val blue = default.blue + blueDiff // * (n) / (n + 1)
-        return Color(red.clip(0, 255), green.clip(0, 255), blue.clip(0, 255))
+        if (components.isEmpty()) return default
+        val (sumRed, sumGreen, sumBlue) = components.fold(Triple(0, 0, 0)) { (r, g, b), color ->
+            Triple(r + color.red, g + color.green, b + color.blue)
+        }
+        val m = components.size
+        val totalWeight = n + m
+        val newRed = (default.red.toLong() * n + sumRed) / totalWeight
+        val newGreen = (default.green.toLong() * n + sumGreen) / totalWeight
+        val newBlue = (default.blue.toLong() * n + sumBlue) / totalWeight
+        return Color(
+            newRed.toInt().coerceIn(0, 255),
+            newGreen.toInt().coerceIn(0, 255),
+            newBlue.toInt().coerceIn(0, 255)
+        )
     }
 
     private fun computeTextKey(element: PsiElement): List<TextAttributesKey>? {

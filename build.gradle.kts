@@ -14,16 +14,6 @@ group = providers.gradleProperty("pluginGroup").get()
 
 version = providers.gradleProperty("pluginVersion").get()
 
-// Set the JVM language level used to build the project.
-kotlin { jvmToolchain(25) }
-
-idea {
-    module {
-        isDownloadJavadoc = true
-        isDownloadSources = true
-    }
-}
-
 repositories {
     mavenCentral()
 
@@ -70,4 +60,19 @@ spotless {
     }
 }
 
-tasks { test { useJUnit() } }
+kotlin { jvmToolchain(25) }
+
+idea {
+    module {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+    }
+}
+
+tasks {
+    withType<JavaCompile> {
+        sourceCompatibility = "25"
+        targetCompatibility = "25"
+    }
+    test { useJUnit() }
+}

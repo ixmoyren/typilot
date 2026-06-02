@@ -2,6 +2,8 @@
 # libraries
 jna = "5.17.0"
 junit4 = "4.13.2"
+chicoryBuildTimeCompiler = "1.7.5"
+chicoryCompiler = "1.7.5"
 
 # plugins
 changelog = "2.5.0"
@@ -12,6 +14,8 @@ spotless = "8.5.1"
 [libraries]
 jna = { group = "net.java.dev.jna", name = "jna", version.ref = "jna"}
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
+chicoryCompiler = { group = "com.dylibso.chicory", name = "compiler", version.ref = "chicoryCompiler"}
+chicoryBuildTimeCompiler = { group = "com.dylibso.chicory", name = "build-time-compiler", version.ref = "chicoryBuildTimeCompiler"}
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }

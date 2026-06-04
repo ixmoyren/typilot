@@ -8,6 +8,9 @@ build
 # rust
 target
 
+# wasm-tools
+.tools
+
 # bindgen
 src/main/kotlin/com/github/ixmoyren/typilot/Typalize.kt
 src/main/resources/linux-x86-64/libtypalize.so

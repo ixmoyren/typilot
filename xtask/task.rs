@@ -1,15 +1,14 @@
-use crate::{
-    Result,
-    util::{
-        LINUX_DLL_PREFIX, LINUX_DLL_SUFFIX, LINUX_RESOURCES_PATH, LINUX_TARGET, PACKAGE_NAME,
-        WINDOWS_DLL_PREFIX, WINDOWS_DLL_SUFFIX, WINDOWS_GUN_RESOURCES_PATH, WINDOWS_GUN_TARGET,
-        copy_to_resources, get_lib_path_and_dylib_name, get_target_dir_and_dylib_name, run,
-    },
-};
+use crate::{Result, util::{
+    LINUX_DLL_PREFIX, LINUX_DLL_SUFFIX, LINUX_RESOURCES_PATH, LINUX_TARGET, PACKAGE_NAME,
+    WINDOWS_DLL_PREFIX, WINDOWS_DLL_SUFFIX, WINDOWS_GUN_RESOURCES_PATH, WINDOWS_GUN_TARGET,
+    copy_to_resources, get_lib_path_and_dylib_name, get_target_dir_and_dylib_name, run,
+}, ResourceType};
 use camino::Utf8PathBuf;
 use snafu::ResultExt;
 use std::{fs, process::Command};
+use std::path::PathBuf;
 use uniffi::{GenerateOptions, TargetLanguage};
+use crate::util::get_resource_from;
 
 pub fn build(release: bool) -> Result<()> {
     let mut args = vec!["build", "--package", PACKAGE_NAME];
@@ -102,4 +101,9 @@ pub fn generate(
     }
 
     Ok(())
+}
+
+pub fn get_wasm_tool(resource_type: ResourceType, install: Option<PathBuf>) -> Result<()>  {
+    let install = install.unwrap_or(PathBuf::from(".tools"));
+    get_resource_from(&resource_type, &install)
 }

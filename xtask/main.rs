@@ -73,7 +73,7 @@ enum Action {
 enum ResourceType {
     #[default]
     WasiSdk,
-    Wizer,
+    Wasmtime,
     Binaryen,
 }
 
@@ -93,7 +93,7 @@ impl ResourceType {
                     }
                 }
             }
-            Self::Wizer => {
+            Self::Wasmtime => {
                 cfg_select! {
                         target_os = "windows" => {
                             "wasmtime-v45.0.0-x86_64-windows".into()
@@ -141,7 +141,7 @@ impl ResourceType {
                     }
                 }
             }
-            Self::Wizer => {
+            Self::Wasmtime => {
                 if let Ok(var) = std::env::var("WIZER_URL") {
                     Cow::Owned(var)
                 } else {

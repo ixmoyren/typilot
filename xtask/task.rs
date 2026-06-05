@@ -1,14 +1,17 @@
-use crate::{Result, util::{
-    LINUX_DLL_PREFIX, LINUX_DLL_SUFFIX, LINUX_RESOURCES_PATH, LINUX_TARGET, PACKAGE_NAME,
-    WINDOWS_DLL_PREFIX, WINDOWS_DLL_SUFFIX, WINDOWS_GUN_RESOURCES_PATH, WINDOWS_GUN_TARGET,
-    copy_to_resources, get_lib_path_and_dylib_name, get_target_dir_and_dylib_name, run,
-}, ResourceType};
+use crate::{
+    ResourceType, Result,
+    util::{
+        CC_WASM32_WASIP1, LINUX_DLL_PREFIX, LINUX_DLL_SUFFIX, LINUX_RESOURCES_PATH, LINUX_TARGET,
+        PACKAGE_NAME, WASM_PACKAGE_NAME, WASM32_WASIP1_TARGET, WINDOWS_DLL_PREFIX,
+        WINDOWS_DLL_SUFFIX, WINDOWS_GUN_RESOURCES_PATH, WINDOWS_GUN_TARGET, copy_to_resources,
+        get_lib_path_and_dylib_name, get_resource_from, get_target_dir_and_dylib_name, run,
+    },
+};
 use camino::Utf8PathBuf;
 use snafu::ResultExt;
-use std::{fs, process::Command};
-use std::path::PathBuf;
+use std::{collections::HashMap, fs, path::PathBuf, process::Command};
 use uniffi::{GenerateOptions, TargetLanguage};
-use crate::util::get_resource_from;
+use crate::util::CFLAGS_WASM32_WASIP1;
 
 pub fn build(release: bool) -> Result<()> {
     let mut args = vec!["build", "--package", PACKAGE_NAME];
@@ -29,7 +32,12 @@ pub fn copy_dylib() -> Result<()> {
         LINUX_DLL_SUFFIX,
         LINUX_RESOURCES_PATH,
     )?;
-    copy_to_resources(target_dir.as_std_path(), &dylib_name, lib_path.as_std_path(), LINUX_TARGET)?;
+    copy_to_resources(
+        target_dir.as_std_path(),
+        &dylib_name,
+        lib_path.as_std_path(),
+        LINUX_TARGET,
+    )?;
     let (lib_path, dylib_name) = get_lib_path_and_dylib_name(
         &dylib,
         WINDOWS_DLL_PREFIX,
@@ -103,7 +111,41 @@ pub fn generate(
     Ok(())
 }
 
-pub fn get_wasm_tool(resource_type: ResourceType, install: Option<PathBuf>) -> Result<()>  {
+pub fn get_wasm_tool(resource_type: ResourceType, install: Option<PathBuf>) -> Result<()> {
     let install = install.unwrap_or(PathBuf::from(".tools"));
     get_resource_from(&resource_type, &install)
+}
+
+pub fn build_wasm(install: Option<PathBuf>) -> Result<()> {
+    let install = install.unwrap_or(PathBuf::from(".tools"));
+    let wasi_sdk_path = install.join(ResourceType::WasiSdk.tool_name());
+    if !wasi_sdk_path.exists() {
+        get_resource_from(&ResourceType::WasiSdk, &install)?;
+    }
+    let envs = HashMap::from([
+        ("WASI_SDK_PATH", wasi_sdk_path.display().to_string()),
+        (
+            "CC_wasm32_wasip1",
+            wasi_sdk_path.join(CC_WASM32_WASIP1).display().to_string(),
+        ),
+        (
+            "CFLAGS_wasm32_wasip1",
+            format!(
+                "--sysroot={}",
+                wasi_sdk_path.join(CFLAGS_WASM32_WASIP1).display()
+            ),
+        ),
+    ]);
+    let args = vec![
+        "build",
+        "--package",
+        WASM_PACKAGE_NAME,
+        "--target",
+        WASM32_WASIP1_TARGET,
+        "--release",
+    ];
+    let mut cmd = Command::new("cargo");
+    cmd.envs(envs);
+    run(cmd, args).with_whatever_context(|_| "Failed to run cargo build")?;
+    Ok(())
 }

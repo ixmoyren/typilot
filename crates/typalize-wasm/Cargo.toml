@@ -1,0 +1,11 @@
+[package]
+name = "typalize-wasm"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+name = "typalize_wasm"
+
+[dependencies]
+typst-syntax = "0.14.2"

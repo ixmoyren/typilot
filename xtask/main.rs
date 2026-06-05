@@ -67,6 +67,11 @@ enum Action {
         #[arg(short, long, value_name = ".tools")]
         install: Option<PathBuf>,
     },
+    #[command(about = "Build the typalize-wasm crate")]
+    BuildWasm {
+        #[arg(short, long, value_name = ".tools")]
+        install: Option<PathBuf>,
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Default, ValueEnum)]
@@ -195,6 +200,7 @@ fn main() {
             resource_type,
             install,
         } => task::get_wasm_tool(resource_type, install),
+        Action::BuildWasm { install } => task::build_wasm(install),
     };
     if let Err(e) = result {
         eprintln!("An error occurred: {e}");

@@ -1,4 +1,14 @@
-table Token {
+struct Token {
+  kind:ubyte;
+  start:uint32;
+  end:uint32;
+}
+
+table TokenList {
+  tokens:[Token];
+}
+
+table ASTNode {
   kind:ubyte;
   start:uint32;
   end:uint32;
@@ -8,18 +18,8 @@ table Token {
   error_message:string;
 }
 
-table TokenList {
-  tokens:[Token];
+table ASTNodeList {
+  nodes:[ASTNode];
 }
 
-struct Node {
-  start:uint32;
-  end:uint32;
-  kind:uint8;
-}
-
-table NodeList {
-  nodes:[Node];
-}
-
-root_type TokenList;
+root_type ASTNodeList;

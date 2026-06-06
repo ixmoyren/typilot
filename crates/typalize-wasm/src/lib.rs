@@ -1,4 +1,5 @@
 extern crate typst_syntax;
+mod envelope;
 
 unsafe extern "C" {
     fn malloc(size: usize) -> *mut u8;

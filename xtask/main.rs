@@ -71,7 +71,9 @@ enum Action {
     BuildWasm {
         #[arg(short, long, value_name = ".tools")]
         install: Option<PathBuf>,
-    }
+    },
+    #[command(about = "Generate serialization code related to flatbuffers")]
+    GenerateCode
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Default, ValueEnum)]
@@ -201,6 +203,7 @@ fn main() {
             install,
         } => task::get_wasm_tool(resource_type, install),
         Action::BuildWasm { install } => task::build_wasm(install),
+        Action::GenerateCode => task::generate_code(),
     };
     if let Err(e) = result {
         eprintln!("An error occurred: {e}");

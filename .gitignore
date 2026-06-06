@@ -7,6 +7,7 @@ build
 
 # rust
 target
+crates/typalize-wasm/src/envelope.rs
 
 # wasm-tools
 .tools

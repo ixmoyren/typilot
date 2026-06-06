@@ -149,3 +149,16 @@ pub fn build_wasm(install: Option<PathBuf>) -> Result<()> {
     run(cmd, args).with_whatever_context(|_| "Failed to run cargo build")?;
     Ok(())
 }
+
+pub fn generate_code() -> Result<()> {
+    let args = vec![
+        "--rust",
+        "--filename-suffix",
+        "",
+        "-o",
+        "crates/typalize-wasm/src",
+        "scheme/envelope.fbs"
+    ];
+    run(Command::new("flatc"), args).with_whatever_context(|_| "Failed to run flatc to generate code")?;
+    Ok(())
+}

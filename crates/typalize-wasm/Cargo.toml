@@ -8,4 +8,5 @@ crate-type = ["cdylib"]
 name = "typalize_wasm"
 
 [dependencies]
+flatbuffers = "25.12.19"
 typst-syntax = "0.14.2"

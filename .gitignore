@@ -12,6 +12,9 @@ crates/typalize-wasm/src/envelope.rs
 # wasm-tools
 .tools
 
+# wasm source
+src/main/resources/*.wasm
+
 # bindgen
 src/main/kotlin/com/github/ixmoyren/typilot/Typalize.kt
 src/main/resources/linux-x86-64/libtypalize.so

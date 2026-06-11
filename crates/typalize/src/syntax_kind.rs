@@ -283,4 +283,3 @@ pub enum TypstSyntaxKind {
     /// A destructuring assignment expression: `(x, y) = (1, 2)`.
     DestructAssignment,
 }
-

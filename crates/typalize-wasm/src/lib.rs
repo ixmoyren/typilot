@@ -1,13 +1,15 @@
 extern crate typst_syntax;
 
+use crate::{
+    syntax::{ASTBuilder, Flatten},
+    util::{Utf16Ext, consume_string, leak},
+};
 use typst_syntax::LinkedNode;
-use crate::syntax::{ASTBuilder, Flatten};
-use crate::util::{consume_string, leak, Utf16Ext};
 
 #[allow(unused)]
 mod envelope;
-mod util;
 mod syntax;
+mod util;
 
 unsafe extern "C" {
     fn malloc(size: usize) -> *mut u8;

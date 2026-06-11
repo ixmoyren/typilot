@@ -9,12 +9,11 @@ use std::{
     env,
     ffi::OsStr,
     fs,
-    fs::{File, create_dir_all},
+    fs::{File, create_dir_all, remove_file},
     io::{BufRead, BufReader, BufWriter, Read, Seek, Write},
     path::Path,
     process::{Command, Stdio},
 };
-use std::fs::remove_file;
 use tar::Archive;
 
 pub const PACKAGE_NAME: &str = "typalize";
@@ -33,7 +32,9 @@ pub const WINDOWS_GUN_RESOURCES_PATH: &str = "src/main/resources/win32-x86-64";
 pub const WASM32_WASIP1_TARGET: &str = "wasm32-wasip1";
 pub const CC_WASM32_WASIP1: &str = "bin/clang";
 pub const CFLAGS_WASM32_WASIP1: &str = "share/wasi-sysroot";
-
+pub const WASM_DLL_PREFIX: &str = "";
+pub const WASM_DLL_SUFFIX: &str = ".wasm";
+pub const WASM_RESOURCES_PATH: &str = "src/main/resources/wasm";
 
 pub fn get_target_dir_and_dylib_name() -> crate::Result<(Utf8PathBuf, String)> {
     let metadata = MetadataCommand::new()
@@ -46,6 +47,26 @@ pub fn get_target_dir_and_dylib_name() -> crate::Result<(Utf8PathBuf, String)> {
         .iter()
         .find(|p| p.name == PACKAGE_NAME)
         .whatever_context("No typalize package")?;
+    let dylib_name = package
+        .targets
+        .iter()
+        .find(|t| t.crate_types.contains(&CrateType::CDyLib))
+        .map(|t| t.name.clone())
+        .whatever_context("No cdylib target name")?;
+    Ok((target_dir, dylib_name))
+}
+
+pub fn get_target_dir_and_wasm_name() -> crate::Result<(Utf8PathBuf, String)> {
+    let metadata = MetadataCommand::new()
+        .no_deps()
+        .exec()
+        .with_whatever_context(|_| "Failed to obtain cargo metadata")?;
+    let target_dir = metadata.target_directory;
+    let package = metadata
+        .packages
+        .iter()
+        .find(|p| p.name == WASM_PACKAGE_NAME)
+        .whatever_context("No typalize-wasm package")?;
     let dylib_name = package
         .targets
         .iter()
@@ -84,10 +105,7 @@ pub fn get_lib_path_and_dylib_name(
     Ok((Utf8PathBuf::from(lib_path), dylib_name))
 }
 
-pub fn get_resource_from(
-    resource: &ResourceType,
-    install: &Path,
-) -> crate::Result<()> {
+pub fn get_resource_from(resource: &ResourceType, install: &Path) -> crate::Result<()> {
     if !install.exists() {
         create_dir_all(install).with_whatever_context(|_| {
             format!("Couldn't create the install dir({})", install.display())
@@ -95,9 +113,8 @@ pub fn get_resource_from(
     }
     let tool = install.join(resource.tool_name());
     if tool.exists() {
-        fs::remove_dir_all(&tool).with_whatever_context(|_| {
-            format!("Couldn't remove the dir({})", tool.display())
-        })?;
+        fs::remove_dir_all(&tool)
+            .with_whatever_context(|_| format!("Couldn't remove the dir({})", tool.display()))?;
     }
 
     let client = reqwest::blocking::Client::new();
@@ -134,7 +151,9 @@ pub fn get_resource_from(
     pb.set_message(format!("Downloading {}", resource.url()));
 
     let filepath = install.join(filename);
-    let mut buf_writer = BufWriter::new(File::create(&filepath).with_whatever_context(|_| "Couldn't create the tmp file")?);
+    let mut buf_writer = BufWriter::new(
+        File::create(&filepath).with_whatever_context(|_| "Couldn't create the tmp file")?,
+    );
     let mut buffer = [0; 8192];
     loop {
         let bytes = response
@@ -148,10 +167,14 @@ pub fn get_resource_from(
             .with_whatever_context(|_| "Failed to write the file")?;
         pb.inc(bytes as u64);
     }
-    buf_writer.flush().with_whatever_context(|_| "Couldn't flush the file")?;
+    buf_writer
+        .flush()
+        .with_whatever_context(|_| "Couldn't flush the file")?;
     pb.finish_with_message("Downloading finish!");
 
-    let response = BufReader::new(File::open(&filepath).with_whatever_context(|_| "Couldn't open the tmp file")?);
+    let response = BufReader::new(
+        File::open(&filepath).with_whatever_context(|_| "Couldn't open the tmp file")?,
+    );
     match filepath.extension() {
         Some(ext) if ext == "zip" => extract_zip(response, &install)?,
         Some(ext) if ext == "xz" => extract_tar_xz(response, &install)?,
@@ -304,18 +327,18 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::fs::File;
-    use std::io::BufReader;
     use lzma_rust2::XzReader;
+    use std::{fs::File, io::BufReader};
     use tar::Archive;
 
     #[test]
-    fn test()  {
+    fn test() {
         let filepath = "/home/imxonren/CreativityProjects/ixmoyren/typilot/.tools/wizer/wasmtime-v45.0.0-x86_64-linux.tar.xz";
         let response = BufReader::new(File::open(filepath).unwrap());
         let lzma_reader = XzReader::new(response, true);
         let mut archive = Archive::new(lzma_reader);
         archive
-            .unpack("/home/imxonren/CreativityProjects/ixmoyren/typilot/.tools/wizer").unwrap();
+            .unpack("/home/imxonren/CreativityProjects/ixmoyren/typilot/.tools/wizer")
+            .unwrap();
     }
 }

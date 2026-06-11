@@ -1,17 +1,18 @@
 use crate::{
     ResourceType, Result,
     util::{
-        CC_WASM32_WASIP1, LINUX_DLL_PREFIX, LINUX_DLL_SUFFIX, LINUX_RESOURCES_PATH, LINUX_TARGET,
-        PACKAGE_NAME, WASM_PACKAGE_NAME, WASM32_WASIP1_TARGET, WINDOWS_DLL_PREFIX,
-        WINDOWS_DLL_SUFFIX, WINDOWS_GUN_RESOURCES_PATH, WINDOWS_GUN_TARGET, copy_to_resources,
-        get_lib_path_and_dylib_name, get_resource_from, get_target_dir_and_dylib_name, run,
+        CC_WASM32_WASIP1, CFLAGS_WASM32_WASIP1, LINUX_DLL_PREFIX, LINUX_DLL_SUFFIX,
+        LINUX_RESOURCES_PATH, LINUX_TARGET, PACKAGE_NAME, WASM_PACKAGE_NAME, WASM32_WASIP1_TARGET,
+        WINDOWS_DLL_PREFIX, WINDOWS_DLL_SUFFIX, WINDOWS_GUN_RESOURCES_PATH, WINDOWS_GUN_TARGET,
+        copy_to_resources, get_lib_path_and_dylib_name, get_resource_from,
+        get_target_dir_and_dylib_name, get_target_dir_and_wasm_name, run,
     },
 };
 use camino::Utf8PathBuf;
 use snafu::ResultExt;
 use std::{collections::HashMap, fs, path::PathBuf, process::Command};
 use uniffi::{GenerateOptions, TargetLanguage};
-use crate::util::CFLAGS_WASM32_WASIP1;
+use crate::util::{WASM_DLL_PREFIX, WASM_DLL_SUFFIX, WASM_RESOURCES_PATH};
 
 pub fn build(release: bool) -> Result<()> {
     let mut args = vec!["build", "--package", PACKAGE_NAME];
@@ -49,6 +50,23 @@ pub fn copy_dylib() -> Result<()> {
         &dylib_name,
         &lib_path.as_std_path(),
         WINDOWS_GUN_TARGET,
+    )
+}
+
+pub fn copy_wasm() -> Result<()> {
+    let (target_dir, dylib) = get_target_dir_and_wasm_name()?;
+    build(true)?;
+    let (lib_path, dylib_name) = get_lib_path_and_dylib_name(
+        &dylib,
+        WASM_DLL_PREFIX,
+        WASM_DLL_SUFFIX,
+        WASM_RESOURCES_PATH,
+    )?;
+    copy_to_resources(
+        target_dir.as_std_path(),
+        &dylib_name,
+        lib_path.as_std_path(),
+        WASM32_WASIP1_TARGET,
     )
 }
 
@@ -117,6 +135,7 @@ pub fn get_wasm_tool(resource_type: ResourceType, install: Option<PathBuf>) -> R
 }
 
 pub fn build_wasm(install: Option<PathBuf>) -> Result<()> {
+    generate_code()?;
     let install = install.unwrap_or(PathBuf::from(".tools"));
     let wasi_sdk_path = install.join(ResourceType::WasiSdk.tool_name());
     if !wasi_sdk_path.exists() {
@@ -157,8 +176,12 @@ pub fn generate_code() -> Result<()> {
         "",
         "-o",
         "crates/typalize-wasm/src",
-        "scheme/envelope.fbs"
+        "scheme/envelope.fbs",
     ];
-    run(Command::new("flatc"), args).with_whatever_context(|_| "Failed to run flatc to generate code")?;
+    run(Command::new("flatc"), args)
+        .with_whatever_context(|_| "Failed to run flatc to generate code")?;
+    let args = vec!["fmt", "--", "crates/typalize-wasm/src/envelope.rs "];
+    run(Command::new("cargo"), args)
+        .with_whatever_context(|_| "Failed to run cargo fmt the generate code")?;
     Ok(())
 }

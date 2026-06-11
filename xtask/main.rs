@@ -23,7 +23,7 @@ enum Action {
         #[arg(short)]
         release: bool,
     },
-    #[command(about = "Copy the built dynamic library to the `justGoGo` resource directory.")]
+    #[command(about = "Copy the built dynamic library to the resource directory.")]
     CopyDylib,
     #[command(about = "Java bindings generator for Rust")]
     Generate {
@@ -73,7 +73,9 @@ enum Action {
         install: Option<PathBuf>,
     },
     #[command(about = "Generate serialization code related to flatbuffers")]
-    GenerateCode
+    GenerateCode,
+    #[command(about = "Copy the built wasm library to the resource directory.")]
+    CopyWasm,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Default, ValueEnum)]
@@ -204,6 +206,7 @@ fn main() {
         } => task::get_wasm_tool(resource_type, install),
         Action::BuildWasm { install } => task::build_wasm(install),
         Action::GenerateCode => task::generate_code(),
+        Action::CopyWasm => task::copy_wasm(),
     };
     if let Err(e) = result {
         eprintln!("An error occurred: {e}");

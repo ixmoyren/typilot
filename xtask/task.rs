@@ -53,23 +53,6 @@ pub fn copy_dylib() -> Result<()> {
     )
 }
 
-pub fn copy_wasm() -> Result<()> {
-    let (target_dir, dylib) = get_target_dir_and_wasm_name()?;
-    build(true)?;
-    let (lib_path, dylib_name) = get_lib_path_and_dylib_name(
-        &dylib,
-        WASM_DLL_PREFIX,
-        WASM_DLL_SUFFIX,
-        WASM_RESOURCES_PATH,
-    )?;
-    copy_to_resources(
-        target_dir.as_std_path(),
-        &dylib_name,
-        lib_path.as_std_path(),
-        WASM32_WASIP1_TARGET,
-    )
-}
-
 pub fn generate(
     out_dir: Option<Utf8PathBuf>,
     config: Option<Utf8PathBuf>,
@@ -134,12 +117,29 @@ pub fn get_wasm_tool(resource_type: ResourceType, install: Option<PathBuf>) -> R
     get_resource_from(&resource_type, &install)
 }
 
-pub fn build_wasm(install: Option<PathBuf>) -> Result<()> {
+pub fn generate_code() -> Result<()> {
+    let args = vec![
+        "--rust",
+        "--filename-suffix",
+        "",
+        "-o",
+        "crates/typalize-wasm/src",
+        "scheme/envelope.fbs",
+    ];
+    run(Command::new("flatc"), args)
+        .with_whatever_context(|_| "Failed to run flatc to generate code")?;
+    let args = vec!["fmt", "--", "crates/typalize-wasm/src/envelope.rs "];
+    run(Command::new("cargo"), args)
+        .with_whatever_context(|_| "Failed to run cargo fmt the generate code")?;
+    Ok(())
+}
+
+pub fn build_wasm(tool: Option<PathBuf>) -> Result<()> {
     generate_code()?;
-    let install = install.unwrap_or(PathBuf::from(".tools"));
-    let wasi_sdk_path = install.join(ResourceType::WasiSdk.tool_name());
+    let tool = tool.unwrap_or(PathBuf::from(".tools"));
+    let wasi_sdk_path = tool.join(ResourceType::WasiSdk.tool_name());
     if !wasi_sdk_path.exists() {
-        get_resource_from(&ResourceType::WasiSdk, &install)?;
+        get_resource_from(&ResourceType::WasiSdk, &tool)?;
     }
     let envs = HashMap::from([
         ("WASI_SDK_PATH", wasi_sdk_path.display().to_string()),
@@ -169,19 +169,19 @@ pub fn build_wasm(install: Option<PathBuf>) -> Result<()> {
     Ok(())
 }
 
-pub fn generate_code() -> Result<()> {
-    let args = vec![
-        "--rust",
-        "--filename-suffix",
-        "",
-        "-o",
-        "crates/typalize-wasm/src",
-        "scheme/envelope.fbs",
-    ];
-    run(Command::new("flatc"), args)
-        .with_whatever_context(|_| "Failed to run flatc to generate code")?;
-    let args = vec!["fmt", "--", "crates/typalize-wasm/src/envelope.rs "];
-    run(Command::new("cargo"), args)
-        .with_whatever_context(|_| "Failed to run cargo fmt the generate code")?;
-    Ok(())
+pub fn copy_wasm() -> Result<()> {
+    let (target_dir, dylib) = get_target_dir_and_wasm_name()?;
+    build(true)?;
+    let (lib_path, dylib_name) = get_lib_path_and_dylib_name(
+        &dylib,
+        WASM_DLL_PREFIX,
+        WASM_DLL_SUFFIX,
+        WASM_RESOURCES_PATH,
+    )?;
+    copy_to_resources(
+        target_dir.as_std_path(),
+        &dylib_name,
+        lib_path.as_std_path(),
+        WASM32_WASIP1_TARGET,
+    )
 }

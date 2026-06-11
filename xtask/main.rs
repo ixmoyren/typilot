@@ -67,13 +67,13 @@ enum Action {
         #[arg(short, long, value_name = ".tools")]
         install: Option<PathBuf>,
     },
+    #[command(about = "Generate serialization code related to flatbuffers")]
+    GenerateCode,
     #[command(about = "Build the typalize-wasm crate")]
     BuildWasm {
         #[arg(short, long, value_name = ".tools")]
-        install: Option<PathBuf>,
+        tool: Option<PathBuf>,
     },
-    #[command(about = "Generate serialization code related to flatbuffers")]
-    GenerateCode,
     #[command(about = "Copy the built wasm library to the resource directory.")]
     CopyWasm,
 }
@@ -204,8 +204,8 @@ fn main() {
             resource_type,
             install,
         } => task::get_wasm_tool(resource_type, install),
-        Action::BuildWasm { install } => task::build_wasm(install),
         Action::GenerateCode => task::generate_code(),
+        Action::BuildWasm { tool } => task::build_wasm(tool),
         Action::CopyWasm => task::copy_wasm(),
     };
     if let Err(e) = result {

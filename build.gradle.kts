@@ -1,4 +1,5 @@
 import com.diffplug.spotless.kotlin.KtfmtStep
+import com.dylibso.chicory.compiler.InterpreterFallback
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
@@ -23,6 +24,8 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.chicoryRuntime)
+    implementation(libs.chicoryWasi)
     compileOnly(libs.jna)
     testImplementation(libs.junit4)
 
@@ -69,10 +72,40 @@ idea {
     }
 }
 
+val generatedResources = layout.buildDirectory.dir("generated-resources/chicory-compiler").get().asFile
+val generatedSources   = layout.buildDirectory.dir("generated-sources/chicory-compiler").get().asFile
+
 tasks {
     withType<JavaCompile> {
         sourceCompatibility = "25"
         targetCompatibility = "25"
     }
+
+    register<ChicoryCompilerTask>("chicoryCompile") {
+        description = "Generate typalize code by chicory compile"
+        wasmFile.set(file("src/main/resources/wasm/typalize_wasm-opt.wasm"))
+        moduleName.set("com.github.ixmoyren.typalize.TypalizeModule")
+        targetClassFolder.set(generatedResources)
+        targetSourceFolder.set(generatedSources)
+        targetWasmFolder.set(generatedResources)
+        interpreterFallback.set(InterpreterFallback.WARN)
+        interpretedFunctions.set(setOf())
+    }
+
+    compileJava {
+        dependsOn(named("chicoryCompile"))
+    }
+
+    compileKotlin {
+        dependsOn(named("chicoryCompile"))
+    }
+
     test { useJUnit() }
+}
+
+sourceSets {
+    main {
+        java.srcDir(generatedSources)
+        resources.srcDir(generatedResources)
+    }
 }

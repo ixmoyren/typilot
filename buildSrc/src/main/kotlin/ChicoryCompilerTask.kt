@@ -14,7 +14,7 @@ abstract class ChicoryCompilerTask : DefaultTask() {
     abstract val wasmFile: RegularFileProperty
 
     @get:Input
-    abstract val name: Property<String>
+    abstract val moduleName: Property<String>
 
     @get:OutputDirectory
     abstract val targetClassFolder: DirectoryProperty
@@ -40,7 +40,7 @@ abstract class ChicoryCompilerTask : DefaultTask() {
         val wasmPath = wasmFile.get().asFile.toPath()
         val config = Config.builder()
             .withWasmFile(wasmPath)
-            .withName(name.get())
+            .withName(moduleName.get())
             .withTargetClassFolder(targetClassFolder.get().asFile.toPath())
             .withTargetSourceFolder(targetSourceFolder.get().asFile.toPath())
             .withTargetWasmFolder(targetWasmFolder.get().asFile.toPath())

@@ -76,6 +76,11 @@ enum Action {
     },
     #[command(about = "Copy the built wasm library to the resource directory.")]
     CopyWasm,
+    #[command(about = "Optimize wasm")]
+    OptimizeWasm {
+        #[arg(short, long, value_name = ".tools")]
+        tool: Option<PathBuf>,
+    },
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Default, ValueEnum)]
@@ -119,13 +124,13 @@ impl ResourceType {
             Self::Binaryen => {
                 cfg_select! {
                     target_os = "windows" => {
-                        "binaryen-version_130-x86_64-windows".into()
+                        "binaryen-version_130".into()
                     }
                     target_os = "macos" => {
-                        "binaryen-version_130-arm64-macos".into()
+                        "binaryen-version_130".into()
                     }
                     _ => {
-                        "binaryen-version_130-x86_64-linux".into()
+                        "binaryen-version_130".into()
                     }
                 }
             }
@@ -207,6 +212,7 @@ fn main() {
         Action::GenerateCode => task::generate_code(),
         Action::BuildWasm { tool } => task::build_wasm(tool),
         Action::CopyWasm => task::copy_wasm(),
+        Action::OptimizeWasm { tool } => task::optimize_wasm(tool),
     };
     if let Err(e) = result {
         eprintln!("An error occurred: {e}");

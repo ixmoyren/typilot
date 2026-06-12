@@ -2,17 +2,17 @@ use crate::{
     ResourceType, Result,
     util::{
         CC_WASM32_WASIP1, CFLAGS_WASM32_WASIP1, LINUX_DLL_PREFIX, LINUX_DLL_SUFFIX,
-        LINUX_RESOURCES_PATH, LINUX_TARGET, PACKAGE_NAME, WASM_PACKAGE_NAME, WASM32_WASIP1_TARGET,
-        WINDOWS_DLL_PREFIX, WINDOWS_DLL_SUFFIX, WINDOWS_GUN_RESOURCES_PATH, WINDOWS_GUN_TARGET,
-        copy_to_resources, get_lib_path_and_dylib_name, get_resource_from,
-        get_target_dir_and_dylib_name, get_target_dir_and_wasm_name, run,
+        LINUX_RESOURCES_PATH, LINUX_TARGET, PACKAGE_NAME, WASM_DLL_PREFIX, WASM_DLL_SUFFIX,
+        WASM_PACKAGE_NAME, WASM_RESOURCES_PATH, WASM32_WASIP1_TARGET, WINDOWS_DLL_PREFIX,
+        WINDOWS_DLL_SUFFIX, WINDOWS_GUN_RESOURCES_PATH, WINDOWS_GUN_TARGET, copy_to_resources,
+        get_lib_path_and_dylib_name, get_resource_from, get_target_dir_and_dylib_name,
+        get_target_dir_and_wasm_name, run,
     },
 };
 use camino::Utf8PathBuf;
 use snafu::ResultExt;
 use std::{collections::HashMap, fs, path::PathBuf, process::Command};
 use uniffi::{GenerateOptions, TargetLanguage};
-use crate::util::{WASM_DLL_PREFIX, WASM_DLL_SUFFIX, WASM_RESOURCES_PATH};
 
 pub fn build(release: bool) -> Result<()> {
     let mut args = vec!["build", "--package", PACKAGE_NAME];
@@ -184,4 +184,42 @@ pub fn copy_wasm() -> Result<()> {
         lib_path.as_std_path(),
         WASM32_WASIP1_TARGET,
     )
+}
+
+pub fn optimize_wasm(tool: Option<PathBuf>) -> Result<()> {
+    let tool = tool.unwrap_or(PathBuf::from(".tools"));
+    let binaryen_path = tool.join(ResourceType::Binaryen.tool_name());
+    if !binaryen_path.exists() {
+        get_resource_from(&ResourceType::Binaryen, &tool)?;
+    }
+    let (_, dylib) = get_target_dir_and_wasm_name()?;
+    let (lib_path, dylib_name) = get_lib_path_and_dylib_name(
+        &dylib,
+        WASM_DLL_PREFIX,
+        WASM_DLL_SUFFIX,
+        WASM_RESOURCES_PATH,
+    )?;
+    let resource_path = lib_path.join(&dylib_name);
+    let output_name = format!(
+        "{}{}-opt{}",
+        WASM_DLL_PREFIX, &dylib, WASM_DLL_SUFFIX
+    );
+    let output_path = lib_path.join(&output_name);
+    let args = vec![
+        "-Oz",
+        "--strip-debug",
+        resource_path.as_str(),
+        "-o",
+        output_path.as_str(),
+    ];
+    let wasm_opt = cfg_select! {
+        target_os = "windows" => {
+            wasmtime_path.join("bin").join("wasm-opt.exe")
+        }
+        _ => {
+            binaryen_path.join("bin").join("wasm-opt")
+        }
+    };
+    run(Command::new(wasm_opt), args).with_whatever_context(|_| "Failed to run cargo build")?;
+    Ok(())
 }

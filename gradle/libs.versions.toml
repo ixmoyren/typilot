@@ -11,7 +11,7 @@ endiveWasi = "0.0.1"
 changelog = "2.5.0"
 intelliJPlatform = "2.16.0"
 kotlin = "2.3.21"
-spotless = "8.5.1"
+spotless = "8.6.0"
 
 [libraries]
 jna = { group = "net.java.dev.jna", name = "jna", version.ref = "jna"}

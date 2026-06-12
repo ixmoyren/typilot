@@ -151,18 +151,18 @@ impl ResourceType {
                 }
             }
             Self::Wasmtime => {
-                if let Ok(var) = std::env::var("WIZER_URL") {
+                if let Ok(var) = std::env::var("WASMTIME_URL") {
                     Cow::Owned(var)
                 } else {
                     cfg_select! {
                         target_os = "windows" => {
-                            "https://github.com/bytecodealliance/wasmtime/releases/download/v45.0.0/wasmtime-v45.0.0-x86_64-windows.zip".into()
+                            "https://github.com/bytecodealliance/wasmtime/releases/download/v45.0.1/wasmtime-v45.0.1-x86_64-windows.zip".into()
                         }
                         target_os = "macos" => {
-                            "https://github.com/bytecodealliance/wasmtime/releases/download/v45.0.0/wasmtime-v45.0.0-aarch64-macos.tar.xz".into()
+                            "https://github.com/bytecodealliance/wasmtime/releases/download/v45.0.1/wasmtime-v45.0.1-aarch64-macos.tar.xz".into()
                         }
                         _ => {
-                            "https://github.com/bytecodealliance/wasmtime/releases/download/v45.0.0/wasmtime-v45.0.0-x86_64-linux.tar.xz".into()
+                            "https://github.com/bytecodealliance/wasmtime/releases/download/v45.0.1/wasmtime-v45.0.1-x86_64-linux.tar.xz".into()
                         }
                     }
                 }

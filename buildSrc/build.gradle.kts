@@ -8,8 +8,8 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.chicoryCompiler)
-    implementation(libs.chicoryBuildTimeCompiler)
+    implementation(libs.endiveCompiler)
+    implementation(libs.endiveBuildTimeCompiler)
 }
 
 kotlin { jvmToolchain(25) }

@@ -1,5 +1,5 @@
 import com.diffplug.spotless.kotlin.KtfmtStep
-import com.dylibso.chicory.compiler.InterpreterFallback
+import run.endive.compiler.InterpreterFallback
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
@@ -24,8 +24,8 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.chicoryRuntime)
-    implementation(libs.chicoryWasi)
+    implementation(libs.endiveRuntime)
+    implementation(libs.endiveWasi)
     compileOnly(libs.jna)
     testImplementation(libs.junit4)
 
@@ -72,8 +72,8 @@ idea {
     }
 }
 
-val generatedResources = layout.buildDirectory.dir("generated-resources/chicory-compiler").get().asFile
-val generatedSources   = layout.buildDirectory.dir("generated-sources/chicory-compiler").get().asFile
+val generatedResources = layout.buildDirectory.dir("generated/resources/endive-compiler").get().asFile
+val generatedSources   = layout.buildDirectory.dir("generated/sources/endive-compiler").get().asFile
 
 tasks {
     withType<JavaCompile> {
@@ -81,7 +81,7 @@ tasks {
         targetCompatibility = "25"
     }
 
-    register<ChicoryCompilerTask>("chicoryCompile") {
+    register<EndiveCompilerTask>("endiveCompile") {
         description = "Generate typalize code by chicory compile"
         wasmFile.set(file("src/main/resources/wasm/typalize_wasm-opt.wasm"))
         moduleName.set("com.github.ixmoyren.typalize.TypalizeModule")
@@ -93,11 +93,11 @@ tasks {
     }
 
     compileJava {
-        dependsOn(named("chicoryCompile"))
+        dependsOn(named("endiveCompile"))
     }
 
     compileKotlin {
-        dependsOn(named("chicoryCompile"))
+        dependsOn(named("endiveCompile"))
     }
 
     test { useJUnit() }

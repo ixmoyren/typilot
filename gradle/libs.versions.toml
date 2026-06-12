@@ -2,10 +2,10 @@
 # libraries
 jna = "5.17.0"
 junit4 = "4.13.2"
-chicoryBuildTimeCompiler = "1.7.5"
-chicoryCompiler = "1.7.5"
-chicoryRuntime = "1.7.5"
-chicoryWasi = "1.7.5"
+endiveCompiler = "0.0.1"
+endiveBuildTimeCompiler = "0.0.1"
+endiveRuntime = "0.0.1"
+endiveWasi = "0.0.1"
 
 # plugins
 changelog = "2.5.0"
@@ -16,10 +16,10 @@ spotless = "8.5.1"
 [libraries]
 jna = { group = "net.java.dev.jna", name = "jna", version.ref = "jna"}
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
-chicoryCompiler = { group = "com.dylibso.chicory", name = "compiler", version.ref = "chicoryCompiler"}
-chicoryBuildTimeCompiler = { group = "com.dylibso.chicory", name = "build-time-compiler", version.ref = "chicoryBuildTimeCompiler"}
-chicoryRuntime = { group = "com.dylibso.chicory", name = "runtime", version.ref = "chicoryRuntime"}
-chicoryWasi = { group = "com.dylibso.chicory", name = "wasi", version.ref = "chicoryWasi"}
+endiveCompiler = { group = "run.endive", name = "compiler", version.ref = "endiveCompiler" }
+endiveBuildTimeCompiler = { group = "run.endive", name = "build-time-compiler", version.ref = "endiveBuildTimeCompiler" }
+endiveRuntime = { group = "run.endive", name = "runtime", version.ref = "endiveRuntime" }
+endiveWasi = { group = "run.endive", name = "wasi", version.ref = "endiveWasi" }
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }

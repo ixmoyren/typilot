@@ -1,6 +1,6 @@
-import com.dylibso.chicory.compiler.InterpreterFallback
-import com.dylibso.chicory.build.time.compiler.Config
-import com.dylibso.chicory.build.time.compiler.Generator
+import run.endive.compiler.InterpreterFallback
+import run.endive.build.time.compiler.Config
+import run.endive.build.time.compiler.Generator
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -8,7 +8,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 
-abstract class ChicoryCompilerTask : DefaultTask() {
+abstract class EndiveCompilerTask : DefaultTask() {
 
     @get:InputFile
     abstract val wasmFile: RegularFileProperty

@@ -10,8 +10,8 @@ use crate::{
     },
 };
 use camino::Utf8PathBuf;
-use snafu::ResultExt;
-use std::{collections::HashMap, fs, path::PathBuf, process::Command};
+use snafu::{ResultExt, ensure_whatever};
+use std::{collections::HashMap, fs, path::PathBuf, process::Command, str::FromStr};
 use uniffi::{GenerateOptions, TargetLanguage};
 
 pub fn build(release: bool) -> Result<()> {
@@ -119,18 +119,35 @@ pub fn get_wasm_tool(resource_type: ResourceType, install: Option<PathBuf>) -> R
 
 pub fn generate_code() -> Result<()> {
     let args = vec![
-        "--rust",
-        "--filename-suffix",
-        "",
-        "-o",
-        "crates/typalize-wasm/src",
-        "scheme/envelope.fbs",
+        "run",
+        "-p",
+        "typalize-wasm",
+        "--bin",
+        "gen_reflection",
+        "--features",
+        "gen_reflection",
     ];
-    run(Command::new("flatc"), args)
-        .with_whatever_context(|_| "Failed to run flatc to generate code")?;
-    let args = vec!["fmt", "--", "crates/typalize-wasm/src/envelope.rs "];
-    run(Command::new("cargo"), args)
-        .with_whatever_context(|_| "Failed to run cargo fmt the generate code")?;
+    let output = Command::new("cargo")
+        .args(args)
+        .output()
+        .with_whatever_context(|_| "Failed to run gen_reflection to generate reflection")?;
+    ensure_whatever!(
+        !output.stdout.is_empty(),
+        "The gen_reflection output is empty"
+    );
+    let reflection = String::from_utf8(output.stdout)
+        .with_whatever_context(|_| "Failed get the reflection info")?;
+    let registry = serde_saphyr::from_str::<serde_reflection::Registry>(&reflection)
+        .with_whatever_context(|_| "Failed to parse reflection")?;
+    let config =
+        serde_generate::CodeGeneratorConfig::new("com.github.ixmoyren.typalize".to_owned())
+            .with_encodings(vec![serde_generate::Encoding::Bcs]);
+    let generator = serde_generate::java::CodeGenerator::new(&config);
+    let dir = PathBuf::from_str("src/main/java/com/github/ixmoyren/typalize")
+        .with_whatever_context(|_| "Failed to get java src")?;
+    generator
+        .write_source_files(dir, &registry)
+        .with_whatever_context(|_| "Failed to generate java source files")?;
     Ok(())
 }
 
@@ -200,10 +217,7 @@ pub fn optimize_wasm(tool: Option<PathBuf>) -> Result<()> {
         WASM_RESOURCES_PATH,
     )?;
     let resource_path = lib_path.join(&dylib_name);
-    let output_name = format!(
-        "{}{}-opt{}",
-        WASM_DLL_PREFIX, &dylib, WASM_DLL_SUFFIX
-    );
+    let output_name = format!("{}{}-opt{}", WASM_DLL_PREFIX, &dylib, WASM_DLL_SUFFIX);
     let output_path = lib_path.join(&output_name);
     let args = vec![
         "-Oz",

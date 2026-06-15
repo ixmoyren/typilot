@@ -10,7 +10,7 @@ use std::{
     ffi::OsStr,
     fs,
     fs::{File, create_dir_all, remove_file},
-    io::{BufRead, BufReader, BufWriter, Read, Seek, Write},
+    io::{BufReader, BufWriter, Read, Seek, Write},
     path::Path,
     process::{Command, Stdio},
 };
@@ -296,32 +296,13 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let mut child = cmd
+    let exit_status = cmd
         .args(args)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .status()
         .with_whatever_context(|_| "Failed to spawn the command")?;
-    if let Some(stdout) = child.stdout.take() {
-        println_lines(stdout)
-    } else if let Some(stderr) = child.stderr.take() {
-        println_lines(stderr)
-    } else {
-        Ok(())
-    }
-}
-
-fn println_lines<T>(inner: T) -> crate::Result<()>
-where
-    T: Read,
-{
-    let lines = BufReader::new(inner).lines();
-    for line in lines {
-        println!(
-            "{}",
-            line.with_whatever_context(|_| "Failed to obtain the command output")?
-        );
-    }
+    ensure_whatever!(exit_status.success(), "Command failed with exit code {}", exit_status);
     Ok(())
 }
 

@@ -4,9 +4,21 @@ version = "0.1.0"
 edition = "2024"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 name = "typalize_wasm"
 
+[[bin]]
+name = "gen_reflection"
+path = "src/bin/gen_reflection.rs"
+required-features = ["gen_reflection"]
+
+[features]
+default = []
+gen_reflection = ["dep:serde-reflection", "dep:serde-saphyr", "default"]
+
 [dependencies]
-flatbuffers = "25.12.19"
+serde = { version = "1.0", features = ["derive"] }
+bcs = "0.2.1"
+serde-reflection = { workspace = true, optional = true }
+serde-saphyr = { workspace = true, optional = true }
 typst-syntax = "0.14.2"

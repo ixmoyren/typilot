@@ -26,7 +26,6 @@ repositories {
 dependencies {
     implementation(libs.endiveRuntime)
     implementation(libs.endiveWasi)
-    implementation(libs.flatbuffers)
     compileOnly(libs.jna)
     testImplementation(libs.junit4)
 

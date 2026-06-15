@@ -12,6 +12,7 @@ use crate::{
 use camino::Utf8PathBuf;
 use snafu::{ResultExt, ensure_whatever};
 use std::{collections::HashMap, fs, path::PathBuf, process::Command, str::FromStr};
+use serde_generate::SourceInstaller;
 use uniffi::{GenerateOptions, TargetLanguage};
 
 pub fn build(release: bool) -> Result<()> {
@@ -143,11 +144,14 @@ pub fn generate_code() -> Result<()> {
         serde_generate::CodeGeneratorConfig::new("com.github.ixmoyren.typalize".to_owned())
             .with_encodings(vec![serde_generate::Encoding::Bcs]);
     let generator = serde_generate::java::CodeGenerator::new(&config);
-    let dir = PathBuf::from_str("src/main/java/com/github/ixmoyren/typalize")
+    let dir = PathBuf::from_str("src/main/java")
         .with_whatever_context(|_| "Failed to get java src")?;
     generator
-        .write_source_files(dir, &registry)
+        .write_source_files(dir.clone(), &registry)
         .with_whatever_context(|_| "Failed to generate java source files")?;
+    let installer = serde_generate::java::Installer::new(dir);
+    installer.install_serde_runtime().with_whatever_context(|_| "Failed to install serde runtime")?;
+    installer.install_bcs_runtime().with_whatever_context(|_| "Failed to install bcs runtime")?;
     Ok(())
 }
 

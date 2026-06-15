@@ -192,7 +192,7 @@ pub fn build_wasm(tool: Option<PathBuf>) -> Result<()> {
 
 pub fn copy_wasm() -> Result<()> {
     let (target_dir, dylib) = get_target_dir_and_wasm_name()?;
-    build(true)?;
+    build_wasm(None)?;
     let (lib_path, dylib_name) = get_lib_path_and_dylib_name(
         &dylib,
         WASM_DLL_PREFIX,

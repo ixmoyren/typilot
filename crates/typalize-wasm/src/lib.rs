@@ -1,6 +1,6 @@
 extern crate typst_syntax;
 
-pub use crate::envelope::{ASTNode, Token};
+pub use crate::envelope::{ASTNode, ASTNodes, Token, Tokens};
 
 use crate::{
     syntax::{ASTBuilder, Flatten},

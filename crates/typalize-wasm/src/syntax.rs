@@ -1,6 +1,4 @@
-use crate::envelope::{
-    ASTNode, Token,
-};
+use crate::envelope::{ASTNode, ASTNodes, Token, Tokens};
 use typst_syntax::LinkedNode;
 
 pub trait Flatten {
@@ -11,6 +9,7 @@ impl<'a> Flatten for LinkedNode<'a> {
     fn flatten(&self, offsets: &[usize]) -> Vec<u8> {
         let mut tokens = Vec::<Token>::new();
         flatten_into(self, offsets, &mut tokens);
+        let tokens = Tokens(tokens);
         bcs::to_bytes(&tokens).unwrap()
     }
 }
@@ -37,6 +36,7 @@ impl<'a> ASTBuilder for LinkedNode<'a> {
     fn build(&self, offsets: &[usize]) -> Vec<u8> {
         let mut nodes = Vec::new();
         build_ast_nodes(self, offsets,  &mut nodes);
+        let nodes = ASTNodes(nodes);
         bcs::to_bytes(&nodes).unwrap()
     }
 }

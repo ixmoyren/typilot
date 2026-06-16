@@ -11,7 +11,9 @@ target
 # java
 src/main/java/com/novi/*/*.java
 src/main/java/com/github/ixmoyren/typalize/ASTNode.java
+src/main/java/com/github/ixmoyren/typalize/ASTNodes.java
 src/main/java/com/github/ixmoyren/typalize/Token.java
+src/main/java/com/github/ixmoyren/typalize/Tokens.java
 src/main/java/com/github/ixmoyren/typalize/TraitHelpers.java
 
 # wasm-tools

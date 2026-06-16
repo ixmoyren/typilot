@@ -19,6 +19,9 @@ impl Token {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct Tokens(pub Vec<Token>);
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct ASTNode {
     pub start: u32,
     pub end: u32,
@@ -50,3 +53,6 @@ impl ASTNode {
         }
     }
 }
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct ASTNodes(pub Vec<ASTNode>);

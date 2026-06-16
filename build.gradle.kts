@@ -41,9 +41,12 @@ dependencies {
 }
 
 spotless {
+    java {
+        palantirJavaFormat("2.93.0").formatJavadoc(true)
+        target("src/*/java/**/*.java", "build/generated/sources/**/*.java")
+    }
     kotlin {
-        // version, style and all configurations here are optional
-        ktfmt("0.62").kotlinlangStyle().configure {
+        ktfmt("0.63").kotlinlangStyle().configure {
             it.setMaxWidth(180)
             it.setBlockIndent(4)
             it.setContinuationIndent(4)
@@ -54,7 +57,7 @@ spotless {
     }
     kotlinGradle {
         target("*.gradle.kts")
-        ktfmt("0.62").kotlinlangStyle().configure {
+        ktfmt("0.63").kotlinlangStyle().configure {
             it.setMaxWidth(180)
             it.setBlockIndent(4)
             it.setContinuationIndent(4)

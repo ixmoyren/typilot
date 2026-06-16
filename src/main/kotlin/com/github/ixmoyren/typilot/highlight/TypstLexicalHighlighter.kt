@@ -27,7 +27,8 @@ class TypstLexicalHighlighter : SyntaxHighlighterBase() {
             in TypstSyntaxKind.KEYWORD_SET -> arrayOf(TypstHighlightingColors.KEYWORD.key)
             in TypstSyntaxKind.OPERATOR_SET -> arrayOf(TypstHighlightingColors.OPERATOR.key)
             else -> arrayOf()
-        } as Array<out TextAttributesKey?>
+        }
+            as Array<out TextAttributesKey?>
     }
 }
 

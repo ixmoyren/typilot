@@ -1,6 +1,6 @@
 import com.diffplug.spotless.kotlin.KtfmtStep
-import run.endive.compiler.InterpreterFallback
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import run.endive.compiler.InterpreterFallback
 
 plugins {
     id("java")
@@ -73,7 +73,14 @@ idea {
 }
 
 val generatedResources = layout.buildDirectory.dir("generated/resources/endive-compiler").get().asFile
-val generatedSources   = layout.buildDirectory.dir("generated/sources/endive-compiler").get().asFile
+val generatedSources = layout.buildDirectory.dir("generated/sources/endive-compiler").get().asFile
+
+sourceSets {
+    main {
+        java.srcDir(generatedSources)
+        resources.srcDir(generatedResources)
+    }
+}
 
 tasks {
     withType<JavaCompile> {
@@ -85,6 +92,7 @@ tasks {
         description = "Generate typalize code by chicory compile"
         wasmFile.set(file("src/main/resources/wasm/typalize_wasm-opt.wasm"))
         moduleName.set("com.github.ixmoyren.typalize.TypalizeModule")
+        moduleInterface.set("com.github.ixmoyren.typalize.Core")
         targetClassFolder.set(generatedResources)
         targetSourceFolder.set(generatedSources)
         targetWasmFolder.set(generatedResources)
@@ -94,18 +102,12 @@ tasks {
 
     compileJava {
         dependsOn(named("endiveCompile"))
+        classpath += files(generatedResources)
     }
 
-    compileKotlin {
-        dependsOn(named("endiveCompile"))
-    }
+    compileKotlin { dependsOn(named("endiveCompile")) }
+
+    processResources { dependsOn(named("endiveCompile")) }
 
     test { useJUnit() }
-}
-
-sourceSets {
-    main {
-        java.srcDir(generatedSources)
-        resources.srcDir(generatedResources)
-    }
 }

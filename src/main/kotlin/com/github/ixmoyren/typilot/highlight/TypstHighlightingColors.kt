@@ -8,18 +8,16 @@ import com.intellij.openapi.options.colors.AttributesDescriptor
 
 fun TextAttributesKey.resolve() = defaultScheme.getAttributes(this)!!
 
-val defaultScheme get() = EditorColorsManager.getInstance().globalScheme
+val defaultScheme
+    get() = EditorColorsManager.getInstance().globalScheme
 
 class TextAttributeHelper(val displayName: String, val parent: TextAttributesKey?) {
-    val id: String = "TYPST_" + displayName
-        .replace(" ", "_")
-        .replace("//", "__")
-        .replace("+", "and")
-        .uppercase()
+    val id: String = "TYPST_" + displayName.replace(" ", "_").replace("//", "__").replace("+", "and").uppercase()
     val key: TextAttributesKey = parent?.let { createTextAttributesKey(id, it) } ?: createTextAttributesKey(id)
     val array = arrayOf(key)
     val descriptor = AttributesDescriptor(displayName, key)
 }
+
 data object TypstHighlightingColors {
     private val collection = mutableListOf<TextAttributeHelper>()
 
@@ -52,17 +50,11 @@ data object TypstHighlightingColors {
     val HEADING = attribute("Markup//Heading")
     val TERM = attribute("Markup//Term")
     val MATHS = attribute("Math//Math", DefaultLanguageHighlighterColors.STRING)
-    val RAINBOW = (1..12).map {
-        attribute("Rainbow//Color $it")
-    }
+    val RAINBOW = (1..12).map { attribute("Rainbow//Color $it") }
 
-    val RAINBOW_BACK_WEAK = (1..12).map {
-        attribute("Rainbow background weak//Color $it")
-    }
+    val RAINBOW_BACK_WEAK = (1..12).map { attribute("Rainbow background weak//Color $it") }
 
-    val RAINBOW_BACK_STRONG = (1..12).map {
-        attribute("Rainbow background strong//Color $it")
-    }
+    val RAINBOW_BACK_STRONG = (1..12).map { attribute("Rainbow background strong//Color $it") }
 
     val TEST_KEY = attribute("Test")
 }

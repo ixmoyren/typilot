@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 public final class Typalize {
     private final Core core;
 
-    private  Typalize(Core core) {
+    private Typalize(Core core) {
         this.core = core;
     }
 
@@ -18,7 +18,7 @@ public final class Typalize {
     }
 
     public TypalizeResult<ASTNodes> parse(String text) {
-        return  core.parse(text.getBytes(StandardCharsets.UTF_8));
+        return core.parse(text.getBytes(StandardCharsets.UTF_8));
     }
 
     public static final class Builder {
@@ -29,7 +29,7 @@ public final class Typalize {
         }
 
         public Typalize build() {
-            return new  Typalize(core);
+            return new Typalize(core);
         }
     }
 }

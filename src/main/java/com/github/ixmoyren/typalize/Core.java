@@ -1,12 +1,11 @@
 package com.github.ixmoyren.typalize;
 
 import com.novi.serde.DeserializationError;
+import java.nio.charset.StandardCharsets;
 import run.endive.runtime.ImportValues;
 import run.endive.runtime.Instance;
 import run.endive.wasi.WasiOptions;
 import run.endive.wasi.WasiPreview1;
-
-import java.nio.charset.StandardCharsets;
 
 public final class Core implements AutoCloseable {
     private final Instance instance;

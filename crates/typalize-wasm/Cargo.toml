@@ -17,8 +17,9 @@ default = []
 gen_reflection = ["dep:serde-reflection", "dep:serde-saphyr", "default"]
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
 bcs = "0.2.1"
+enum-mirror = { workspace = true }
+serde = { version = "1.0", features = ["derive"] }
 serde-reflection = { workspace = true, optional = true }
 serde-saphyr = { workspace = true, optional = true }
 typst-syntax = "0.14.2"

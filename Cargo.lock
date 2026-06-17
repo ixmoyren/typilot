@@ -518,6 +518,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "enum-mirror"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2329,6 +2338,7 @@ name = "typalize-wasm"
 version = "0.1.0"
 dependencies = [
  "bcs",
+ "enum-mirror",
  "serde",
  "serde-reflection",
  "serde-saphyr",

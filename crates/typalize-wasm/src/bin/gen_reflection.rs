@@ -1,5 +1,5 @@
 use serde_reflection::{Tracer, TracerConfig};
-use typalize_wasm::{ASTNode, ASTNodes, Token, Tokens};
+use typalize_wasm::{ASTNode, ASTNodes, Token, Tokens, TypstSyntaxKind};
 
 fn main() {
     let mut tracer = Tracer::new(TracerConfig::default());
@@ -7,6 +7,7 @@ fn main() {
     tracer.trace_simple_type::<ASTNodes>().unwrap();
     tracer.trace_simple_type::<Token>().unwrap();
     tracer.trace_simple_type::<Tokens>().unwrap();
+    tracer.trace_simple_type::<TypstSyntaxKind>().unwrap();
     let registry = tracer.registry().unwrap();
     let option = serde_saphyr::ser_options! {
             compact_list_indent: false,

@@ -15,6 +15,7 @@ src/main/java/com/github/ixmoyren/typalize/ASTNodes.java
 src/main/java/com/github/ixmoyren/typalize/Token.java
 src/main/java/com/github/ixmoyren/typalize/Tokens.java
 src/main/java/com/github/ixmoyren/typalize/TraitHelpers.java
+src/main/java/com/github/ixmoyren/typalize/TypstSyntaxKind.java
 
 # wasm-tools
 .tools

@@ -18,7 +18,7 @@ object TypstSyntaxKindUtils {
             }
             .mapNotNull { clazz ->
                 runCatching {
-                    val builderClass = Class.forName("${clazz.canonicalName}\$Builder")
+                    val builderClass = Class.forName($$"$${clazz.name}$Builder")
                     val builder = builderClass.getDeclaredConstructor().newInstance()
                     val buildMethod = builderClass.getDeclaredMethod("build")
                     buildMethod.invoke(builder) as TypstSyntaxKind

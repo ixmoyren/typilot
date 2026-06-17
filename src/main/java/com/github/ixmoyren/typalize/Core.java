@@ -65,6 +65,10 @@ public final class Core implements AutoCloseable {
         return result;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public Typalize.Builder typalizer() {
         return new Typalize.Builder(this);
     }

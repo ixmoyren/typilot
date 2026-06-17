@@ -1,7 +1,7 @@
 package com.github.ixmoyren.typilot.psi
 
-import com.github.ixmoyren.typilot.Token
-import com.github.ixmoyren.typilot.TypstSyntaxKind
+import com.github.ixmoyren.typalize.Token
+import com.github.ixmoyren.typalize.TypstSyntaxKind
 import com.github.ixmoyren.typilot.language.TypstLanguage
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
@@ -12,13 +12,13 @@ class TypstTokenType(val kind: TypstSyntaxKind?, val name: String = kind!!.name)
     }
 
     companion object {
-        private val tokenTypeMap: Map<TypstSyntaxKind, TypstTokenType> by lazy { TypstSyntaxKind.entries.associateWith { TypstTokenType(it) } }
+        private val tokenTypeMap: Map<TypstSyntaxKind, TypstTokenType> by lazy { TypstSyntaxKindUtils.entries.associateWith { TypstTokenType(it) } }
 
         fun getTokenType(kind: TypstSyntaxKind): TypstTokenType = tokenTypeMap.getValue(kind)
 
-        val COMMENT_TOKEN_SET by lazy { TokenSet.create(*TypstSyntaxKind.COMMENT_SET.map { it.tokenType }.toTypedArray()) }
+        val COMMENT_TOKEN_SET by lazy { TokenSet.create(*TypstSyntaxKindUtils.commentSet.map { it.tokenType }.toTypedArray()) }
 
-        val WHITESPACE_TOKEN_SET by lazy { TokenSet.create(*TypstSyntaxKind.SPACE_SET.map { it.tokenType }.toTypedArray()) }
+        val WHITESPACE_TOKEN_SET by lazy { TokenSet.create(*TypstSyntaxKindUtils.spaceSet.map { it.tokenType }.toTypedArray()) }
     }
 }
 

@@ -24,6 +24,5 @@ src/main/java/com/github/ixmoyren/typalize/TypstSyntaxKind.java
 src/main/resources/wasm/*.wasm
 
 # bindgen
-src/main/kotlin/com/github/ixmoyren/typilot/Typalize.kt
 src/main/resources/linux-x86-64/libtypalize.so
 src/main/resources/win32-x86-64/typalize.dll

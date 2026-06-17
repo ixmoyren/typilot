@@ -1,7 +1,7 @@
 package com.github.ixmoyren.typilot.psi
 
-import com.github.ixmoyren.typilot.Token
-import com.github.ixmoyren.typilot.TypstParser
+import com.github.ixmoyren.typalize.Token
+import com.github.ixmoyren.typilot.typalizer
 import com.intellij.lexer.LexerBase
 import com.intellij.psi.tree.IElementType
 
@@ -17,7 +17,12 @@ class TypstLexer : LexerBase() {
         this.startOffset = startOffset
         this.endOffset = endOffset
         val text = buffer.subSequence(startOffset, endOffset).toString()
-        this.tokenList = parser.tokenize(text)
+        this.tokenList = typalizer.tokenize(text).run {
+            if (this == null || failure()) {
+                throw Exception("The typst lexer couldn't work.", this?.error)
+            }
+            result ?: throw Exception("The typst tokenize result is null")
+        }.value
         this.index = 0
     }
 
@@ -40,8 +45,4 @@ class TypstLexer : LexerBase() {
     override fun toString(): String = "Typst Lexer"
 
     private fun currentToken(): Token? = tokenList.getOrNull(index)
-
-    companion object {
-        val parser: TypstParser by lazy { TypstParser() }
-    }
 }

@@ -28,4 +28,8 @@ public class TypalizeResult<T> {
     public boolean failure() {
         return !success;
     }
+
+    public Throwable getError() {
+        return error;
+    }
 }

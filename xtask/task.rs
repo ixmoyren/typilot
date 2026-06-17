@@ -142,6 +142,7 @@ pub fn generate_code() -> Result<()> {
         .with_whatever_context(|_| "Failed to parse reflection")?;
     let config =
         serde_generate::CodeGeneratorConfig::new("com.github.ixmoyren.typalize".to_owned())
+            .with_sealed_enums(true)
             .with_encodings(vec![serde_generate::Encoding::Bcs]);
     let generator = serde_generate::java::CodeGenerator::new(&config);
     let dir = PathBuf::from_str("src/main/java")

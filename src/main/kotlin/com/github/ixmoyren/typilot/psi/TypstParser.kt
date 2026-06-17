@@ -1,7 +1,7 @@
 package com.github.ixmoyren.typilot.psi
 
-import com.github.ixmoyren.typilot.AstNode
-import com.github.ixmoyren.typilot.TypstParser
+import com.github.ixmoyren.typilot.typalizer
+import com.github.ixmoyren.typalize.ASTNode as TypalizeASTNode
 import com.intellij.lang.ASTNode
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiParser
@@ -10,15 +10,20 @@ import com.intellij.psi.tree.IElementType
 class TypstParser : PsiParser {
     override fun parse(root: IElementType, builder: PsiBuilder): ASTNode {
         val text = builder.originalText.toString()
-        val nodes = parser.parse(text)
+        val nodes = typalizer.parse(text).run {
+            if (this == null || failure()) {
+                throw Exception("The typst parser couldn't work.", this?.error)
+            }
+            result ?: throw Exception("The typst parse result is null")
+        }.value
         val rootMark = builder.mark()
         builder.replayTree(nodes)
         rootMark.done(root)
         return builder.treeBuilt
     }
 
-    fun PsiBuilder.replayTree(nodes: List<AstNode>) {
-        val stack = ArrayDeque<Triple<PsiBuilder.Marker, AstNode, Int>>()
+    fun PsiBuilder.replayTree(nodes: List<TypalizeASTNode>) {
+        val stack = ArrayDeque<Triple<PsiBuilder.Marker, TypalizeASTNode, Int>>()
 
         for (node in nodes) {
             if (node.isLeaf) {
@@ -31,7 +36,7 @@ class TypstParser : PsiParser {
                 stack.decrementAndClose()
             } else {
                 val marker = this.mark()
-                val childCount = node.childrenCount.toInt()
+                val childCount = node.childrenCount
                 if (childCount == 0) {
                     marker.done(node.type)
                     stack.decrementAndClose()
@@ -42,7 +47,7 @@ class TypstParser : PsiParser {
         }
     }
 
-    fun ArrayDeque<Triple<PsiBuilder.Marker, AstNode, Int>>.decrementAndClose() {
+    fun ArrayDeque<Triple<PsiBuilder.Marker, TypalizeASTNode, Int>>.decrementAndClose() {
         while (this.isNotEmpty()) {
             val (marker, node, remaining) = this.removeLast()
             if (remaining == 1) {
@@ -52,9 +57,5 @@ class TypstParser : PsiParser {
                 break
             }
         }
-    }
-
-    companion object {
-        val parser: TypstParser by lazy { TypstParser() }
     }
 }

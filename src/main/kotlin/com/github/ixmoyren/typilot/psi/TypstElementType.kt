@@ -1,12 +1,9 @@
 package com.github.ixmoyren.typilot.psi
 
-import com.github.ixmoyren.typilot.AstNode
-import com.github.ixmoyren.typilot.Token
-import com.github.ixmoyren.typilot.TypstSyntaxKind
+import com.github.ixmoyren.typalize.ASTNode
+import com.github.ixmoyren.typalize.TypstSyntaxKind
 import com.github.ixmoyren.typilot.language.TypstLanguage
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.tree.IFileElementType
-import com.intellij.psi.tree.TokenSet
 
 class TypstElementType(val kind: TypstSyntaxKind?, name: String = kind!!.name) : IElementType(name, TypstLanguage.INSTANCE) {
     override fun toString(): String {
@@ -14,7 +11,7 @@ class TypstElementType(val kind: TypstSyntaxKind?, name: String = kind!!.name) :
     }
 
     companion object {
-        private val elementTypeMap: Map<TypstSyntaxKind, TypstElementType> by lazy { TypstSyntaxKind.entries.associateWith { TypstElementType(it) } }
+        private val elementTypeMap: Map<TypstSyntaxKind, TypstElementType> by lazy { TypstSyntaxKindUtils.entries.associateWith { TypstElementType(it) } }
 
         fun getElementType(kind: TypstSyntaxKind): TypstElementType = elementTypeMap.getValue(kind)
     }
@@ -23,11 +20,23 @@ class TypstElementType(val kind: TypstSyntaxKind?, name: String = kind!!.name) :
 val TypstSyntaxKind.elementType: TypstElementType
     get() = TypstElementType.getElementType(this)
 
-val AstNode.type: TypstElementType
+val ASTNode.type: TypstElementType
     get() = this.kind.elementType
 
-val AstNode.isSpace: Boolean
-    get() = this.kind in TypstSyntaxKind.SPACE_SET
+val ASTNode.isLeaf: Boolean
+    get() = this.is_leaf
 
-val AstNode.isComment: Boolean
-    get() = this.kind in TypstSyntaxKind.COMMENT_SET
+val ASTNode.isError: Boolean
+    get() = this.is_error
+
+val ASTNode.errorMessage: String?
+    get() = this.error_message.map { it }.orElse("")
+
+val ASTNode.childrenCount: Int
+    get() = this.children_count
+
+val ASTNode.isSpace: Boolean
+    get() = this.kind in TypstSyntaxKindUtils.spaceSet
+
+val ASTNode.isComment: Boolean
+    get() = this.kind in TypstSyntaxKindUtils.commentSet

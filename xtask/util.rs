@@ -16,7 +16,7 @@ use std::{
 };
 use tar::Archive;
 
-pub const WASM_PACKAGE_NAME: &str = "typalize-wasm";
+pub const WASM_PACKAGE_NAME: &str = "typalize";
 pub const WASM32_WASIP1_TARGET: &str = "wasm32-wasip1";
 pub const CC_WASM32_WASIP1: &str = "bin/clang";
 pub const CFLAGS_WASM32_WASIP1: &str = "share/wasi-sysroot";
@@ -35,7 +35,7 @@ pub fn get_target_dir_and_wasm_name() -> crate::Result<(Utf8PathBuf, String)> {
         .packages
         .iter()
         .find(|p| p.name == WASM_PACKAGE_NAME)
-        .whatever_context("No typalize-wasm package")?;
+        .whatever_context("No typalize package")?;
     let dylib_name = package
         .targets
         .iter()

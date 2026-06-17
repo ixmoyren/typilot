@@ -1,5 +1,5 @@
 use serde_reflection::{Tracer, TracerConfig};
-use typalize_wasm::{ASTNode, ASTNodes, Token, Tokens, TypstSyntaxKind};
+use typalize::{ASTNode, ASTNodes, Token, Tokens, TypstSyntaxKind};
 
 fn main() {
     let mut tracer = Tracer::new(TracerConfig::default());

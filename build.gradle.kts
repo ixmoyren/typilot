@@ -93,7 +93,7 @@ tasks {
 
     register<EndiveCompilerTask>("endiveCompile") {
         description = "Generate typalize code by chicory compile"
-        wasmFile.set(file("src/main/resources/wasm/typalize_wasm-opt.wasm"))
+        wasmFile.set(file("src/main/resources/wasm/typalize-opt.wasm"))
         moduleName.set("com.github.ixmoyren.typalize.TypalizeModule")
         moduleInterface.set("com.github.ixmoyren.typalize.Core")
         targetClassFolder.set(generatedResources)

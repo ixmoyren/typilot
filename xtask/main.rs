@@ -25,12 +25,12 @@ enum Action {
     },
     #[command(about = "Generate serialization code related to flatbuffers")]
     GenerateCode,
-    #[command(about = "Build the typalize-wasm crate")]
+    #[command(about = "Build the typalize crate to wasm")]
     BuildWasm {
         #[arg(short, long, value_name = ".tools")]
         tool: Option<PathBuf>,
     },
-    #[command(about = "Copy the built wasm library to the resource directory.")]
+    #[command(about = "Copy the built wasm dylib to the resource directory.")]
     CopyWasm,
     #[command(about = "Optimize wasm")]
     OptimizeWasm {

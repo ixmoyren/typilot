@@ -20,7 +20,7 @@ pub fn generate_code() -> Result<()> {
     let args = vec![
         "run",
         "-p",
-        "typalize-wasm",
+        "typalize",
         "--bin",
         "gen_reflection",
         "--features",

@@ -16,19 +16,7 @@ use std::{
 };
 use tar::Archive;
 
-pub const PACKAGE_NAME: &str = "typalize";
 pub const WASM_PACKAGE_NAME: &str = "typalize-wasm";
-
-pub const LINUX_TARGET: &str = "x86_64-unknown-linux-gnu";
-pub const LINUX_DLL_PREFIX: &str = "lib";
-pub const LINUX_DLL_SUFFIX: &str = ".so";
-pub const LINUX_RESOURCES_PATH: &str = "src/main/resources/linux-x86-64";
-
-pub const WINDOWS_GUN_TARGET: &str = "x86_64-pc-windows-gnu";
-pub const WINDOWS_DLL_PREFIX: &str = "";
-pub const WINDOWS_DLL_SUFFIX: &str = ".dll";
-pub const WINDOWS_GUN_RESOURCES_PATH: &str = "src/main/resources/win32-x86-64";
-
 pub const WASM32_WASIP1_TARGET: &str = "wasm32-wasip1";
 pub const CC_WASM32_WASIP1: &str = "bin/clang";
 pub const CFLAGS_WASM32_WASIP1: &str = "share/wasi-sysroot";
@@ -36,25 +24,6 @@ pub const WASM_DLL_PREFIX: &str = "";
 pub const WASM_DLL_SUFFIX: &str = ".wasm";
 pub const WASM_RESOURCES_PATH: &str = "src/main/resources/wasm";
 
-pub fn get_target_dir_and_dylib_name() -> crate::Result<(Utf8PathBuf, String)> {
-    let metadata = MetadataCommand::new()
-        .no_deps()
-        .exec()
-        .with_whatever_context(|_| "Failed to obtain cargo metadata")?;
-    let target_dir = metadata.target_directory;
-    let package = metadata
-        .packages
-        .iter()
-        .find(|p| p.name == PACKAGE_NAME)
-        .whatever_context("No typalize package")?;
-    let dylib_name = package
-        .targets
-        .iter()
-        .find(|t| t.crate_types.contains(&CrateType::CDyLib))
-        .map(|t| t.name.clone())
-        .whatever_context("No cdylib target name")?;
-    Ok((target_dir, dylib_name))
-}
 
 pub fn get_target_dir_and_wasm_name() -> crate::Result<(Utf8PathBuf, String)> {
     let metadata = MetadataCommand::new()

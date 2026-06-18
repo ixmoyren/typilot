@@ -48,6 +48,14 @@
 
         <lang.commenter language="Typst"
                         implementationClass="com.github.ixmoyren.typilot.language.TypstCommenter"/>
+
+        <applicationService
+                serviceImplementation="com.github.ixmoyren.typilot.settings.TinymistSettings"/>
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.github.ixmoyren.typilot.settings.TinymistConfigurable"
+                id="com.github.pndv.typstrenderer.settings.TypstConfigurable"
+                bundle="messages.TypilotBundle" key="settings.displayName"/>
     </extensions>
 
     <actions resource-bundle="messages.TypilotBundle">

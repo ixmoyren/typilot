@@ -1,6 +1,6 @@
 package com.github.ixmoyren.typilot
 
-import com.github.ixmoyren.typilot.services.MyProjectService
+import com.github.ixmoyren.typilot.services.TinymistDownloadService
 import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.openapi.components.service
 import com.intellij.psi.xml.XmlFile
@@ -30,7 +30,7 @@ class MyPluginTest : BasePlatformTestCase() {
     }
 
     fun testProjectService() {
-        val projectService = project.service<MyProjectService>()
+        val projectService = project.service<TinymistDownloadService>()
 
         assertNotSame(projectService.getRandomNumber(), projectService.getRandomNumber())
     }

@@ -3,13 +3,12 @@ use crate::{
     util::{
         CC_WASM32_WASIP1, CFLAGS_WASM32_WASIP1, WASM_DLL_PREFIX, WASM_DLL_SUFFIX,
         WASM_PACKAGE_NAME, WASM_RESOURCES_PATH, WASM32_WASIP1_TARGET, copy_to_resources,
-        get_lib_path_and_dylib_name, get_resource_from,
-        get_target_dir_and_wasm_name, run,
+        get_lib_path_and_dylib_name, get_resource_from, get_target_dir_and_wasm_name, run,
     },
 };
-use snafu::{ResultExt, ensure_whatever};
-use std::{collections::HashMap, path::PathBuf, process::Command, str::FromStr};
 use serde_generate::SourceInstaller;
+use snafu::{ResultExt, ensure_whatever};
+use std::{collections::HashMap, fs, path::PathBuf, process::Command, str::FromStr};
 
 pub fn get_wasm_tool(resource_type: ResourceType, install: Option<PathBuf>) -> Result<()> {
     let install = install.unwrap_or(PathBuf::from(".tools"));
@@ -43,14 +42,18 @@ pub fn generate_code() -> Result<()> {
             .with_sealed_enums(true)
             .with_encodings(vec![serde_generate::Encoding::Bcs]);
     let generator = serde_generate::java::CodeGenerator::new(&config);
-    let dir = PathBuf::from_str("src/main/java")
-        .with_whatever_context(|_| "Failed to get java src")?;
+    let dir =
+        PathBuf::from_str("src/main/java").with_whatever_context(|_| "Failed to get java src")?;
     generator
         .write_source_files(dir.clone(), &registry)
         .with_whatever_context(|_| "Failed to generate java source files")?;
     let installer = serde_generate::java::Installer::new(dir);
-    installer.install_serde_runtime().with_whatever_context(|_| "Failed to install serde runtime")?;
-    installer.install_bcs_runtime().with_whatever_context(|_| "Failed to install bcs runtime")?;
+    installer
+        .install_serde_runtime()
+        .with_whatever_context(|_| "Failed to install serde runtime")?;
+    installer
+        .install_bcs_runtime()
+        .with_whatever_context(|_| "Failed to install bcs runtime")?;
     Ok(())
 }
 
@@ -138,5 +141,9 @@ pub fn optimize_wasm(tool: Option<PathBuf>) -> Result<()> {
         }
     };
     run(Command::new(wasm_opt), args).with_whatever_context(|_| "Failed to run cargo build")?;
+    fs::remove_file(&resource_path)
+        .with_whatever_context(|_| "Failed to remove the original wasm")?;
+    fs::rename(&output_path, &resource_path)
+        .with_whatever_context(|_| "Failed to renaming the optimized wasm")?;
     Ok(())
 }

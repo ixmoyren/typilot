@@ -7,12 +7,13 @@ import com.intellij.openapi.ui.Messages
 
 class TypstHelpAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
-        val message = typalizer.version().run {
-            if (this == null || failure()) {
-                throw Exception("The typst lexer couldn't work.", this?.error)
+        val message =
+            typalizer.version().run {
+                if (this == null || failure()) {
+                    throw Exception("The typst lexer couldn't work.", this?.error)
+                }
+                result ?: throw Exception("The typst version result is null")
             }
-            result ?: throw Exception("The typst version result is null")
-        }
         Messages.showInfoMessage(event.project, message, "Typst Help")
     }
 }

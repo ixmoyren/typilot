@@ -7,7 +7,8 @@ val TypstSyntaxKind.name: String
 
 object TypstSyntaxKindUtils {
     val entriesMap: Map<String, TypstSyntaxKind> by lazy {
-        TypstSyntaxKind::class.java
+        TypstSyntaxKind::class
+            .java
             .declaredClasses
             .filter { clazz ->
                 val modifiers = clazz.modifiers
@@ -22,7 +23,8 @@ object TypstSyntaxKindUtils {
                     val builder = builderClass.getDeclaredConstructor().newInstance()
                     val buildMethod = builderClass.getDeclaredMethod("build")
                     buildMethod.invoke(builder) as TypstSyntaxKind
-                }.getOrNull()
+                }
+                    .getOrNull()
             }
             .associateBy { it::class.java.simpleName }
     }
@@ -53,11 +55,16 @@ object TypstSyntaxKindUtils {
             TypstSyntaxKind.Import::class.java.simpleName,
             TypstSyntaxKind.Include::class.java.simpleName,
             TypstSyntaxKind.As::class.java.simpleName,
-        ).mapNotNull { entriesMap[it] }.toSet()
+        )
+            .mapNotNull { entriesMap[it] }
+            .toSet()
     }
 
     val identSet: Set<TypstSyntaxKind> by lazy {
-        setOf(TypstSyntaxKind.Ident::class.java.simpleName, TypstSyntaxKind.MathIdent::class.java.simpleName).mapNotNull { entriesMap[it] }.toSet()
+        setOf(
+            TypstSyntaxKind.Ident::class.java.simpleName,
+            TypstSyntaxKind.MathIdent::class.java.simpleName
+        ).mapNotNull { entriesMap[it] }.toSet()
     }
 
     val commentSet: Set<TypstSyntaxKind> by lazy {
@@ -65,14 +72,18 @@ object TypstSyntaxKindUtils {
             TypstSyntaxKind.LineComment::class.java.simpleName,
             TypstSyntaxKind.BlockComment::class.java.simpleName,
             TypstSyntaxKind.Shebang::class.java.simpleName,
-        ).mapNotNull { entriesMap[it] }.toSet()
+        )
+            .mapNotNull { entriesMap[it] }
+            .toSet()
     }
 
     val spaceSet: Set<TypstSyntaxKind> by lazy {
         setOf(
             TypstSyntaxKind.Space::class.java.simpleName,
             TypstSyntaxKind.Parbreak::class.java.simpleName,
-        ).mapNotNull { entriesMap[it] }.toSet()
+        )
+            .mapNotNull { entriesMap[it] }
+            .toSet()
     }
 
     val literalSet: Set<TypstSyntaxKind> by lazy {
@@ -87,7 +98,9 @@ object TypstSyntaxKindUtils {
             TypstSyntaxKind.Label::class.java.simpleName,
             TypstSyntaxKind.MathText::class.java.simpleName,
             TypstSyntaxKind.MathShorthand::class.java.simpleName
-        ).mapNotNull { entriesMap[it] }.toSet()
+        )
+            .mapNotNull { entriesMap[it] }
+            .toSet()
     }
 
     val operatorSet: Set<TypstSyntaxKind> by lazy {
@@ -125,6 +138,8 @@ object TypstSyntaxKindUtils {
             TypstSyntaxKind.Arrow::class.java.simpleName,
             TypstSyntaxKind.Root::class.java.simpleName,
             TypstSyntaxKind.MathAlignPoint::class.java.simpleName
-        ).mapNotNull { entriesMap[it] }.toSet()
+        )
+            .mapNotNull { entriesMap[it] }
+            .toSet()
     }
 }

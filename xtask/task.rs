@@ -54,6 +54,26 @@ pub fn generate_code() -> Result<()> {
     installer
         .install_bcs_runtime()
         .with_whatever_context(|_| "Failed to install bcs runtime")?;
+
+    let args = vec!["endiveCompile"];
+    cfg_select! {
+        target_os = "windows" => {
+            run(Command::new("./gradlew.bat"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
+        }
+        _ => {
+            run(Command::new("./gradlew"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
+        }
+    }
+
+    let args = vec!["spotlessApply"];
+    cfg_select! {
+        target_os = "windows" => {
+            run(Command::new("./gradlew.bat"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
+        }
+        _ => {
+            run(Command::new("./gradlew"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
+        }
+    }
     Ok(())
 }
 

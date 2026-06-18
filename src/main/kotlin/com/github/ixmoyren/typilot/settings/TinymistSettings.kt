@@ -26,9 +26,9 @@ class TinymistSettings : PersistentStateComponent<TinymistSettings.State> {
         }
 
 
-    override fun getState(): TinymistSettings.State = state
+    override fun getState(): State = state
 
-    override fun loadState(state: TinymistSettings.State) {
+    override fun loadState(state: State) {
         copyBean(state, this.state)
     }
 

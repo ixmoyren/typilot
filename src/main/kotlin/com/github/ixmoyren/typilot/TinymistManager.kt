@@ -87,7 +87,7 @@ class TinymistManager {
 
         /**
          * Pure-function core of the 3-stage binary resolution fallback.
-         * The instance methods [resolveTinymistPath] / [resolveTypstPath] are
+         * The instance methods [resolveTinymistPath] are
          * thin wrappers that supply the real settings, PATH lookup, and
          * downloaded file. Exposed for unit testing without an IntelliJ fixture.
          */

@@ -14,7 +14,7 @@ impl<'a> Flatten for LinkedNode<'a> {
     }
 }
 
-fn flatten_into<'a>(node: &LinkedNode<'a>, offsets: &[usize], tokens: &mut Vec<Token>) {
+pub(crate) fn flatten_into<'a>(node: &LinkedNode<'a>, offsets: &[usize], tokens: &mut Vec<Token>) {
     let len = node.len();
     let kind = node.kind();
     let offset = node.offset();
@@ -41,7 +41,7 @@ impl<'a> ASTBuilder for LinkedNode<'a> {
     }
 }
 
-fn build_ast_nodes<'a>(
+pub(crate) fn build_ast_nodes<'a>(
     node: &LinkedNode,
     offsets: &[usize],
     nodes: &mut Vec<ASTNode>,

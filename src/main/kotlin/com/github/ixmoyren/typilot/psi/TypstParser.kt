@@ -9,6 +9,7 @@ import com.intellij.psi.tree.IElementType
 
 class TypstParser : PsiParser {
     override fun parse(root: IElementType, builder: PsiBuilder): ASTNode {
+        builder.setDebugMode(true)
         val text = builder.originalText
         val nodes = typalizer.parse(text).run {
             if (this == null || failure()) {

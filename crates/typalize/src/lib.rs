@@ -53,3 +53,57 @@ pub extern "C" fn parse(text_ptr: i32, text_len: i32) -> i64 {
     let nodes = linked_node.build(&offsets);
     leak(nodes.as_slice())
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::syntax::{build_ast_nodes, flatten_into};
+    use typst_syntax::LinkedNode;
+    use crate::{ASTNode, Token, TypstSyntaxKind};
+    use crate::util::Utf16Ext;
+
+    #[test]
+    fn test() {
+        let text = "text\n ";
+        let offsets = text.get_offset();
+        let root = typst_syntax::parse(text);
+        let linked_node = LinkedNode::new(&root);
+        let mut tokens = Vec::<Token>::new();
+        flatten_into(&linked_node, &offsets, &mut tokens);
+        let results = vec![
+            Token {
+                start: 0,
+                end: 4,
+                kind: TypstSyntaxKind::Text,
+            },
+            Token {
+                start: 4,
+                end: 6,
+                kind: TypstSyntaxKind::Space,
+            }
+        ];
+        assert_eq!(results, tokens);
+        let mut nodes = Vec::new();
+        build_ast_nodes(&linked_node, &offsets,  &mut nodes);
+        let results = vec![
+            ASTNode {
+                start: 0,
+                end: 6,
+                children_count: 1,
+                kind: TypstSyntaxKind::Markup,
+                is_leaf: false,
+                is_error: false,
+                error_message: None,
+            },
+            ASTNode {
+                start: 0,
+                end: 4,
+                children_count: 0,
+                kind: TypstSyntaxKind::Text,
+                is_leaf: true,
+                is_error: false,
+                error_message: None,
+            }
+        ];
+        assert_eq!(results, nodes);
+    }
+}

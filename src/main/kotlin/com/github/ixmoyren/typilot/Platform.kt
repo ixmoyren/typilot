@@ -1,7 +1,5 @@
 package com.github.ixmoyren.typilot
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.ixmoyren.typilot.PlatformConfig.supported
 import com.intellij.openapi.diagnostic.logger
 
@@ -57,24 +55,6 @@ data class PlatformInfo(val os: String, val arch: String) {
 }
 
 /**
- * Download artifact information for a specific platform.
- *
- * @property asset The filename of the asset to download.
- * @property archive The archive extension (e.g., `zip`, `tar.gz`) if the asset is archived, or `null` if it's a raw executable.
- */
-data class PlatformEntry(val asset: String, val archive: String?)
-
-/** Configuration for a tool, including its download base URL and supported platforms. */
-data class ToolConfig(
-    val baseUrl: String,
-    val platforms: Map<PlatformInfo, PlatformEntry>,
-) {
-    fun assetFor(key: PlatformInfo): PlatformEntry? = platforms[key]
-
-    fun supportedPlatforms(): Set<PlatformInfo> = platforms.keys
-}
-
-/**
  * Declarative platform matrix for `tinymist` downloads.
  *
  * Loads the platform configuration from `/tinymist.json` on the plugin classpath. The authoritative [supported] set is the set of platforms for which `tinymist` binaries are
@@ -83,13 +63,14 @@ data class ToolConfig(
 object PlatformConfig {
     private val logger = logger<PlatformConfig>()
 
-    private val configs: Map<String, ToolConfig> by lazy { load() }
-
-    val tinymist: ToolConfig
-        get() = configs["tinymist"] ?: error("tinymist.json missing 'tinymist' section")
-
     val tinymistBaseUrl: String
-        get() = tinymist.baseUrl
+        get() = TypilotBundle["download.tinymist.baseUrl"]
+
+    fun tinymistAsset(info: PlatformInfo): String {
+        val prefix = TypilotBundle["download.tinymist.setting.prefix"]
+        val key = "$prefix.${info.os}.${info.arch}"
+        return TypilotBundle[key]
+    }
 
     /**
      * Platforms on which the `tinymist` binary is available.
@@ -97,7 +78,7 @@ object PlatformConfig {
      * This set drives the auto-download flow. If the current host platform is not in this set, the plugin will display an unsupported-platform error and skip automatic downloads.
      */
     val supported: Set<PlatformInfo> by lazy {
-        val platforms = tinymist.supportedPlatforms()
+        val platforms = TypilotBundle.tinymistPlatforms
         if (platforms.isEmpty()) {
             logger.warn("tinymist platform set is empty — auto-download will be disabled for all hosts")
         }
@@ -111,48 +92,4 @@ object PlatformConfig {
      */
     fun supportedPlatformsDescription(): String =
         supported.sortedWith(compareBy({ it.os }, { it.arch })).joinToString(", ") { it.toString() }
-
-    /**
-     * DTO for a single platform entry in `tinymist.json`.
-     *
-     * The JSON schema ships `platforms` as an array of objects with `os`, `arch`, `asset`, and optional `archive` fields.
-     */
-    private data class PlatformEntryDto(
-        val os: String,
-        val arch: String,
-        val asset: String,
-        val archive: String? = null,
-    )
-
-    private data class ToolConfigDto(
-        val baseUrl: String,
-        val platforms: List<PlatformEntryDto>,
-    ) {
-        /** Converts the DTO into the public [ToolConfig] model, transforming the platform list into a map keyed by [PlatformInfo] for fast lookup. */
-        fun toToolConfig(): ToolConfig {
-            val map = LinkedHashMap<PlatformInfo, PlatformEntry>()
-            for (entry in platforms) {
-                val key = PlatformInfo(entry.os, entry.arch)
-                val previous = map.put(key, PlatformEntry(entry.asset, entry.archive))
-                if (previous != null) {
-                    logger.warn(
-                        "tinymist.json: duplicate entry for $key. Previous: $previous, new: $entry. Later entry wins.",
-                    )
-                }
-            }
-            return ToolConfig(baseUrl, map)
-        }
-    }
-
-    private fun load(): Map<String, ToolConfig> {
-        val resourcePath = "/tinymist.json"
-        val stream = PlatformConfig::class.java.getResourceAsStream(resourcePath)
-            ?: error("$resourcePath not found on classpath")
-
-        val typeRef = object : TypeReference<Map<String, ToolConfigDto>>() {}
-        return stream.use { inputStream ->
-            val raw: Map<String, ToolConfigDto> = jacksonObjectMapper().readValue(inputStream, typeRef)
-            raw.mapValues { (_, dto) -> dto.toToolConfig() }
-        }
-    }
 }

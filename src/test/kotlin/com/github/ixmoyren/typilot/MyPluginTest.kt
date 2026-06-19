@@ -1,8 +1,6 @@
 package com.github.ixmoyren.typilot
 
-import com.github.ixmoyren.typilot.services.TinymistDownloadService
 import com.intellij.ide.highlighter.XmlFileType
-import com.intellij.openapi.components.service
 import com.intellij.psi.xml.XmlFile
 import com.intellij.testFramework.TestDataPath
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -29,10 +27,15 @@ class MyPluginTest : BasePlatformTestCase() {
         myFixture.testRename("foo.xml", "foo_after.xml", "a2")
     }
 
-    fun testProjectService() {
-        val projectService = project.service<TinymistDownloadService>()
-
-        assertNotSame(projectService.getRandomNumber(), projectService.getRandomNumber())
+    fun testTypilotBundle() {
+        val set = setOf(
+            PlatformInfo("darwin", "arm64"),
+            PlatformInfo("darwin", "x64"),
+            PlatformInfo("linux", "arm64"),
+            PlatformInfo("linux", "x64"),
+            PlatformInfo("windows", "x64"),
+        )
+        assertEquals(set, TypilotBundle.tinymistPlatforms)
     }
 
     override fun getTestDataPath() = "src/test/testData/rename"

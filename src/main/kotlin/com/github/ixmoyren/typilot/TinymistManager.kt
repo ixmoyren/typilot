@@ -68,7 +68,7 @@ class TinymistManager {
         /** Determines the GitHub release asset name for tinymist on the current platform. Returns null if the host platform is not in tinymist's supported matrix. */
         fun getPlatformAssetName(): String? {
             val platformInfo = PlatformInfo.currentHost(osName, osArch) ?: return null
-            return PlatformConfig.tinymist.assetFor(platformInfo)?.asset
+            return PlatformConfig.tinymistAsset(platformInfo)
         }
 
         /**

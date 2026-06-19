@@ -17,8 +17,7 @@ class TinymistConfigurable : Configurable {
 
     override fun isModified(): Boolean {
         return settingsForm?.run {
-            settings.tinymistPath != tinymistPath.get() ||
-                    settings.autoCompileOnSave != autoCompileOnSave.get()
+            settings.tinymistPath != tinymistPath.get() || settings.autoCompileOnSave != autoCompileOnSave.get()
         } ?: false
     }
 

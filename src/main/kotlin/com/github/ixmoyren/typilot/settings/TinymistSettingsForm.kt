@@ -28,8 +28,7 @@ class TinymistSettingsForm : JPanel() {
         group(TypilotBundle["settings.tinymist.panel.title"]) {
             panel {
                 row {
-                    label(TypilotBundle["settings.tinymist.panel.tinymistPath.label"])
-                        .align(AlignY.TOP)
+                    label(TypilotBundle["settings.tinymist.panel.tinymistPath.label"]).align(AlignY.TOP)
                     panel {
                         row {
                             val tinymistResolvePath = TinymistManager.getInstance().resolveTinymistPath()
@@ -39,29 +38,32 @@ class TinymistSettingsForm : JPanel() {
                                 FileChooserDescriptorFactory.singleFile()
                                     .withTitle(TypilotBundle["settings.tinymist.panel.tinymistPath.fileChooserDescriptor.title"])
                             )
-                            var cell = cell(tinymistTextFieldBrowseButton).applyToComponent {
-                                isOpaque = false
-                                textField.isOpaque = false
-                            }
+                            var cell =
+                                cell(tinymistTextFieldBrowseButton).applyToComponent {
+                                    isOpaque = false
+                                    textField.isOpaque = false
+                                }
                             cell.columns(COLUMNS_MEDIUM).bindText(tinymistPath)
 
                             button(TypilotBundle["settings.tinymist.panel.testButton"]) {
                                 var tinymistPath = tinymistTextFieldBrowseButton.text
-                                val version = runCatching {
-                                    ApplicationManager.getApplication().runReadAction<String?> {
-                                        if (tinymistPath.isNotBlank()) {
-                                            TinymistManager.getInstance().tinymistVersion(tinymistPath)
-                                        } else {
-                                            TinymistManager.getInstance().tinymistVersion()
+                                val version =
+                                    runCatching {
+                                        ApplicationManager.getApplication().runReadAction<String?> {
+                                            if (tinymistPath.isNotBlank()) {
+                                                TinymistManager.getInstance().tinymistVersion(tinymistPath)
+                                            } else {
+                                                TinymistManager.getInstance().tinymistVersion()
+                                            }
                                         }
                                     }
-                                }.getOrNull()
+                                        .getOrNull()
 
                                 ApplicationManager.getApplication().invokeLater {
                                     tinymistVersionHint.applyToComponent {
                                         isVisible = true
-                                        text = version
-                                            ?: TypilotBundle["settings.tinymist.panel.versionHint.notVersion"]
+                                        text =
+                                            version ?: TypilotBundle["settings.tinymist.panel.versionHint.notVersion"]
                                     }
                                 }
                             }
@@ -85,16 +87,18 @@ class TinymistSettingsForm : JPanel() {
                             }
                         }
                     }
-                }.comment(TypilotBundle["settings.tinymist.panel.tinymistDownload.comment"])
+                }
+                    .comment(TypilotBundle["settings.tinymist.panel.tinymistDownload.comment"])
             }
         }
     }
 
     init {
         layout = BorderLayout()
-        add(panel {
-            row { cell(generalSettingsGroup).align(AlignX.FILL) }
-        })
+        add(
+            panel {
+                row { cell(generalSettingsGroup).align(AlignX.FILL) }
+            })
     }
 
     fun reset() {

@@ -23,10 +23,7 @@ class TinymistDownloadService {
     private val logger = logger<TinymistDownloadService>()
     private val downloading = AtomicBoolean(false)
 
-    /**
-     * Downloads tinymist in a background task with a progress indicator.
-     * Calls [onComplete] on the EDT when done (true = success, false = failure).
-     */
+    /** Downloads tinymist in a background task with a progress indicator. Calls [onComplete] on the EDT when done (true = success, false = failure). */
     fun downloadInBackground(project: Project?, onComplete: ((Boolean) -> Unit)? = null) {
         if (!downloading.compareAndSet(false, true)) {
             onComplete?.let { ApplicationManager.getApplication().invokeLater { it(false) } }
@@ -50,7 +47,8 @@ class TinymistDownloadService {
                     downloading.set(false)
                 }
             }
-        }.queue()
+        }
+            .queue()
     }
 
     private fun performDownload(project: Project?, indicator: ProgressIndicator) {
@@ -58,11 +56,12 @@ class TinymistDownloadService {
         indicator.text = TypilotBundle["download.tinymist.resolving"]
         indicator.fraction = 0.0
 
-        val assetName = TinymistManager.getPlatformAssetName()
-            ?: throw UnsupportedOperationException(unsupportedPlatformMessage())
+        val assetName =
+            TinymistManager.getPlatformAssetName() ?: throw UnsupportedOperationException(unsupportedPlatformMessage())
 
-        val downloadUrl = resolveLatestDownloadUrl(PlatformConfig.tinymistBaseUrl, assetName)
-            ?: throw IOException(TypilotBundle["download.tinymist.notFound", assetName])
+        val downloadUrl = resolveLatestDownloadUrl(PlatformConfig.tinymistBaseUrl, assetName) ?: throw IOException(
+            TypilotBundle["download.tinymist.notFound", assetName]
+        )
 
         checkCanceled(indicator)
 
@@ -87,7 +86,8 @@ class TinymistDownloadService {
                 TypilotBundle["notification.tinymist.downloaded.title"],
                 TypilotBundle["notification.tinymist.downloaded.body"],
                 NotificationType.INFORMATION
-            ).notify(project)
+            )
+            .notify(project)
     }
 
     private fun checkCanceled(indicator: ProgressIndicator) {
@@ -99,13 +99,11 @@ class TinymistDownloadService {
     fun resolveLatestDownloadUrl(baseUrl: String, assetName: String): String? {
         val url = "$baseUrl/$assetName"
         return try {
-            // Perform a HEAD request to follow redirects and validate the URL.
             HttpRequests.head(url)
                 .tuner { connection ->
                     (connection as? HttpURLConnection)?.instanceFollowRedirects = true
                 }
                 .tryConnect()
-            // If no exception, the URL is reachable. The actual download will follow redirects again.
             url
         } catch (e: IOException) {
             logger.warn("Could not resolve download URL for $assetName: ${e.message}")
@@ -118,8 +116,7 @@ class TinymistDownloadService {
         val tempFile = File(target.parent, "${target.name}.download")
 
         try {
-            HttpRequests.request(url)
-                .forceHttps(true)
+            HttpRequests.request(url).forceHttps(true)
                 .saveToFile(tempFile, indicator) // Progress updates are handled by the framework.
             // After download, verify the file size is > 0 (optional sanity check).
             if (tempFile.length() == 0L) {
@@ -140,7 +137,8 @@ class TinymistDownloadService {
                 TypilotBundle["notification.tinymist.download.failed.title"],
                 message,
                 NotificationType.ERROR
-            ).notify(project)
+            )
+            .notify(project)
     }
 
     companion object {
@@ -148,19 +146,16 @@ class TinymistDownloadService {
             ApplicationManager.getApplication().getService(TinymistDownloadService::class.java)
 
         /**
-         * Moves [tempFile] to [target], overwriting if [target] exists.
-         * Tries a fast rename first, falling back to copy + delete when the
-         * rename isn't possible (e.g. across filesystems).
+         * Moves [tempFile] to [target], overwriting if [target] exists. Tries a fast rename first, falling back to copy + delete when the rename isn't possible (e.g. across
+         * filesystems).
          */
         internal fun atomicMove(tempFile: File, target: File) {
             if (target.exists() && !target.delete()) {
                 throw IOException("Failed to delete existing target file: ${target.absolutePath}")
             }
             if (!tempFile.renameTo(target)) {
-                // Fallback: copy and then delete original.
                 tempFile.copyTo(target, overwrite = true)
                 if (!tempFile.delete()) {
-                    // Log but don't fail; the temp file will be cleaned up later if possible.
                     logger<TinymistDownloadService>().warn("Failed to delete temporary file after copy: ${tempFile.absolutePath}")
                 }
             }
@@ -173,7 +168,7 @@ class TinymistDownloadService {
                     "The plugin requires both tinymist and typst, available on: " +
                     "${PlatformConfig.supportedPlatformsDescription()}. " +
                     "On other platforms, install the tools manually and set their paths " +
-                    "in Settings → Tools → Typst."
+                    "in Settings → Tools → Typilot."
         }
     }
 }

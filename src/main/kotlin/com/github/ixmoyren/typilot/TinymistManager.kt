@@ -15,81 +15,65 @@ import java.io.File
  * 3. Previously downloaded binary in the plugin data directory
  * 4. `null` (not found)
  *
- * Note: IntelliJ as a GUI app on macOS/Windows may not inherit the user's full shell/terminal
- * PATH, so we also probe well-known directories where cargo, homebrew, scoop, etc. install binaries.
+ * Note: IntelliJ as a GUI app on macOS/Windows may not inherit the user's full shell/terminal PATH, so we also probe well-known directories where cargo, homebrew, scoop, etc.
+ * install binaries.
  *
- * On Linux, we follow XDG Base Directory Specification: if XDG_DATA_HOME is set,
- * we also search $XDG_DATA_HOME/../bin (e.g., ~/.local/share/../bin -> ~/.local/bin).
+ * On Linux, we follow XDG Base Directory Specification: if XDG_DATA_HOME is set, we also search $XDG_DATA_HOME/../bin (e.g., ~/.local/share/../bin -> ~/.local/bin).
  */
 @Service(Service.Level.APP)
 class TinymistManager {
 
-    /**
-     * Resolves the tinymist binary path, or null if not available anywhere.
-     */
-    fun resolveTinymistPath(): String? = resolveBinaryPath(
-        configuredPath = TinymistSettings.getInstance().tinymistPath,
-        findOnPath = { findBinary("tinymist") },
-        downloadedBinary = getDownloadedBinaryPath(),
-    )
+    /** Resolves the tinymist binary path, or null if not available anywhere. */
+    fun resolveTinymistPath(): String? =
+        resolveBinaryPath(
+            configuredPath = TinymistSettings.getInstance().tinymistPath,
+            findOnPath = { findBinary("tinymist") },
+            downloadedBinary = getDownloadedBinaryPath(),
+        )
 
-    /**
-     * Get the tinymist version number by resolve tinymist path
-     */
+    /** Get the tinymist version number by resolve tinymist path */
     fun tinymistVersion(): String? = resolveTinymistPath()?.let { tinymistVersion(it) }
 
-    /**
-     * Get the tinymist version number by path
-     */
+    /** Get the tinymist version number by path */
     fun tinymistVersion(path: String): String? {
         val commandLine = GeneralCommandLine(path, "-V").apply { withCharset(Charsets.UTF_8) }
-        return ExecUtil.execAndGetOutput(commandLine, 30_000)
-            .takeIf { it.exitCode == 0 }
-            ?.stdout
-            ?.trim()
+        return ExecUtil.execAndGetOutput(commandLine, 30_000).takeIf { it.exitCode == 0 }?.stdout?.trim()
     }
 
-    /**
-     * Returns the directory where the downloaded tinymist binary is stored.
-     */
+    /** Returns the directory where the downloaded tinymist binary is stored. */
     fun getDownloadDir(): File {
         val dir = File(PathManager.getPluginsPath(), "typilot${File.separator}bin")
         dir.mkdirs()
         return dir
     }
 
-    /**
-     * Returns the expected path for the downloaded tinymist binary.
-     */
+    /** Returns the expected path for the downloaded tinymist binary. */
     fun getDownloadedBinaryPath(): File {
         val binaryName = if (isWindows()) "tinymist.exe" else "tinymist"
         return File(getDownloadDir(), binaryName)
     }
 
     companion object {
-        fun getInstance(): TinymistManager =
-            ApplicationManager.getApplication().getService(TinymistManager::class.java)
+        fun getInstance(): TinymistManager = ApplicationManager.getApplication().getService(TinymistManager::class.java)
 
         val osName: String? = System.getProperty("os.name")
         val osArch: String? = System.getProperty("os.arch")
+
         fun isWindows(): Boolean = osName?.lowercase()?.contains("win") ?: false
+
         fun isMacOS(): Boolean = osName?.lowercase()?.contains("mac") ?: false
+
         fun isLinux(): Boolean = osName?.lowercase()?.contains("linux") ?: false
 
-        /**
-         * Determines the GitHub release asset name for tinymist on the current platform.
-         * Returns null if the host platform is not in tinymist's supported matrix.
-         */
+        /** Determines the GitHub release asset name for tinymist on the current platform. Returns null if the host platform is not in tinymist's supported matrix. */
         fun getPlatformAssetName(): String? {
-            val key = PlatformInfo.currentHost(osName, osArch) ?: return null
-            return PlatformConfig.tinymist.assetFor(key)?.asset
+            val platformInfo = PlatformInfo.currentHost(osName, osArch) ?: return null
+            return PlatformConfig.tinymist.assetFor(platformInfo)?.asset
         }
 
         /**
-         * Pure-function core of the 3-stage binary resolution fallback.
-         * The instance methods [resolveTinymistPath] are
-         * thin wrappers that supply the real settings, PATH lookup, and
-         * downloaded file. Exposed for unit testing without an IntelliJ fixture.
+         * Pure-function core of the 3-stage binary resolution fallback. The instance methods [resolveTinymistPath] are thin wrappers that supply the real settings, PATH lookup,
+         * and downloaded file. Exposed for unit testing without an IntelliJ fixture.
          */
         internal fun resolveBinaryPath(
             configuredPath: String,
@@ -99,7 +83,9 @@ class TinymistManager {
             if (configuredPath.isNotBlank() && isBinaryExecutable(File(configuredPath))) {
                 return configuredPath
             }
-            findOnPath()?.let { return it }
+            findOnPath()?.let {
+                return it
+            }
             if (isBinaryExecutable(downloadedBinary)) {
                 return downloadedBinary.absolutePath
             }
@@ -115,10 +101,7 @@ class TinymistManager {
             return file.canExecute()
         }
 
-        /**
-         * Well-known directories where tools like tinymist/typst are commonly installed.
-         * Returns only directories relevant to the current OS.
-         */
+        /** Well-known directories where tools like tinymist/typst are commonly installed. Returns only directories relevant to the current OS. */
         private fun getWellKnownDirs(): List<String> {
             val home = File(System.getProperty("user.home"))
             val dirs = mutableListOf<String>()
@@ -130,9 +113,7 @@ class TinymistManager {
             return dirs.distinct()
         }
 
-        /**
-         * Windows-specific well-known install directories.
-         */
+        /** Windows-specific well-known install directories. */
         private fun addWindowsDirs(dirs: MutableList<String>, home: File) {
             // Cargo (Rust) — most common install method for both tinymist and typst
             dirs.add(File(home, ".cargo${File.separator}bin").absolutePath)
@@ -165,10 +146,7 @@ class TinymistManager {
             dirs.add(File(home, ".local${File.separator}bin").absolutePath)
         }
 
-        /**
-         * macOS and Linux well-known install directories.
-         * On Linux, follows XDG Base Directory Specification when possible.
-         */
+        /** macOS and Linux well-known install directories. On Linux, follows XDG Base Directory Specification when possible. */
         private fun addUnixDirs(dirs: MutableList<String>, home: File) {
             // User local bins (priority over system)
             // XDG: if XDG_DATA_HOME is set, $XDG_DATA_HOME/../bin is likely user's bin dir
@@ -209,9 +187,7 @@ class TinymistManager {
             dirs.add(File(home, ".volta/bin").absolutePath)
         }
 
-        /**
-         * Searches for a binary by name on the system PATH and well-known install directories.
-         */
+        /** Searches for a binary by name on the system PATH and well-known install directories. */
         fun findBinary(binaryName: String): String? {
             val extensions = if (isWindows()) listOf(".exe", ".cmd", ".bat", "") else listOf("")
 

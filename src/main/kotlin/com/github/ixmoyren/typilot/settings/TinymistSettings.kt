@@ -25,7 +25,6 @@ class TinymistSettings : PersistentStateComponent<TinymistSettings.State> {
             state.autoCompileOnSave = value
         }
 
-
     override fun getState(): State = state
 
     override fun loadState(state: State) {

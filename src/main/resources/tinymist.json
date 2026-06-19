@@ -1,0 +1,37 @@
+{
+  "tinymist": {
+    "baseUrl": "https://github.com/Myriad-Dreamin/tinymist/releases/latest/download",
+    "platforms": [
+      {
+        "os": "darwin",
+        "arch": "arm64",
+        "asset": "tinymist-darwin-arm64",
+        "archive": null
+      },
+      {
+        "os": "darwin",
+        "arch": "x64",
+        "asset": "tinymist-darwin-x64",
+        "archive": null
+      },
+      {
+        "os": "linux",
+        "arch": "arm64",
+        "asset": "tinymist-linux-arm64",
+        "archive": null
+      },
+      {
+        "os": "linux",
+        "arch": "x64",
+        "asset": "tinymist-linux-x64",
+        "archive": null
+      },
+      {
+        "os": "windows",
+        "arch": "x64",
+        "asset": "tinymist-win32-x64.exe",
+        "archive": null
+      }
+    ]
+  }
+}

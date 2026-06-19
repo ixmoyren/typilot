@@ -56,6 +56,9 @@
                 instance="com.github.ixmoyren.typilot.settings.TinymistConfigurable"
                 id="com.github.pndv.typstrenderer.settings.TypstConfigurable"
                 bundle="messages.TypilotBundle" key="settings.displayName"/>
+
+        <notificationGroup id="Typst" displayType="BALLOON" bundle="messages.TypilotBundle"
+                           key="notification.group.typilot"/>
     </extensions>
 
     <actions resource-bundle="messages.TypilotBundle">

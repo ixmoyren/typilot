@@ -70,7 +70,7 @@ class TinymistSettingsForm : JPanel() {
                         }
                         row {
                             tinymistVersionHint =
-                                label(TypilotBundle["settings.typst.panel.versionHint"]).visible(false)
+                                label(TypilotBundle["settings.tinymist.panel.versionHint"]).visible(false)
                         }
                     }
                 }

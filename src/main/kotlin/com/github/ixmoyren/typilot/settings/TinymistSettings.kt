@@ -8,7 +8,6 @@ import com.intellij.util.xmlb.XmlSerializerUtil.copyBean
 class TinymistSettings : PersistentStateComponent<TinymistSettings.State> {
     data class State(
         var tinymistPath: String = "",
-        var autoCompileOnSave: Boolean = false,
     )
 
     private var state = State()
@@ -17,12 +16,6 @@ class TinymistSettings : PersistentStateComponent<TinymistSettings.State> {
         get() = state.tinymistPath
         set(value) {
             state.tinymistPath = value
-        }
-
-    var autoCompileOnSave: Boolean
-        get() = state.autoCompileOnSave
-        set(value) {
-            state.autoCompileOnSave = value
         }
 
     override fun getState(): State = state

@@ -20,7 +20,6 @@ class TinymistSettingsForm : JPanel() {
     private val properties = PropertyGraph()
 
     val tinymistPath = properties.property(settings.tinymistPath)
-    val autoCompileOnSave = properties.property(settings.autoCompileOnSave)
     var tinymistTextFieldBrowseButton: TextFieldWithBrowseButton = TextFieldWithBrowseButton()
     lateinit var tinymistVersionHint: Cell<JLabel>
 
@@ -103,7 +102,6 @@ class TinymistSettingsForm : JPanel() {
 
     fun reset() {
         tinymistPath.set(settings.tinymistPath)
-        autoCompileOnSave.set(settings.autoCompileOnSave)
         tinymistTextFieldBrowseButton.setEmptyState(getEmptyState(TinymistManager.getInstance().resolveTinymistPath()))
         tinymistVersionHint.applyToComponent {
             isVisible = false

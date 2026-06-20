@@ -17,14 +17,13 @@ class TinymistConfigurable : Configurable {
 
     override fun isModified(): Boolean {
         return settingsForm?.run {
-            settings.tinymistPath != tinymistPath.get() || settings.autoCompileOnSave != autoCompileOnSave.get()
+            settings.tinymistPath != tinymistPath.get()
         } ?: false
     }
 
     override fun apply() {
         settings.run {
             tinymistPath = settingsForm?.tinymistPath?.get() ?: tinymistPath
-            autoCompileOnSave = settingsForm?.autoCompileOnSave?.get() ?: autoCompileOnSave
         }
     }
 

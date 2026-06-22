@@ -8,12 +8,16 @@ import com.redhat.devtools.lsp4ij.server.OSProcessStreamConnectionProvider
 
 class TinymistStreamConnectionProvider(
     private val project: Project,
-    private val locators: List<TinymistLocator>
+    private val locator: TinymistLocator?
 ) : OSProcessStreamConnectionProvider() {
     private val logger = Logger.getInstance(TinymistStreamConnectionProvider::class.java)
 
     override fun start() {
-        val path = locators.firstNotNullOfOrNull { it.locate() }
+        if (locator == null) {
+            logger.error("Could not get TinymistLocator")
+            return
+        }
+        val path = locator.locate()
         if (path == null) {
             logger.error("Could not locate Tinymist")
             return

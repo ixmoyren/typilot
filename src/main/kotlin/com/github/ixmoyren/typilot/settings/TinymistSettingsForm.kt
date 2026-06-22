@@ -2,7 +2,8 @@ package com.github.ixmoyren.typilot.settings
 
 import com.github.ixmoyren.typilot.TypilotBundle
 import com.github.ixmoyren.typilot.lsp.TinymistHelper
-import com.github.ixmoyren.typilot.services.TinymistDownloadService
+import com.github.ixmoyren.typilot.lsp.services.TinymistDownloadService
+import com.github.ixmoyren.typilot.lsp.services.TinymistLocatorService
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.observable.properties.PropertyGraph
@@ -50,9 +51,9 @@ class TinymistSettingsForm : JPanel() {
                                     runCatching {
                                         ApplicationManager.getApplication().runReadAction<String?> {
                                             if (tinymistPath.isNotBlank()) {
-                                                TinymistHelper.getInstance().tinymistVersion(tinymistPath)
+                                                TinymistHelper().version(tinymistPath)
                                             } else {
-                                                TinymistHelper.getInstance().tinymistVersion()
+                                                TinymistLocatorService.getInstance().firstValidLocator?.version()
                                             }
                                         }
                                     }

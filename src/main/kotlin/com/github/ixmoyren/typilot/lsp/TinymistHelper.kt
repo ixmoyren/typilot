@@ -7,8 +7,6 @@ import com.github.ixmoyren.typilot.TypalizeUtils.findBinary
 import com.github.ixmoyren.typilot.TypalizeUtils.osArch
 import com.github.ixmoyren.typilot.TypalizeUtils.osName
 import com.github.ixmoyren.typilot.settings.TinymistSettings
-import com.intellij.execution.configurations.GeneralCommandLine
-import com.intellij.execution.util.ExecUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.Service
@@ -17,7 +15,7 @@ import java.io.File
 @Service(Service.Level.APP)
 class TinymistHelper : TinymistLocator {
     val tinymistBinary: String? by lazy {
-        TypalizeUtils.findBinary("tinymist")
+        resolveTinymistPath()
     }
 
     override fun locate(): String? = tinymistBinary
@@ -29,15 +27,6 @@ class TinymistHelper : TinymistLocator {
             findOnPath = { findBinary("tinymist") },
             downloadedBinary = getDownloadedBinaryPath(),
         )
-
-    /** Get the tinymist version number by resolve tinymist path */
-    fun tinymistVersion(): String? = resolveTinymistPath()?.let { tinymistVersion(it) }
-
-    /** Get the tinymist version number by path */
-    fun tinymistVersion(path: String): String? {
-        val commandLine = GeneralCommandLine(path, "-V").apply { withCharset(Charsets.UTF_8) }
-        return ExecUtil.execAndGetOutput(commandLine, 30_000).takeIf { it.exitCode == 0 }?.stdout?.trim()
-    }
 
     /** Returns the directory where the downloaded tinymist binary is stored. */
     fun getDownloadDir(): File {
@@ -53,7 +42,7 @@ class TinymistHelper : TinymistLocator {
     }
 
     companion object {
-        fun getInstance() = ApplicationManager.getApplication().getService(TinymistHelper::class.java)
+        fun getInstance() = ApplicationManager.getApplication().getService(TinymistHelper::class.java)!!
 
         /** Determines the GitHub release asset name for tinymist on the current platform. Returns null if the host platform is not in tinymist's supported matrix. */
         fun getPlatformAssetName(): String? {

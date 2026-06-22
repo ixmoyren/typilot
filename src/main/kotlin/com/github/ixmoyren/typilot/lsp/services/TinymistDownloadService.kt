@@ -1,4 +1,4 @@
-package com.github.ixmoyren.typilot.services
+package com.github.ixmoyren.typilot.lsp.services
 
 import com.github.ixmoyren.typilot.PlatformConfig
 import com.github.ixmoyren.typilot.TYPILOT_NOTIFICATION_GROUP_ID

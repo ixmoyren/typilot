@@ -1,0 +1,68 @@
+package com.github.ixmoyren.typilot
+
+import java.io.File
+
+object TypalizeUtils {
+    private val osName = System.getProperty("os.name")?.lowercase()
+    private val osArch = System.getProperty("os.arch")?.lowercase()
+
+    fun isWindows(): Boolean = osName?.contains("win") == true
+    fun isMacOS(): Boolean = osName?.contains("mac") == true
+    fun isLinux(): Boolean = osName?.contains("linux") == true
+
+    /** Well-known directories where tools like tinymist/typst are commonly installed. */
+    private fun getWellKnownDirs(): List<String> =
+        buildList {
+            val home = File(System.getProperty("user.home"))
+            if (isWindows()) {
+                add(File(home, ".cargo/bin").absolutePath)
+                add(File(home, "scoop/shims").absolutePath)
+                System.getenv("LOCALAPPDATA")?.let { localAppData ->
+                    add(File(localAppData, "Microsoft/WinGet/Links").absolutePath)
+                    add(File(localAppData, "Programs/tinymist").absolutePath)
+                }
+                System.getenv("ChocolateyInstall")?.let { choco ->
+                    add(File(choco, "bin").absolutePath)
+                } ?: add("C:/ProgramData/chocolatey/bin")
+                System.getenv("ProgramFiles")?.let { progFiles ->
+                    add(File(progFiles, "tinymist").absolutePath)
+                }
+                add(File(home, ".local/bin").absolutePath)
+            } else {
+                System.getenv("XDG_DATA_HOME")?.let { xdgData ->
+                    File(xdgData).parentFile?.let { parent ->
+                        add(File(parent, "bin").absolutePath)
+                    }
+                } ?: add(File(home, ".local/bin").absolutePath)
+                add(File(home, ".bin").absolutePath)
+                add(File(home, ".cargo/bin").absolutePath)
+                if (isMacOS()) {
+                    add("/opt/homebrew/bin")
+                    add("/usr/local/bin")
+                }
+                if (isLinux()) {
+                    add("/home/linuxbrew/.linuxbrew/bin")
+                    add(File(home, ".linuxbrew/bin").absolutePath)
+                }
+                add("/usr/local/bin")
+                add("/usr/bin")
+                add(File(home, ".nix-profile/bin").absolutePath)
+                add("/run/current-system/sw/bin")
+                add(File(home, ".volta/bin").absolutePath)
+            }
+        }.distinct()
+
+    /** Searches for a binary by name in system PATH and well-known directories. */
+    fun findBinary(binaryName: String): String? {
+        val extensions = if (isWindows()) listOf(".exe", ".cmd", ".bat", "") else listOf("")
+        val pathDirs = System.getenv("PATH")?.split(File.pathSeparator).orEmpty()
+        val allDirs = (pathDirs + getWellKnownDirs()).distinct()
+
+        return allDirs.firstNotNullOfOrNull { dir ->
+            extensions.firstNotNullOfOrNull { ext ->
+                val file = File(dir, binaryName + ext)
+                if (file.isFile && file.canExecute()) file.absolutePath else null
+            }
+        }
+    }
+}

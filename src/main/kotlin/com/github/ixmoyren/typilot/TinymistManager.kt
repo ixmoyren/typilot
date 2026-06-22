@@ -1,5 +1,6 @@
 package com.github.ixmoyren.typilot
 
+import com.github.ixmoyren.typilot.TypalizeUtils.findBinary
 import com.github.ixmoyren.typilot.settings.TinymistSettings
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.util.ExecUtil
@@ -99,111 +100,6 @@ class TinymistManager {
                 return ext in listOf("exe", "cmd", "bat", "com") || file.canExecute()
             }
             return file.canExecute()
-        }
-
-        /** Well-known directories where tools like tinymist/typst are commonly installed. Returns only directories relevant to the current OS. */
-        private fun getWellKnownDirs(): List<String> {
-            val home = File(System.getProperty("user.home"))
-            val dirs = mutableListOf<String>()
-            if (isWindows()) {
-                addWindowsDirs(dirs, home)
-            } else {
-                addUnixDirs(dirs, home)
-            }
-            return dirs.distinct()
-        }
-
-        /** Windows-specific well-known install directories. */
-        private fun addWindowsDirs(dirs: MutableList<String>, home: File) {
-            // Cargo (Rust) — most common install method for both tinymist and typst
-            dirs.add(File(home, ".cargo${File.separator}bin").absolutePath)
-
-            // Scoop
-            dirs.add(File(home, "scoop${File.separator}shims").absolutePath)
-
-            // WinGet / App Installer default paths
-            val localAppData = System.getenv("LOCALAPPDATA")
-            if (localAppData != null) {
-                dirs.add(File(localAppData, "Microsoft${File.separator}WinGet${File.separator}Links").absolutePath)
-                dirs.add(File(localAppData, "Programs${File.separator}tinymist").absolutePath)
-            }
-
-            // Chocolatey
-            val chocoInstall = System.getenv("ChocolateyInstall")
-            if (chocoInstall != null) {
-                dirs.add(File(chocoInstall, "bin").absolutePath)
-            } else {
-                dirs.add(File("C:${File.separator}ProgramData${File.separator}chocolatey${File.separator}bin").absolutePath)
-            }
-
-            // Program Files
-            val programFiles = System.getenv("ProgramFiles")
-            if (programFiles != null) {
-                dirs.add(File(programFiles, "tinymist").absolutePath)
-            }
-
-            // Common user-local bin
-            dirs.add(File(home, ".local${File.separator}bin").absolutePath)
-        }
-
-        /** macOS and Linux well-known install directories. On Linux, follows XDG Base Directory Specification when possible. */
-        private fun addUnixDirs(dirs: MutableList<String>, home: File) {
-            // User local bins (priority over system)
-            // XDG: if XDG_DATA_HOME is set, $XDG_DATA_HOME/../bin is likely user's bin dir
-            val xdgDataHome = System.getenv("XDG_DATA_HOME")
-            if (xdgDataHome != null) {
-                File(xdgDataHome).parentFile?.let { parent ->
-                    dirs.add(File(parent, "bin").absolutePath)
-                }
-            } else {
-                // Fallback to standard ~/.local/bin
-                dirs.add(File(home, ".local/bin").absolutePath)
-            }
-            // Additional common user bin locations
-            dirs.add(File(home, ".bin").absolutePath)
-
-            // Cargo (Rust) — most common install method
-            dirs.add(File(home, ".cargo/bin").absolutePath)
-
-            // Homebrew
-            if (isMacOS()) {
-                dirs.add("/opt/homebrew/bin")
-                dirs.add("/usr/local/bin")
-            }
-            if (isLinux()) {
-                dirs.add("/home/linuxbrew/.linuxbrew/bin")
-                dirs.add(File(home, ".linuxbrew/bin").absolutePath)
-            }
-
-            // Common system paths
-            dirs.add("/usr/local/bin")
-            dirs.add("/usr/bin")
-
-            // Nix
-            dirs.add(File(home, ".nix-profile/bin").absolutePath)
-            dirs.add("/run/current-system/sw/bin")
-
-            // Volta (Node.js version manager)
-            dirs.add(File(home, ".volta/bin").absolutePath)
-        }
-
-        /** Searches for a binary by name on the system PATH and well-known install directories. */
-        fun findBinary(binaryName: String): String? {
-            val extensions = if (isWindows()) listOf(".exe", ".cmd", ".bat", "") else listOf("")
-
-            // Combine system PATH dirs with well-known dirs
-            val pathDirs = System.getenv("PATH")?.split(File.pathSeparator).orEmpty()
-            val allDirs = (pathDirs + getWellKnownDirs()).distinct()
-
-            for (dir in allDirs) {
-                for (ext in extensions) {
-                    val candidate = File(dir, binaryName + ext)
-                    if (isBinaryExecutable(candidate)) {
-                        return candidate.absolutePath
-                    }
-                }
-            }
-            return null
         }
     }
 }

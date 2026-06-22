@@ -1,0 +1,63 @@
+{
+  "id": "tinymist-installer",
+  "name": "Tinymist(Typst Language Server)",
+  "executeOnStartServer": true,
+  "check": {
+    "exec": {
+      "name": "Check tinymist installation",
+      "command": "${server.command}",
+      "timeout": 3000
+    }
+  },
+  "run": {
+    "download": {
+      "name": "Download tinymist from GitHub",
+      "github": {
+        "owner": "Myriad-Dreamin",
+        "repository": "tinymist",
+        "prerelease": false,
+        "asset": {
+          "windows": {
+            "x86_64": "tinymist-win32-x64.exe",
+            "arm64": "tinymist-win32-arm64.exe"
+          },
+          "unix": {
+            "x86_64": "tinymist-linux-x64",
+            "arm64": "tinymist-linux-arm64"
+          },
+          "mac": {
+            "x86_64": "tinymist-darwin-x64",
+            "aarch64": "tinymist-darwin-arm64"
+          }
+        }
+      },
+      "output": {
+        "dir": "$USER_HOME$/.lsp4ij/lsp/tinymist",
+        "file": {
+          "name": {
+            "windows": {
+              "x86_64": "tinymist-win32-x64.exe",
+              "arm64": "tinymist-win32-arm64.exe"
+            },
+            "unix": {
+              "x86_64": "tinymist-linux-x64",
+              "arm64": "tinymist-linux-arm64"
+            },
+            "mac": {
+              "x86_64": "tinymist-darwin-x64",
+              "aarch64": "tinymist-darwin-arm64"
+            }
+          },
+          "executable": true
+        }
+      },
+      "onSuccess": {
+        "configureServer": {
+          "name": "Configure Tinymist server command",
+          "command": "${output.dir}/${output.file.name}",
+          "update": true
+        }
+      }
+    }
+  }
+}

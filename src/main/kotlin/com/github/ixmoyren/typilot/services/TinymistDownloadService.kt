@@ -117,8 +117,7 @@ class TinymistDownloadService {
 
         try {
             HttpRequests.request(url).forceHttps(true)
-                .saveToFile(tempFile, indicator) // Progress updates are handled by the framework.
-            // After download, verify the file size is > 0 (optional sanity check).
+                .saveToFile(tempFile, indicator)
             if (tempFile.length() == 0L) {
                 throw IOException("Downloaded file is empty: $url")
             }

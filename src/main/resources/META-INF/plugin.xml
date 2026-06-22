@@ -11,6 +11,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.java</depends>
+    <depends>com.redhat.devtools.lsp4ij</depends>
 
     <resource-bundle>messages.TypilotBundle</resource-bundle>
 
@@ -29,6 +30,15 @@
                 language="Typst"
                 implementationClass="com.github.ixmoyren.typilot.highlight.TypstSyntaxHighlighterFactory"/>
 
+        <lang.foldingBuilder
+                language="Typst"
+                implementationClass="com.redhat.devtools.lsp4ij.features.foldingRange.LSPFoldingRangeBuilder"
+                order="first"/>
+
+        <codeInsight.parameterInfo
+                language="Typst"
+                implementationClass="com.redhat.devtools.lsp4ij.features.signatureHelp.LSPParameterInfoHandler"/>
+
         <annotator
                 language="Typst"
                 implementationClass="com.github.ixmoyren.typilot.highlight.TypstHighlightAnnotator"/>
@@ -37,7 +47,7 @@
                 implementation="com.github.ixmoyren.typilot.highlight.TypstColorSettingsPage"/>
         <additionalTextAttributes scheme="High contrast" file="colors/high-contrast.xml"/>
         <additionalTextAttributes scheme="Light" file="colors/light.xml"/>
-        <additionalTextAttributes scheme="Intellij Light" file="colors/light.xml"/>
+        <additionalTextAttributes scheme="IntelliJ Light" file="colors/light.xml"/>
         <additionalTextAttributes scheme="Darcula" file="colors/darcula.xml"/>
 
         <multiHostInjector implementation="com.github.ixmoyren.typilot.injection.TypstRawBlockInjector"/>
@@ -59,6 +69,23 @@
 
         <notificationGroup id="Typst" displayType="BALLOON" bundle="messages.TypilotBundle"
                            key="notification.group.typilot"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.redhat.devtools.lsp4ij">
+        <server id="tinymistServer"
+                name="Typst Language Server"
+                factoryClass="com.github.ixmoyren.typilot.lsp.TypstLanguageServerFactory">
+            <description><![CDATA[
+            Provides Typst language intelligence via the tinymist LSP.
+            ]]></description>
+        </server>
+        <languageMapping language="Typst"
+                         serverId="tinymistServer"
+                         languageId="typst"/>
+
+        <fileNamePatternMapping patterns="*.typ"
+                                serverId="tinymistServer"
+                                languageId="typst"/>
     </extensions>
 
     <actions resource-bundle="messages.TypilotBundle">

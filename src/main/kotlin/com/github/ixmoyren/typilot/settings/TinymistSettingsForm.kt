@@ -51,9 +51,9 @@ class TinymistSettingsForm : JPanel() {
                                     runCatching {
                                         ApplicationManager.getApplication().runReadAction<String?> {
                                             if (tinymistPath.isNotBlank()) {
-                                                TinymistHelper().version(tinymistPath)
+                                                TinymistHelper.getInstance().version(tinymistPath)
                                             } else {
-                                                TinymistLocatorService.getInstance().firstValidLocator?.version()
+                                                TinymistLocatorService.getInstance().version
                                             }
                                         }
                                     }

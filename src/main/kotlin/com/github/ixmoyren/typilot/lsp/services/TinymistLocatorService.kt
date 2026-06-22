@@ -13,7 +13,7 @@ class TinymistLocatorService {
 
     val locators: List<TinymistLocator> by lazy {
         listOf(
-            TinymistHelper(),
+            TinymistHelper.getInstance(),
             TinymistInstallerLocator(installer),
         )
     }
@@ -22,6 +22,10 @@ class TinymistLocatorService {
         locators.firstOrNull {
             it.version()?.contains("tinymist", ignoreCase = true) == true
         }
+    }
+
+    val version: String? by lazy {
+        firstValidLocator?.version()
     }
 
     companion object {

@@ -3,8 +3,8 @@ package com.github.ixmoyren.typilot
 import java.io.File
 
 object TypalizeUtils {
-    private val osName = System.getProperty("os.name")?.lowercase()
-    private val osArch = System.getProperty("os.arch")?.lowercase()
+    val osName = System.getProperty("os.name")?.lowercase()
+    val osArch = System.getProperty("os.arch")?.lowercase()
 
     fun isWindows(): Boolean = osName?.contains("win") == true
     fun isMacOS(): Boolean = osName?.contains("mac") == true

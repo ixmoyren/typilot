@@ -2,8 +2,9 @@ package com.github.ixmoyren.typilot.services
 
 import com.github.ixmoyren.typilot.PlatformConfig
 import com.github.ixmoyren.typilot.TYPILOT_NOTIFICATION_GROUP_ID
-import com.github.ixmoyren.typilot.TinymistManager
+import com.github.ixmoyren.typilot.TypalizeUtils
 import com.github.ixmoyren.typilot.TypilotBundle
+import com.github.ixmoyren.typilot.lsp.TinymistHelper
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
@@ -57,7 +58,7 @@ class TinymistDownloadService {
         indicator.fraction = 0.0
 
         val assetName =
-            TinymistManager.getPlatformAssetName() ?: throw UnsupportedOperationException(unsupportedPlatformMessage())
+            TinymistHelper.getPlatformAssetName() ?: throw UnsupportedOperationException(unsupportedPlatformMessage())
 
         val downloadUrl = resolveLatestDownloadUrl(PlatformConfig.tinymistBaseUrl, assetName) ?: throw IOException(
             TypilotBundle["download.tinymist.notFound", assetName]
@@ -68,10 +69,10 @@ class TinymistDownloadService {
         indicator.text = TypilotBundle["download.tinymist.downloading"]
         indicator.fraction = 0.1
 
-        val targetFile = TinymistManager.getInstance().getDownloadedBinaryPath()
+        val targetFile = TinymistHelper.getInstance().getDownloadedBinaryPath()
         downloadFile(downloadUrl, targetFile, indicator)
 
-        if (!TinymistManager.isWindows()) {
+        if (!TypalizeUtils.isWindows()) {
             targetFile.setExecutable(true, false)
         }
 

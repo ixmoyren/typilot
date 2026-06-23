@@ -117,8 +117,7 @@ class TinymistDownloadService {
         val tempFile = File(target.parent, "${target.name}.download")
 
         try {
-            HttpRequests.request(url).forceHttps(true)
-                .saveToFile(tempFile, indicator)
+            HttpRequests.request(url).forceHttps(true).saveToFile(tempFile, indicator)
             if (tempFile.length() == 0L) {
                 throw IOException("Downloaded file is empty: $url")
             }

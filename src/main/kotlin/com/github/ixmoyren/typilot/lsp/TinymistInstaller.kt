@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
-
 class TinymistInstaller : DeclarativeLanguageServerInstaller(), CommandLineUpdater {
     private val logger = logger<TinymistInstaller>()
     private val descriptor: ServerInstallerDescriptor? by lazy { loadDescriptor() }
@@ -34,7 +33,6 @@ class TinymistInstaller : DeclarativeLanguageServerInstaller(), CommandLineUpdat
             it.commandLineUpdater = this
         }
     }
-
 
     @Nullable
     protected override fun getServerInstallerDescriptor(): ServerInstallerDescriptor? = descriptor

@@ -13,18 +13,14 @@ object TypilotBundle : DynamicBundle(BUNDLE) {
     fun String.toPlatformInfo(): PlatformInfo? {
         val parts = split('.')
         return if (parts.size >= 2) {
-            PlatformInfo(
-                os = parts[parts.size - 2],
-                arch = parts.last()
-            )
+            PlatformInfo(os = parts[parts.size - 2], arch = parts.last())
         } else null
     }
 
     val tinymistPlatforms: Set<PlatformInfo> by lazy {
         super.getResourceBundle().keys.toList()
             .filter { it.contains(TypilotBundle["download.tinymist.setting.prefix"]) }
-            .mapNotNull { it.toPlatformInfo() }
-            .toSet()
+            .mapNotNull { it.toPlatformInfo() }.toSet()
     }
 
     operator fun get(@PropertyKey(resourceBundle = BUNDLE) key: String, vararg params: Any) = getMessage(key, *params)

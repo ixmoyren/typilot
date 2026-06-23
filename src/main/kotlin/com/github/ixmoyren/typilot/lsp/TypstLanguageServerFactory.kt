@@ -9,10 +9,7 @@ import com.redhat.devtools.lsp4ij.server.StreamConnectionProvider
 class TypstLanguageServerFactory : LanguageServerFactory {
 
     override fun createConnectionProvider(project: Project): StreamConnectionProvider =
-        TinymistStreamConnectionProvider(
-            project,
-            TinymistLocatorService.getInstance().firstValidLocator
-        )
+        TinymistStreamConnectionProvider(project, TinymistLocatorService.getInstance().firstValidLocator)
 
     override fun createServerInstaller(): ServerInstaller = TinymistLocatorService.getInstance().installer
 }

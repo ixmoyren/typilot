@@ -7,7 +7,9 @@ object TypalizeUtils {
     val osArch = System.getProperty("os.arch")?.lowercase()
 
     fun isWindows(): Boolean = osName?.contains("win") == true
+
     fun isMacOS(): Boolean = osName?.contains("mac") == true
+
     fun isLinux(): Boolean = osName?.contains("linux") == true
 
     /** Well-known directories where tools like tinymist/typst are commonly installed. */
@@ -50,7 +52,8 @@ object TypalizeUtils {
                 add("/run/current-system/sw/bin")
                 add(File(home, ".volta/bin").absolutePath)
             }
-        }.distinct()
+        }
+            .distinct()
 
     /** Searches for a binary by name in system PATH and well-known directories. */
     fun findBinary(binaryName: String): String? {

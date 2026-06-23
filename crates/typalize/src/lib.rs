@@ -30,7 +30,7 @@ pub extern "C" fn wasm_free(ptr: *mut u8) {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn version() -> i64 {
-    let version = "typst-syntax 0.14.2".to_owned();
+    let version = "typst-syntax 0.15.0".to_owned();
     leak(version.as_bytes())
 }
 
@@ -56,10 +56,12 @@ pub extern "C" fn parse(text_ptr: i32, text_len: i32) -> i64 {
 
 #[cfg(test)]
 mod tests {
-    use crate::syntax::{build_ast_nodes, flatten_into};
+    use crate::{
+        ASTNode, Token, TypstSyntaxKind,
+        syntax::{build_ast_nodes, flatten_into},
+        util::Utf16Ext,
+    };
     use typst_syntax::LinkedNode;
-    use crate::{ASTNode, Token, TypstSyntaxKind};
-    use crate::util::Utf16Ext;
 
     #[test]
     fn test() {
@@ -79,11 +81,11 @@ mod tests {
                 start: 4,
                 end: 6,
                 kind: TypstSyntaxKind::Space,
-            }
+            },
         ];
         assert_eq!(results, tokens);
         let mut nodes = Vec::new();
-        build_ast_nodes(&linked_node, &offsets,  &mut nodes);
+        build_ast_nodes(&linked_node, &offsets, &mut nodes);
         let results = vec![
             ASTNode {
                 start: 0,
@@ -102,7 +104,7 @@ mod tests {
                 is_leaf: true,
                 is_error: false,
                 error_message: None,
-            }
+            },
         ];
         assert_eq!(results, nodes);
     }

@@ -22,4 +22,4 @@ enum-mirror = { workspace = true }
 serde = { version = "1.0", features = ["derive"] }
 serde-reflection = { workspace = true, optional = true }
 serde-saphyr = { workspace = true, optional = true }
-typst-syntax = "0.14.2"
+typst-syntax = "0.15.0"

@@ -1,6 +1,6 @@
+use enum_mirror::EnumFrom;
 use serde::{Deserialize, Serialize};
 use typst_syntax::SyntaxKind;
-use enum_mirror::EnumFrom;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Token {
@@ -127,19 +127,25 @@ pub enum TypstSyntaxKind {
     TermItem,
     /// Introduces a term item: `/`.
     TermMarker,
+
     /// A mathematical equation: `$x$`, `$ x^2 $`.
     Equation,
-
     /// The contents of a mathematical equation: `x^2 + 1`.
     Math,
     /// A lone text fragment in math: `x`, `25`, `3.1415`, `=`, `|`, `[`.
     MathText,
     /// An identifier in math: `pi`.
     MathIdent,
+    /// A field access in math: `arrow.r.long.double.bar`.
+    MathFieldAccess,
     /// A shorthand for a unicode codepoint in math: `a <= b`.
     MathShorthand,
     /// An alignment point in math: `&`.
     MathAlignPoint,
+    /// A function call in math: `mat(delim: "[", a, b; ..#($c$,), d)`.
+    MathCall,
+    /// Function arguments in math: `(delim: "[", a, b; ..#($c$,), d)`.
+    MathArgs,
     /// Matched delimiters in math: `[x + y]`.
     MathDelimited,
     /// A base with optional attachments in math: `a_1^2`.
@@ -189,8 +195,6 @@ pub enum TypstSyntaxKind {
     Slash,
     /// The superscript operator in math: `^`.
     Hat,
-    /// The prime in math: `'`.
-    Prime,
     /// The field access and method call operator: `.`.
     Dot,
     /// The assignment operator: `=`.
@@ -221,6 +225,8 @@ pub enum TypstSyntaxKind {
     Arrow,
     /// A root: `√`, `∛` or `∜`.
     Root,
+    /// An exclamation mark; groups with directly preceding text in math: `!`.
+    Bang,
 
     /// The `not` operator.
     Not,

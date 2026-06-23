@@ -16,7 +16,7 @@ class TypalizeTest : BasePlatformTestCase() {
                 }
                 result ?: throw Exception("The typst version result is null")
             }
-        assertEquals("typst-syntax 0.14.2", version)
+        assertEquals("typst-syntax 0.15.0", version)
     }
 
     fun testTypstSyntaxKindEntries() {

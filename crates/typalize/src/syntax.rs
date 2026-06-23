@@ -35,17 +35,13 @@ pub trait ASTBuilder {
 impl<'a> ASTBuilder for LinkedNode<'a> {
     fn build(&self, offsets: &[usize]) -> Vec<u8> {
         let mut nodes = Vec::new();
-        build_ast_nodes(self, offsets,  &mut nodes);
+        build_ast_nodes(self, offsets, &mut nodes);
         let nodes = ASTNodes(nodes);
         bcs::to_bytes(&nodes).unwrap()
     }
 }
 
-pub(crate) fn build_ast_nodes<'a>(
-    node: &LinkedNode,
-    offsets: &[usize],
-    nodes: &mut Vec<ASTNode>,
-) {
+pub(crate) fn build_ast_nodes<'a>(node: &LinkedNode, offsets: &[usize], nodes: &mut Vec<ASTNode>) {
     if node.kind().is_trivia() {
         return;
     }
@@ -55,7 +51,8 @@ pub(crate) fn build_ast_nodes<'a>(
     let end = offsets[offset + node.len()];
     let is_error = node.kind().is_error();
     let error_message = if is_error {
-        node.errors()
+        node.errors_and_warnings()
+            .0
             .into_iter()
             .next()
             .map(|e| e.message.to_string())
@@ -67,12 +64,20 @@ pub(crate) fn build_ast_nodes<'a>(
         .children()
         .filter(|child| !child.kind().is_trivia())
         .count();
-    let ast_node = ASTNode::new(kind, start, end, children_count, is_leaf, is_error, error_message);
+    let ast_node = ASTNode::new(
+        kind,
+        start,
+        end,
+        children_count,
+        is_leaf,
+        is_error,
+        error_message,
+    );
     nodes.push(ast_node);
     for child in node.children() {
         if child.kind().is_trivia() {
             continue;
         }
-        build_ast_nodes(&child, offsets,nodes);
+        build_ast_nodes(&child, offsets, nodes);
     }
 }

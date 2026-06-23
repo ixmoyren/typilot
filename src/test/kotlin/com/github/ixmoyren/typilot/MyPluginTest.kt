@@ -28,13 +28,14 @@ class MyPluginTest : BasePlatformTestCase() {
     }
 
     fun testTypilotBundle() {
-        val set = setOf(
-            PlatformInfo("darwin", "arm64"),
-            PlatformInfo("darwin", "x64"),
-            PlatformInfo("linux", "arm64"),
-            PlatformInfo("linux", "x64"),
-            PlatformInfo("windows", "x64"),
-        )
+        val set =
+            setOf(
+                PlatformInfo("darwin", "arm64"),
+                PlatformInfo("darwin", "x64"),
+                PlatformInfo("linux", "arm64"),
+                PlatformInfo("linux", "x64"),
+                PlatformInfo("windows", "x64"),
+            )
         assertEquals(set, TypilotBundle.tinymistPlatforms)
     }
 

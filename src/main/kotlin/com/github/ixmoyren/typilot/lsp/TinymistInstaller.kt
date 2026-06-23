@@ -1,5 +1,7 @@
 package com.github.ixmoyren.typilot.lsp
 
+import com.github.ixmoyren.typilot.lsp.services.TinymistDownloadService
+import com.github.ixmoyren.typilot.lsp.services.TinymistFindService
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.progress.ProgressIndicator
@@ -20,6 +22,9 @@ class TinymistInstaller : DeclarativeLanguageServerInstaller(), CommandLineUpdat
 
     override fun getCommandLine(): String? =
         PropertiesComponent.getInstance().getValue(KEY_COMMAND)
+            ?: ConfigureLocator.getInstance().locate()
+            ?: TinymistFindService.getInstance().locate()
+            ?: TinymistDownloadService.getInstance().locate()
 
     override fun setCommandLine(commandLine: String) {
         PropertiesComponent.getInstance().setValue(KEY_COMMAND, commandLine)

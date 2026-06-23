@@ -1,6 +1,6 @@
 package com.github.ixmoyren.typilot.lsp.services
 
-import com.github.ixmoyren.typilot.lsp.TinymistHelper
+import com.github.ixmoyren.typilot.lsp.ConfigureLocator
 import com.github.ixmoyren.typilot.lsp.TinymistInstaller
 import com.github.ixmoyren.typilot.lsp.TinymistInstallerLocator
 import com.github.ixmoyren.typilot.lsp.TinymistLocator
@@ -8,12 +8,14 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 
 @Service(Service.Level.APP)
-class TinymistLocatorService {
+class TinymistLocateService {
     val installer = TinymistInstaller()
 
     val locators: List<TinymistLocator> by lazy {
         listOf(
-            TinymistHelper.getInstance(),
+            ConfigureLocator.getInstance(),
+            TinymistFindService.getInstance(),
+            TinymistDownloadService.getInstance(),
             TinymistInstallerLocator(installer),
         )
     }
@@ -29,7 +31,7 @@ class TinymistLocatorService {
     }
 
     companion object {
-        fun getInstance(): TinymistLocatorService =
-            ApplicationManager.getApplication().getService(TinymistLocatorService::class.java)
+        fun getInstance(): TinymistLocateService =
+            ApplicationManager.getApplication().getService(TinymistLocateService::class.java)
     }
 }

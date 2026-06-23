@@ -3,7 +3,7 @@ package com.github.ixmoyren.typilot.settings
 import com.github.ixmoyren.typilot.TypilotBundle
 import com.github.ixmoyren.typilot.lsp.TinymistHelper
 import com.github.ixmoyren.typilot.lsp.services.TinymistDownloadService
-import com.github.ixmoyren.typilot.lsp.services.TinymistLocatorService
+import com.github.ixmoyren.typilot.lsp.services.TinymistLocateService
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.observable.properties.PropertyGraph
@@ -53,7 +53,7 @@ class TinymistSettingsForm : JPanel() {
                                             if (tinymistPath.isNotBlank()) {
                                                 TinymistHelper.getInstance().version(tinymistPath)
                                             } else {
-                                                TinymistLocatorService.getInstance().version
+                                                TinymistLocateService.getInstance().version
                                             }
                                         }
                                     }

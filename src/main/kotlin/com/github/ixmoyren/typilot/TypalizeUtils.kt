@@ -3,6 +3,7 @@ package com.github.ixmoyren.typilot
 import java.io.File
 
 object TypalizeUtils {
+    private val WINDOWS_EXECUTABLE_EXTS = setOf("exe", "cmd", "bat", "com")
     val osName = System.getProperty("os.name")?.lowercase()
     val osArch = System.getProperty("os.arch")?.lowercase()
 
@@ -68,4 +69,11 @@ object TypalizeUtils {
             }
         }
     }
+
+    fun isBinaryExecutable(file: File): Boolean =
+        file.isFile &&
+                when {
+                    isWindows() -> file.extension.lowercase() in WINDOWS_EXECUTABLE_EXTS || file.canExecute()
+                    else -> file.canExecute()
+                }
 }

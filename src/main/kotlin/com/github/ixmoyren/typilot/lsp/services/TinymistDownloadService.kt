@@ -1,13 +1,12 @@
 package com.github.ixmoyren.typilot.lsp.services
 
-import com.github.ixmoyren.typilot.PlatformConfig
-import com.github.ixmoyren.typilot.TYPILOT_NOTIFICATION_GROUP_ID
-import com.github.ixmoyren.typilot.TypalizeUtils
-import com.github.ixmoyren.typilot.TypilotBundle
-import com.github.ixmoyren.typilot.lsp.TinymistHelper
+import com.github.ixmoyren.typilot.*
+import com.github.ixmoyren.typilot.TypalizeUtils.isBinaryExecutable
+import com.github.ixmoyren.typilot.lsp.TinymistLocator
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.progress.ProgressIndicator
@@ -20,9 +19,11 @@ import java.net.HttpURLConnection
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Service(Service.Level.APP)
-class TinymistDownloadService {
+class TinymistDownloadService : TinymistLocator {
     private val logger = logger<TinymistDownloadService>()
     private val downloading = AtomicBoolean(false)
+
+    override fun locate(): String? = getDownloadedBinaryPath().takeIf { isBinaryExecutable(it) }?.absolutePath
 
     /** Downloads tinymist in a background task with a progress indicator. Calls [onComplete] on the EDT when done (true = success, false = failure). */
     fun downloadInBackground(project: Project?, onComplete: ((Boolean) -> Unit)? = null) {
@@ -57,8 +58,7 @@ class TinymistDownloadService {
         indicator.text = TypilotBundle["download.tinymist.resolving"]
         indicator.fraction = 0.0
 
-        val assetName =
-            TinymistHelper.getPlatformAssetName() ?: throw UnsupportedOperationException(unsupportedPlatformMessage())
+        val assetName = getPlatformAssetName() ?: throw UnsupportedOperationException(unsupportedPlatformMessage())
 
         val downloadUrl = resolveLatestDownloadUrl(PlatformConfig.tinymistBaseUrl, assetName) ?: throw IOException(
             TypilotBundle["download.tinymist.notFound", assetName]
@@ -69,7 +69,7 @@ class TinymistDownloadService {
         indicator.text = TypilotBundle["download.tinymist.downloading"]
         indicator.fraction = 0.1
 
-        val targetFile = TinymistHelper.getInstance().getDownloadedBinaryPath()
+        val targetFile = getDownloadedBinaryPath()
         downloadFile(downloadUrl, targetFile, indicator)
 
         if (!TypalizeUtils.isWindows()) {
@@ -168,6 +168,25 @@ class TinymistDownloadService {
                     "${PlatformConfig.supportedPlatformsDescription()}. " +
                     "On other platforms, install the tools manually and set their paths " +
                     "in Settings → Tools → Typilot."
+        }
+
+        /** Returns the directory where the downloaded tinymist binary is stored. */
+        internal fun getDownloadDir(): File {
+            val dir = File(PathManager.getPluginsPath(), "typilot${File.separator}bin")
+            dir.mkdirs()
+            return dir
+        }
+
+        /** Returns the expected path for the downloaded tinymist binary. */
+        internal fun getDownloadedBinaryPath(): File {
+            val binaryName = if (TypalizeUtils.isWindows()) "tinymist.exe" else "tinymist"
+            return File(getDownloadDir(), binaryName)
+        }
+
+        /** Determines the GitHub release asset name for tinymist on the current platform. Returns null if the host platform is not in tinymist's supported matrix. */
+        internal fun getPlatformAssetName(): String? {
+            val platformInfo = PlatformInfo.currentHost(TypalizeUtils.osName, TypalizeUtils.osArch) ?: return null
+            return PlatformConfig.tinymistAsset(platformInfo)
         }
     }
 }

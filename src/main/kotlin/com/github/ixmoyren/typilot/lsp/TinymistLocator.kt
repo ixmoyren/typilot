@@ -18,7 +18,7 @@ fun interface TinymistLocator {
 }
 
 class TinymistInstallerLocator(private val installer: TinymistInstaller) : TinymistLocator {
-    override fun locate(): String? = installer.resolvedCommand
+    override fun locate(): String? = installer.commandLine
 }
 
 @Service(Service.Level.APP)

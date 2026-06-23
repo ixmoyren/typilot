@@ -1,8 +1,8 @@
 package com.github.ixmoyren.typilot.settings
 
 import com.github.ixmoyren.typilot.TypilotBundle
-import com.github.ixmoyren.typilot.lsp.TinymistHelper
 import com.github.ixmoyren.typilot.lsp.services.TinymistDownloadService
+import com.github.ixmoyren.typilot.lsp.services.TinymistFindService
 import com.github.ixmoyren.typilot.lsp.services.TinymistLocateService
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -31,7 +31,7 @@ class TinymistSettingsForm : JPanel() {
                     label(TypilotBundle["settings.tinymist.panel.tinymistPath.label"]).align(AlignY.TOP)
                     panel {
                         row {
-                            val tinymistResolvePath = TinymistHelper.getInstance().resolveTinymistPath()
+                            val tinymistResolvePath = TinymistLocateService.getInstance().firstValidLocator?.locate()
                             tinymistTextFieldBrowseButton.setEmptyState(getEmptyState(tinymistResolvePath))
                             tinymistTextFieldBrowseButton.addBrowseFolderListener(
                                 null,
@@ -51,7 +51,7 @@ class TinymistSettingsForm : JPanel() {
                                     runCatching {
                                         ApplicationManager.getApplication().runReadAction<String?> {
                                             if (tinymistPath.isNotBlank()) {
-                                                TinymistHelper.getInstance().version(tinymistPath)
+                                                TinymistFindService.getInstance().version(tinymistPath)
                                             } else {
                                                 TinymistLocateService.getInstance().version
                                             }
@@ -103,7 +103,11 @@ class TinymistSettingsForm : JPanel() {
 
     fun reset() {
         tinymistPath.set(settings.tinymistPath)
-        tinymistTextFieldBrowseButton.setEmptyState(getEmptyState(TinymistHelper.getInstance().resolveTinymistPath()))
+        tinymistTextFieldBrowseButton.setEmptyState(
+            getEmptyState(
+                TinymistLocateService.getInstance().firstValidLocator?.locate()
+            )
+        )
         tinymistVersionHint.applyToComponent {
             isVisible = false
             text = TypilotBundle["settings.tinymist.panel.versionHint"]
@@ -119,8 +123,7 @@ class TinymistSettingsForm : JPanel() {
     }
 
     private fun getTinymistStatusText(): String {
-        val manager = TinymistHelper.getInstance()
-        val resolvedPath = manager.resolveTinymistPath()
+        val resolvedPath = TinymistLocateService.getInstance().firstValidLocator?.locate()
         return resolvedPath ?: TypilotBundle["settings.tinymist.panel.tinymistPath.notFound"]
     }
 }

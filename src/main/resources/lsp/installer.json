@@ -35,26 +35,19 @@
         "dir": "$USER_HOME$/.lsp4ij/lsp/tinymist",
         "file": {
           "name": {
-            "windows": {
-              "x86_64": "tinymist-win32-x64.exe",
-              "arm64": "tinymist-win32-arm64.exe"
-            },
-            "unix": {
-              "x86_64": "tinymist-linux-x64",
-              "arm64": "tinymist-linux-arm64"
-            },
-            "mac": {
-              "x86_64": "tinymist-darwin-x64",
-              "aarch64": "tinymist-darwin-arm64"
-            }
+            "windows": "tinymist.exe",
+            "default": "tinymist"
           },
           "executable": true
         }
       },
       "onSuccess": {
         "configureServer": {
-          "name": "Configure Tinymist server command",
-          "command": "${output.dir}/${output.file.name}",
+          "name": "Configure tinymist server command",
+          "command": {
+            "windows": "$USER_HOME$/.lsp4ij/lsp/tinymist/tinymist.exe",
+            "default": "$USER_HOME$/.lsp4ij/lsp/tinymist/tinymist"
+          },
           "update": true
         }
       }

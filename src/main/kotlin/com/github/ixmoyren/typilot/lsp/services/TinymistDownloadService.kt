@@ -12,6 +12,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.io.HttpRequests
 import java.io.File
 import java.io.IOException
@@ -72,7 +73,7 @@ class TinymistDownloadService : TinymistLocator {
         val targetFile = getDownloadedBinaryPath()
         downloadFile(downloadUrl, targetFile, indicator)
 
-        if (!TypalizeUtils.isWindows()) {
+        if (!SystemInfo.isWindows) {
             targetFile.setExecutable(true, false)
         }
 
@@ -164,10 +165,8 @@ class TinymistDownloadService : TinymistLocator {
             val os = System.getProperty("os.name")
             val arch = System.getProperty("os.arch")
             return "Your platform (os=$os, arch=$arch) is not fully supported. " +
-                    "The plugin requires both tinymist and typst, available on: " +
-                    "${PlatformConfig.supportedPlatformsDescription()}. " +
-                    "On other platforms, install the tools manually and set their paths " +
-                    "in Settings → Tools → Typilot."
+                    "The plugin requires both tinymist and typst, available on:  ${PlatformConfig.supportedPlatformsDescription()}. " +
+                    "On other platforms, install the tools manually and set their paths in Settings → Tools → Typilot."
         }
 
         /** Returns the directory where the downloaded tinymist binary is stored. */
@@ -179,7 +178,7 @@ class TinymistDownloadService : TinymistLocator {
 
         /** Returns the expected path for the downloaded tinymist binary. */
         internal fun getDownloadedBinaryPath(): File {
-            val binaryName = if (TypalizeUtils.isWindows()) "tinymist.exe" else "tinymist"
+            val binaryName = if (SystemInfo.isWindows) "tinymist.exe" else "tinymist"
             return File(getDownloadDir(), binaryName)
         }
 

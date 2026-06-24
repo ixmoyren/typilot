@@ -1,5 +1,6 @@
 package com.github.ixmoyren.typilot
 
+import com.intellij.openapi.util.SystemInfo
 import java.io.File
 
 object TypalizeUtils {
@@ -7,17 +8,11 @@ object TypalizeUtils {
     val osName = System.getProperty("os.name")?.lowercase()
     val osArch = System.getProperty("os.arch")?.lowercase()
 
-    fun isWindows(): Boolean = osName?.contains("win") == true
-
-    fun isMacOS(): Boolean = osName?.contains("mac") == true
-
-    fun isLinux(): Boolean = osName?.contains("linux") == true
-
     /** Well-known directories where tools like tinymist/typst are commonly installed. */
     private fun getWellKnownDirs(): List<String> =
         buildList {
             val home = File(System.getProperty("user.home"))
-            if (isWindows()) {
+            if (SystemInfo.isWindows) {
                 add(File(home, ".cargo/bin").absolutePath)
                 add(File(home, "scoop/shims").absolutePath)
                 System.getenv("LOCALAPPDATA")?.let { localAppData ->
@@ -39,11 +34,11 @@ object TypalizeUtils {
                 } ?: add(File(home, ".local/bin").absolutePath)
                 add(File(home, ".bin").absolutePath)
                 add(File(home, ".cargo/bin").absolutePath)
-                if (isMacOS()) {
+                if (SystemInfo.isMac) {
                     add("/opt/homebrew/bin")
                     add("/usr/local/bin")
                 }
-                if (isLinux()) {
+                if (SystemInfo.isLinux) {
                     add("/home/linuxbrew/.linuxbrew/bin")
                     add(File(home, ".linuxbrew/bin").absolutePath)
                 }
@@ -53,12 +48,11 @@ object TypalizeUtils {
                 add("/run/current-system/sw/bin")
                 add(File(home, ".volta/bin").absolutePath)
             }
-        }
-            .distinct()
+        }.distinct()
 
     /** Searches for a binary by name in system PATH and well-known directories. */
     fun findBinary(binaryName: String): String? {
-        val extensions = if (isWindows()) listOf(".exe", ".cmd", ".bat", "") else listOf("")
+        val extensions = if (SystemInfo.isWindows) listOf(".exe", ".cmd", ".bat", "") else listOf("")
         val pathDirs = System.getenv("PATH")?.split(File.pathSeparator).orEmpty()
         val allDirs = (pathDirs + getWellKnownDirs()).distinct()
 
@@ -73,7 +67,7 @@ object TypalizeUtils {
     fun isBinaryExecutable(file: File): Boolean =
         file.isFile &&
                 when {
-                    isWindows() -> file.extension.lowercase() in WINDOWS_EXECUTABLE_EXTS || file.canExecute()
+                    SystemInfo.isWindows -> file.extension.lowercase() in WINDOWS_EXECUTABLE_EXTS || file.canExecute()
                     else -> file.canExecute()
                 }
 }

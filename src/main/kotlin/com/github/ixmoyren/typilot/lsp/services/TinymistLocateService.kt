@@ -1,9 +1,9 @@
 package com.github.ixmoyren.typilot.lsp.services
 
 import com.github.ixmoyren.typilot.lsp.ConfigureLocator
-import com.github.ixmoyren.typilot.lsp.TinymistInstaller
 import com.github.ixmoyren.typilot.lsp.TinymistInstallerLocator
 import com.github.ixmoyren.typilot.lsp.TinymistLocator
+import com.github.ixmoyren.typilot.lsp.config.TinymistInstaller
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 

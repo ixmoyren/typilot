@@ -1,5 +1,6 @@
-package com.github.ixmoyren.typilot.lsp
+package com.github.ixmoyren.typilot.lsp.config
 
+import com.github.ixmoyren.typilot.lsp.ConfigureLocator
 import com.github.ixmoyren.typilot.lsp.services.TinymistDownloadService
 import com.github.ixmoyren.typilot.lsp.services.TinymistFindService
 import com.intellij.ide.util.PropertiesComponent
@@ -47,9 +48,7 @@ class TinymistInstaller : DeclarativeLanguageServerInstaller(), CommandLineUpdat
         return !PropertiesComponent.getInstance().isTrueValue(KEY_INSTALLED)
     }
 
-    override fun execute(
-        checkInstallationFuture: CompletableFuture<ServerInstallationStatus>
-    ): CompletableFuture<ServerInstallationStatus> {
+    override fun execute(checkInstallationFuture: CompletableFuture<ServerInstallationStatus>): CompletableFuture<ServerInstallationStatus> {
         checkInstallationFuture.handle { result, _ ->
             PropertiesComponent.getInstance().setValue(KEY_INSTALLED, true)
             result
@@ -65,7 +64,7 @@ class TinymistInstaller : DeclarativeLanguageServerInstaller(), CommandLineUpdat
     @Nullable
     private fun loadDescriptor(): ServerInstallerDescriptor? {
         return try {
-            javaClass.getResourceAsStream("/lsp/installer.json")?.use { stream ->
+            javaClass.getResourceAsStream(TINYMIST_INSTALLER_CONFIG_JSON)?.use { stream ->
                 val json = String(stream.readAllBytes(), StandardCharsets.UTF_8)
                 ServerInstallerManager.getInstance().loadInstaller(json)
             }

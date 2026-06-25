@@ -1,6 +1,7 @@
 package com.github.ixmoyren.typilot.lsp
 
 import com.github.ixmoyren.typilot.TypalizeUtils.isBinaryExecutable
+import com.github.ixmoyren.typilot.lsp.config.TinymistInstaller
 import com.github.ixmoyren.typilot.settings.TinymistSettings
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.util.ExecUtil

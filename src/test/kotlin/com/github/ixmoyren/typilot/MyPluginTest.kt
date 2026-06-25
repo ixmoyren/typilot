@@ -1,6 +1,9 @@
 package com.github.ixmoyren.typilot
 
+import com.github.ixmoyren.typilot.lsp.config.TINYMIST_GITHUB_DOWNLOAD_URL
+import com.github.ixmoyren.typilot.lsp.config.TINYMIST_INSTALLER_CONFIG
 import com.intellij.ide.highlighter.XmlFileType
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.xml.XmlFile
 import com.intellij.testFramework.TestDataPath
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -27,16 +30,25 @@ class MyPluginTest : BasePlatformTestCase() {
         myFixture.testRename("foo.xml", "foo_after.xml", "a2")
     }
 
-    fun testTypilotBundle() {
-        val set =
-            setOf(
-                PlatformInfo("darwin", "arm64"),
-                PlatformInfo("darwin", "x64"),
-                PlatformInfo("linux", "arm64"),
-                PlatformInfo("linux", "x64"),
-                PlatformInfo("windows", "x64"),
+    fun testTinymistInstallerConfig() {
+        val assetName = TINYMIST_INSTALLER_CONFIG?.run?.download?.github?.asset?.resolve()
+        assertNotNull(assetName)
+        if (SystemInfo.isLinux) {
+            assertEquals("tinymist-linux-x64", assetName)
+        }
+    }
+
+    fun testTinymistGithubDownloadUrl() {
+        val url = TINYMIST_GITHUB_DOWNLOAD_URL
+        assertNotNull(url)
+        if (SystemInfo.isLinux && url != null) {
+            assertTrue(
+                url.contains("https://github.com/Myriad-Dreamin/tinymist/releases/download")
             )
-        assertEquals(set, TypilotBundle.tinymistPlatforms)
+            assertTrue(
+                url.contains("tinymist-linux-x64")
+            )
+        }
     }
 
     override fun getTestDataPath() = "src/test/testData/rename"

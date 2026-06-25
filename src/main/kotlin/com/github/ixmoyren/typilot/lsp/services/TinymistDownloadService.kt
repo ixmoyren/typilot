@@ -1,8 +1,12 @@
 package com.github.ixmoyren.typilot.lsp.services
 
-import com.github.ixmoyren.typilot.*
+import com.github.ixmoyren.typilot.TYPILOT_NOTIFICATION_GROUP_ID
 import com.github.ixmoyren.typilot.TypalizeUtils.isBinaryExecutable
+import com.github.ixmoyren.typilot.TypilotBundle
 import com.github.ixmoyren.typilot.lsp.TinymistLocator
+import com.github.ixmoyren.typilot.lsp.config.IS_SUPPORTED_PLATFORM
+import com.github.ixmoyren.typilot.lsp.config.TINYMIST_GITHUB_DOWNLOAD_URL
+import com.github.ixmoyren.typilot.lsp.config.TINYMIST_SUPPORTED_PLATFORMS
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
@@ -16,7 +20,6 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.io.HttpRequests
 import java.io.File
 import java.io.IOException
-import java.net.HttpURLConnection
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Service(Service.Level.APP)
@@ -59,11 +62,19 @@ class TinymistDownloadService : TinymistLocator {
         indicator.text = TypilotBundle["download.tinymist.resolving"]
         indicator.fraction = 0.0
 
-        val assetName = getPlatformAssetName() ?: throw UnsupportedOperationException(unsupportedPlatformMessage())
+        if (TINYMIST_SUPPORTED_PLATFORMS == null) throw UnsupportedOperationException(TypilotBundle["download.tinymist.noPlatforms"])
 
-        val downloadUrl = resolveLatestDownloadUrl(PlatformConfig.tinymistBaseUrl, assetName) ?: throw IOException(
-            TypilotBundle["download.tinymist.notFound", assetName]
-        )
+        if (!IS_SUPPORTED_PLATFORM) {
+            val platforms = TINYMIST_SUPPORTED_PLATFORMS?.joinToString(
+                ","
+            ) ?: ""
+            throw UnsupportedOperationException(
+                TypilotBundle["download.tinymist.unsupportedPlatform", SystemInfo.OS_NAME, SystemInfo.OS_ARCH, platforms]
+            )
+        }
+
+        val downloadUrl =
+            TINYMIST_GITHUB_DOWNLOAD_URL ?: throw IOException(TypilotBundle["download.tinymist.notFound"])
 
         checkCanceled(indicator)
 
@@ -95,21 +106,6 @@ class TinymistDownloadService : TinymistLocator {
     private fun checkCanceled(indicator: ProgressIndicator) {
         if (indicator.isCanceled) {
             throw InterruptedException("Download canceled")
-        }
-    }
-
-    fun resolveLatestDownloadUrl(baseUrl: String, assetName: String): String? {
-        val url = "$baseUrl/$assetName"
-        return try {
-            HttpRequests.head(url)
-                .tuner { connection ->
-                    (connection as? HttpURLConnection)?.instanceFollowRedirects = true
-                }
-                .tryConnect()
-            url
-        } catch (e: IOException) {
-            logger.warn("Could not resolve download URL for $assetName: ${e.message}")
-            null
         }
     }
 
@@ -161,14 +157,6 @@ class TinymistDownloadService : TinymistLocator {
             }
         }
 
-        internal fun unsupportedPlatformMessage(): String {
-            val os = System.getProperty("os.name")
-            val arch = System.getProperty("os.arch")
-            return "Your platform (os=$os, arch=$arch) is not fully supported. " +
-                    "The plugin requires both tinymist and typst, available on:  ${PlatformConfig.supportedPlatformsDescription()}. " +
-                    "On other platforms, install the tools manually and set their paths in Settings → Tools → Typilot."
-        }
-
         /** Returns the directory where the downloaded tinymist binary is stored. */
         internal fun getDownloadDir(): File {
             val dir = File(PathManager.getPluginsPath(), "typilot${File.separator}bin")
@@ -180,12 +168,6 @@ class TinymistDownloadService : TinymistLocator {
         internal fun getDownloadedBinaryPath(): File {
             val binaryName = if (SystemInfo.isWindows) "tinymist.exe" else "tinymist"
             return File(getDownloadDir(), binaryName)
-        }
-
-        /** Determines the GitHub release asset name for tinymist on the current platform. Returns null if the host platform is not in tinymist's supported matrix. */
-        internal fun getPlatformAssetName(): String? {
-            val platformInfo = PlatformInfo.currentHost(TypalizeUtils.osName, TypalizeUtils.osArch) ?: return null
-            return PlatformConfig.tinymistAsset(platformInfo)
         }
     }
 }

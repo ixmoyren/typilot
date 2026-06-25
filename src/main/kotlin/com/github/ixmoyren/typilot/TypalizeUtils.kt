@@ -4,9 +4,15 @@ import com.intellij.openapi.util.SystemInfo
 import java.io.File
 
 object TypalizeUtils {
-    private val WINDOWS_EXECUTABLE_EXTS = setOf("exe", "cmd", "bat", "com")
-    val osName = System.getProperty("os.name")?.lowercase()
-    val osArch = System.getProperty("os.arch")?.lowercase()
+    private val WINDOWS_EXECUTABLE_EXTS by lazy { setOf("exe", "cmd", "bat", "com") }
+
+    private val WINDOWS_ALLOWED_EXTENSION by lazy {
+        listOf(".exe", ".cmd", ".bat", "")
+    }
+
+    private val UNIX_ALLOWED_EXTENSION by lazy {
+        listOf("")
+    }
 
     /** Well-known directories where tools like tinymist/typst are commonly installed. */
     private fun getWellKnownDirs(): List<String> =
@@ -48,11 +54,12 @@ object TypalizeUtils {
                 add("/run/current-system/sw/bin")
                 add(File(home, ".volta/bin").absolutePath)
             }
-        }.distinct()
+        }
+            .distinct()
 
     /** Searches for a binary by name in system PATH and well-known directories. */
     fun findBinary(binaryName: String): String? {
-        val extensions = if (SystemInfo.isWindows) listOf(".exe", ".cmd", ".bat", "") else listOf("")
+        val extensions = if (SystemInfo.isWindows) WINDOWS_ALLOWED_EXTENSION else UNIX_ALLOWED_EXTENSION
         val pathDirs = System.getenv("PATH")?.split(File.pathSeparator).orEmpty()
         val allDirs = (pathDirs + getWellKnownDirs()).distinct()
 

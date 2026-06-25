@@ -103,11 +103,7 @@ class TinymistSettingsForm : JPanel() {
 
     fun reset() {
         tinymistPath.set(settings.tinymistPath)
-        tinymistTextFieldBrowseButton.setEmptyState(
-            getEmptyState(
-                TinymistLocateService.getInstance().firstValidLocator?.locate()
-            )
-        )
+        tinymistTextFieldBrowseButton.setEmptyState(getEmptyState(TinymistLocateService.getInstance().firstValidLocator?.locate()))
         tinymistVersionHint.applyToComponent {
             isVisible = false
             text = TypilotBundle["settings.tinymist.panel.versionHint"]

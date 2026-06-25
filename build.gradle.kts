@@ -6,6 +6,7 @@ plugins {
     id("java")
     id("idea")
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.intelliJPlatform)
     alias(libs.plugins.changelog)
     alias(libs.plugins.spotless)
@@ -26,7 +27,6 @@ repositories {
 dependencies {
     implementation(libs.endiveRuntime)
     implementation(libs.endiveWasi)
-    compileOnly(libs.jna)
     testImplementation(libs.junit4)
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more:

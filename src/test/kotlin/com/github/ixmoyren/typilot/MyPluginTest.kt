@@ -42,12 +42,8 @@ class MyPluginTest : BasePlatformTestCase() {
         val url = TINYMIST_GITHUB_DOWNLOAD_URL
         assertNotNull(url)
         if (SystemInfo.isLinux && url != null) {
-            assertTrue(
-                url.contains("https://github.com/Myriad-Dreamin/tinymist/releases/download")
-            )
-            assertTrue(
-                url.contains("tinymist-linux-x64")
-            )
+            assertTrue(url.contains("https://github.com/Myriad-Dreamin/tinymist/releases/download"))
+            assertTrue(url.contains("tinymist-linux-x64"))
         }
     }
 

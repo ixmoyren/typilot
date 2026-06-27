@@ -123,9 +123,11 @@ object PlatformIndentSerializer : KSerializer<PlatformIndent> {
 @Serializable(with = AssetConfigSerializer::class)
 data class AssetConfig(val values: Map<OsType, Map<ArchType, String>>) {
     fun supportedPlatforms(): Set<String> =
-        values.flatMap { (os, archMap) ->
-            archMap.keys.map { arch -> "${os.key}/${arch.key}" }
-        }.toSet()
+        values
+            .flatMap { (os, archMap) ->
+                archMap.keys.map { arch -> "${os.key}/${arch.key}" }
+            }
+            .toSet()
 
     fun resolve(): String? {
         val osMap = values[OsType.current] ?: return null

@@ -65,16 +65,11 @@ class TinymistDownloadService : TinymistLocator {
         if (TINYMIST_SUPPORTED_PLATFORMS == null) throw UnsupportedOperationException(TypilotBundle["download.tinymist.noPlatforms"])
 
         if (!IS_SUPPORTED_PLATFORM) {
-            val platforms = TINYMIST_SUPPORTED_PLATFORMS?.joinToString(
-                ","
-            ) ?: ""
-            throw UnsupportedOperationException(
-                TypilotBundle["download.tinymist.unsupportedPlatform", SystemInfo.OS_NAME, SystemInfo.OS_ARCH, platforms]
-            )
+            val platforms = TINYMIST_SUPPORTED_PLATFORMS?.joinToString(",") ?: ""
+            throw UnsupportedOperationException(TypilotBundle["download.tinymist.unsupportedPlatform", SystemInfo.OS_NAME, SystemInfo.OS_ARCH, platforms])
         }
 
-        val downloadUrl =
-            TINYMIST_GITHUB_DOWNLOAD_URL ?: throw IOException(TypilotBundle["download.tinymist.notFound"])
+        val downloadUrl = TINYMIST_GITHUB_DOWNLOAD_URL ?: throw IOException(TypilotBundle["download.tinymist.notFound"])
 
         checkCanceled(indicator)
 

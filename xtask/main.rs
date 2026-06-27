@@ -23,8 +23,8 @@ enum Action {
         #[arg(short, long, value_name = ".tools")]
         install: Option<PathBuf>,
     },
-    #[command(about = "Generate serialization code related to flatbuffers")]
-    GenerateCode,
+    #[command(about = "Generate serialization code related by serde-reflection")]
+    GenerateReflectionCode,
     #[command(about = "Build the typalize crate to wasm")]
     BuildWasm {
         #[arg(short, long, value_name = ".tools")]
@@ -34,6 +34,15 @@ enum Action {
     CopyWasm,
     #[command(about = "Optimize wasm")]
     OptimizeWasm {
+        #[arg(short, long, value_name = ".tools")]
+        tool: Option<PathBuf>,
+    },
+    #[command(about = "Convert wasm to Java class")]
+    GenerateJavaClass,
+    #[command(
+        about = "Complete the entire process of generating the code, GenerateReflectionCode -> BuildWasm -> CopyWasm -> OptimizeWasm -> GenerateJavaClass"
+    )]
+    Generate {
         #[arg(short, long, value_name = ".tools")]
         tool: Option<PathBuf>,
     },
@@ -53,26 +62,26 @@ impl ResourceType {
             Self::WasiSdk => {
                 cfg_select! {
                     target_os = "windows" => {
-                        "wasi-sdk-33.0-x86_64-windows".into()
+                        "wasi-sdk-33.0-x86_64-windows"
                     }
                     target_os = "macos" => {
-                        "wasi-sdk-33.0-arm64-macos".into()
+                        "wasi-sdk-33.0-arm64-macos"
                     }
                     _ => {
-                        "wasi-sdk-33.0-x86_64-linux".into()
+                        "wasi-sdk-33.0-x86_64-linux"
                     }
                 }
             }
             Self::Wasmtime => {
                 cfg_select! {
                         target_os = "windows" => {
-                            "wasmtime-v45.0.0-x86_64-windows".into()
+                            "wasmtime-v46.0.1-x86_64-windows"
                         }
                         target_os = "macos" => {
-                            "wasmtime-v45.0.0-aarch64-macos".into()
+                            "wasmtime-v46.0.1-aarch64-macos"
                         }
                         _ => {
-                            "wasmtime-v45.0.0-x86_64-linux".into()
+                            "wasmtime-v46.0.1-x86_64-linux"
                         }
 
                 }
@@ -80,13 +89,13 @@ impl ResourceType {
             Self::Binaryen => {
                 cfg_select! {
                     target_os = "windows" => {
-                        "binaryen-version_130".into()
+                        "binaryen-version_130"
                     }
                     target_os = "macos" => {
-                        "binaryen-version_130".into()
+                        "binaryen-version_130"
                     }
                     _ => {
-                        "binaryen-version_130".into()
+                        "binaryen-version_130"
                     }
                 }
             }
@@ -117,13 +126,13 @@ impl ResourceType {
                 } else {
                     cfg_select! {
                         target_os = "windows" => {
-                            "https://github.com/bytecodealliance/wasmtime/releases/download/v45.0.1/wasmtime-v45.0.1-x86_64-windows.zip".into()
+                            "https://github.com/bytecodealliance/wasmtime/releases/download/v46.0.1/wasmtime-v46.0.1-x86_64-windows.zip".into()
                         }
                         target_os = "macos" => {
-                            "https://github.com/bytecodealliance/wasmtime/releases/download/v45.0.1/wasmtime-v45.0.1-aarch64-macos.tar.xz".into()
+                            "https://github.com/bytecodealliance/wasmtime/releases/download/v46.0.1/wasmtime-v45.0.1-aarch64-macos.tar.xz".into()
                         }
                         _ => {
-                            "https://github.com/bytecodealliance/wasmtime/releases/download/v45.0.1/wasmtime-v45.0.1-x86_64-linux.tar.xz".into()
+                            "https://github.com/bytecodealliance/wasmtime/releases/download/v46.0.1/wasmtime-v45.0.1-x86_64-linux.tar.xz".into()
                         }
                     }
                 }
@@ -156,10 +165,12 @@ fn main() {
             resource_type,
             install,
         } => task::get_wasm_tool(resource_type, install),
-        Action::GenerateCode => task::generate_code(),
+        Action::GenerateReflectionCode => task::generate_reflection_code(),
         Action::BuildWasm { tool } => task::build_wasm(tool),
         Action::CopyWasm => task::copy_wasm(),
         Action::OptimizeWasm { tool } => task::optimize_wasm(tool),
+        Action::GenerateJavaClass => task::generate_java_class(),
+        Action::Generate { tool } => task::generate(tool),
     };
     if let Err(e) = result {
         eprintln!("An error occurred: {e}");

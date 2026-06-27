@@ -15,7 +15,7 @@ pub fn get_wasm_tool(resource_type: ResourceType, install: Option<PathBuf>) -> R
     get_resource_from(&resource_type, &install)
 }
 
-pub fn generate_code() -> Result<()> {
+pub fn generate_reflection_code() -> Result<()> {
     let args = vec![
         "run",
         "-p",
@@ -54,31 +54,10 @@ pub fn generate_code() -> Result<()> {
     installer
         .install_bcs_runtime()
         .with_whatever_context(|_| "Failed to install bcs runtime")?;
-
-    let args = vec!["endiveCompile"];
-    cfg_select! {
-        target_os = "windows" => {
-            run(Command::new("./gradlew.bat"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
-        }
-        _ => {
-            run(Command::new("./gradlew"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
-        }
-    }
-
-    let args = vec!["spotlessApply"];
-    cfg_select! {
-        target_os = "windows" => {
-            run(Command::new("./gradlew.bat"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
-        }
-        _ => {
-            run(Command::new("./gradlew"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
-        }
-    }
     Ok(())
 }
 
 pub fn build_wasm(tool: Option<PathBuf>) -> Result<()> {
-    generate_code()?;
     let tool = tool.unwrap_or(PathBuf::from(".tools"));
     let wasi_sdk_path = tool.join(ResourceType::WasiSdk.tool_name());
     if !wasi_sdk_path.exists() {
@@ -114,7 +93,6 @@ pub fn build_wasm(tool: Option<PathBuf>) -> Result<()> {
 
 pub fn copy_wasm() -> Result<()> {
     let (target_dir, dylib) = get_target_dir_and_wasm_name()?;
-    build_wasm(None)?;
     let (lib_path, dylib_name) = get_lib_path_and_dylib_name(
         &dylib,
         WASM_DLL_PREFIX,
@@ -143,7 +121,7 @@ pub fn optimize_wasm(tool: Option<PathBuf>) -> Result<()> {
         WASM_RESOURCES_PATH,
     )?;
     let resource_path = lib_path.join(&dylib_name);
-    let output_name = format!("{}{}-opt{}", WASM_DLL_PREFIX, &dylib, WASM_DLL_SUFFIX);
+    let output_name = format!("{}{}-opt{}", WASM_DLL_PREFIX, dylib, WASM_DLL_SUFFIX);
     let output_path = lib_path.join(&output_name);
     let args = vec![
         "-Oz",
@@ -166,4 +144,36 @@ pub fn optimize_wasm(tool: Option<PathBuf>) -> Result<()> {
     fs::rename(&output_path, &resource_path)
         .with_whatever_context(|_| "Failed to renaming the optimized wasm")?;
     Ok(())
+}
+
+pub fn generate_java_class() -> Result<()> {
+    let args = vec!["endiveCompile"];
+    cfg_select! {
+        target_os = "windows" => {
+            run(Command::new("./gradlew.bat"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
+        }
+        _ => {
+            run(Command::new("./gradlew"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
+        }
+    }
+
+    let args = vec!["spotlessApply"];
+    cfg_select! {
+        target_os = "windows" => {
+            run(Command::new("./gradlew.bat"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
+        }
+        _ => {
+            run(Command::new("./gradlew"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
+        }
+    }
+    Ok(())
+}
+
+pub fn generate(tool: Option<PathBuf>) -> Result<()> {
+    let tool = tool.unwrap_or(PathBuf::from(".tools"));
+    generate_reflection_code()?;
+    build_wasm(Some(tool.clone()))?;
+    copy_wasm()?;
+    optimize_wasm(Some(tool))?;
+    generate_java_class()
 }

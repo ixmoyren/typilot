@@ -1,9 +1,9 @@
 [versions]
 # libraries
-endiveCompiler = "0.0.1"
-endiveBuildTimeCompiler = "0.0.1"
-endiveRuntime = "0.0.1"
-endiveWasi = "0.0.1"
+endiveCompiler = "1.0.0"
+endiveBuildTimeCompiler = "1.0.0"
+endiveRuntime = "1.0.0"
+endiveWasi = "1.0.0"
 junit4 = "4.13.2"
 
 # plugins

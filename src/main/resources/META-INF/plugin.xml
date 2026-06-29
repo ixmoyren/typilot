@@ -22,6 +22,8 @@
                   language="Typst"
                   extensions="typ"/>
 
+        <fileEditorProvider implementation="com.github.ixmoyren.typilot.preview.TypstTextEditorWithPreviewProvider"/>
+
         <lang.parserDefinition
                 language="Typst"
                 implementationClass="com.github.ixmoyren.typilot.psi.TypstParserDefinition"/>

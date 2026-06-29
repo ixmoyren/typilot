@@ -7,6 +7,6 @@ import com.redhat.devtools.lsp4ij.LanguageServerManager
 
 class StartupActivity : ProjectActivity, DumbAware {
     override suspend fun execute(project: Project) {
-        LanguageServerManager.getInstance(project).start("tinymistServer")
+        LanguageServerManager.getInstance(project).start(TYPST_LANGUAGE_SERVER_ID)
     }
 }

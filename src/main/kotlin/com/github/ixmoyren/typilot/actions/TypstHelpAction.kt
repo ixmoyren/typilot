@@ -30,18 +30,20 @@ class TypstHelpAction : AnAction() {
                 val tinymistVersion: String = TinymistLocateService.getInstance().version
                     ?: throw Exception("The tinymist version result is null")
 
-                val typstSyntaxVersion: String = typalizer.version().run {
-                    if (this == null || failure()) {
-                        throw Exception("The typst lexer couldn't work.", this?.error)
+                val typstSyntaxVersion: String =
+                    typalizer.version().run {
+                        if (this == null || failure()) {
+                            throw Exception("The typst lexer couldn't work.", this?.error)
+                        }
+                        result ?: throw Exception("The typst version result is null")
                     }
-                    result ?: throw Exception("The typst version result is null")
-                }
 
                 val message = "$typstSyntaxVersion\n$tinymistVersion"
                 ApplicationManager.getApplication().invokeLater {
                     Messages.showInfoMessage(project, message, "Typst Help")
                 }
             }
-        }.queue()
+        }
+            .queue()
     }
 }

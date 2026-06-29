@@ -65,8 +65,7 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
         val previewArgs = listOf("--task-id", taskId, "--data-plane-host", "127.0.0.1:0", fsPath)
         val args: List<Any> = listOf(previewArgs)
         val command = Command("Preview", PREVIEW_COMMAND, args)
-        val context = LSPCommandContext(command, project)
-            .setPreferredLanguageServerId(TYPST_LANGUAGE_SERVER_ID)
+        val context = LSPCommandContext(command, project).setPreferredLanguageServerId(TYPST_LANGUAGE_SERVER_ID)
 
         val response = CommandExecutor.executeCommand(context)
         if (!response.exists()) {
@@ -75,7 +74,8 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
             return
         }
 
-        response.response()
+        response
+            .response()
             ?.thenAccept { result ->
                 val url = extractPreviewUrl(result)
                 if (url != null) {
@@ -94,10 +94,10 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
     }
 
     private fun extractPreviewUrl(result: Any?): String? =
-        result?.let { gson.fromJson(gson.toJsonTree(it), StartPreviewResponse::class.java) }
+        result
+            ?.let { gson.fromJson(gson.toJsonTree(it), StartPreviewResponse::class.java) }
             ?.run {
-                staticServerAddr?.let { "http://$it" }
-                    ?: staticServerPort?.let { "http://127.0.0.1:$it" }
+                staticServerAddr?.let { "http://$it" } ?: staticServerPort?.let { "http://127.0.0.1:$it" }
             }
 
     @Suppress("SameParameterValue")

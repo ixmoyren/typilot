@@ -12,6 +12,5 @@ fun <T : Any> lazyNonNull(initializer: () -> T?): ReadOnlyProperty<Any?, T?> =
         @Volatile
         private var value: T? = null
 
-        override fun getValue(thisRef: Any?, property: KProperty<*>): T? =
-            value ?: initializer().also { value = it }
+        override fun getValue(thisRef: Any?, property: KProperty<*>): T? = value ?: initializer().also { value = it }
     }

@@ -44,8 +44,7 @@ class TinymistInstaller : DeclarativeLanguageServerInstaller(), CommandLineUpdat
     protected override fun getServerInstallerDescriptor(): ServerInstallerDescriptor? = descriptor
 
     override fun canExecute(serverInstallerDescriptor: ServerInstallerDescriptor): Boolean =
-        !PropertiesComponent.getInstance().isTrueValue(KEY_INSTALLED) &&
-                super.canExecute(serverInstallerDescriptor)
+        !PropertiesComponent.getInstance().isTrueValue(KEY_INSTALLED) && super.canExecute(serverInstallerDescriptor)
 
     override fun execute(checkInstallationFuture: CompletableFuture<ServerInstallationStatus>): CompletableFuture<ServerInstallationStatus> {
         return checkInstallationFuture.whenComplete { result, _ ->

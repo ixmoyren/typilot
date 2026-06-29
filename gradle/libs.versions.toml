@@ -8,8 +8,8 @@ junit4 = "4.13.2"
 
 # plugins
 changelog = "2.5.0"
-intelliJPlatform = "2.16.0"
-kotlin = "2.3.21"
+intelliJPlatform = "2.17.0"
+kotlin = "2.4.0"
 spotless = "8.7.0"
 
 [libraries]

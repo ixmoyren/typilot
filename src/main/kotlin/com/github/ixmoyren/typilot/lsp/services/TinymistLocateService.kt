@@ -1,5 +1,6 @@
 package com.github.ixmoyren.typilot.lsp.services
 
+import com.github.ixmoyren.typilot.lazyNonNull
 import com.github.ixmoyren.typilot.lsp.ConfigureLocator
 import com.github.ixmoyren.typilot.lsp.TinymistInstallerLocator
 import com.github.ixmoyren.typilot.lsp.TinymistLocator
@@ -20,13 +21,13 @@ class TinymistLocateService {
         )
     }
 
-    val firstValidLocator: TinymistLocator? by lazy {
+    val firstValidLocator: TinymistLocator? by lazyNonNull {
         locators.firstOrNull {
             it.version()?.contains("tinymist", ignoreCase = true) == true
         }
     }
 
-    val version: String? by lazy {
+    val version: String? by lazyNonNull {
         firstValidLocator?.version()
     }
 

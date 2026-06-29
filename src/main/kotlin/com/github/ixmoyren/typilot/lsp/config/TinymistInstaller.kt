@@ -49,11 +49,11 @@ class TinymistInstaller : DeclarativeLanguageServerInstaller(), CommandLineUpdat
     }
 
     override fun execute(checkInstallationFuture: CompletableFuture<ServerInstallationStatus>): CompletableFuture<ServerInstallationStatus> {
-        checkInstallationFuture.handle { result, _ ->
-            PropertiesComponent.getInstance().setValue(KEY_INSTALLED, true)
-            result
+        return checkInstallationFuture.whenComplete { result, _ ->
+            if (result == ServerInstallationStatus.INSTALLED) {
+                PropertiesComponent.getInstance().setValue(KEY_INSTALLED, true)
+            }
         }
-        return checkInstallationFuture
     }
 
     override fun reset() {

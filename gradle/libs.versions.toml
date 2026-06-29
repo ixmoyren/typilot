@@ -1,6 +1,6 @@
 [versions]
 # libraries
-endiveCompiler = "0.0.1"
+endiveCompiler = "1.0.0"
 endiveBuildTimeCompiler = "0.0.1"
 endiveRuntime = "0.0.1"
 endiveWasi = "0.0.1"

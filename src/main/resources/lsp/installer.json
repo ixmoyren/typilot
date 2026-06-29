@@ -1,7 +1,7 @@
 {
   "id": "tinymist-installer",
   "name": "Tinymist(Typst Language Server)",
-  "executeOnStartServer": true,
+  "executeOnStartServer": false,
   "check": {
     "exec": {
       "name": "Check tinymist installation",
@@ -45,8 +45,8 @@
         "configureServer": {
           "name": "Configure tinymist server command",
           "command": {
-            "windows": "$USER_HOME$/.lsp4ij/lsp/tinymist/tinymist.exe",
-            "default": "$USER_HOME$/.lsp4ij/lsp/tinymist/tinymist"
+            "windows": "$USER_HOME$/.lsp4ij/lsp/tinymist/tinymist.exe lsp",
+            "default": "$USER_HOME$/.lsp4ij/lsp/tinymist/tinymist lsp"
           },
           "update": true
         }

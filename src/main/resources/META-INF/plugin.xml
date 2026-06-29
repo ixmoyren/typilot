@@ -59,6 +59,8 @@
         <lang.commenter language="Typst"
                         implementationClass="com.github.ixmoyren.typilot.language.TypstCommenter"/>
 
+        <postStartupActivity implementation="com.github.ixmoyren.typilot.StartupActivity"/>
+
         <applicationService
                 serviceImplementation="com.github.ixmoyren.typilot.settings.TinymistSettings"/>
         <applicationConfigurable

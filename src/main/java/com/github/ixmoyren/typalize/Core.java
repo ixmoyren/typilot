@@ -1,11 +1,12 @@
 package com.github.ixmoyren.typalize;
 
 import com.novi.serde.DeserializationError;
-import java.nio.charset.StandardCharsets;
 import run.endive.runtime.ImportValues;
 import run.endive.runtime.Instance;
 import run.endive.wasi.WasiOptions;
 import run.endive.wasi.WasiPreview1;
+
+import java.nio.charset.StandardCharsets;
 
 public final class Core implements AutoCloseable {
     private final Instance instance;
@@ -34,26 +35,30 @@ public final class Core implements AutoCloseable {
     }
 
     TypalizeResult<Tokens> tokenize(byte[] text) {
+        var textPtr = exports.wasmMalloc(text.length);
         try {
-            var textPtr = exports.wasmMalloc(text.length);
             exports.memory().write(textPtr, text);
             var resultPtr = exports.tokenize(textPtr, text.length);
             var result = unpackResult(resultPtr);
             return new TypalizeResult<>(Tokens.bcsDeserialize(result));
         } catch (RuntimeException | DeserializationError e) {
             return new TypalizeResult<>(e);
+        } finally {
+            exports.wasmFree(textPtr);
         }
     }
 
     TypalizeResult<ASTNodes> parse(byte[] text) {
+        var textPtr = exports.wasmMalloc(text.length);
         try {
-            var textPtr = exports.wasmMalloc(text.length);
             exports.memory().write(textPtr, text);
             var resultPtr = exports.parse(textPtr, text.length);
             var result = unpackResult(resultPtr);
             return new TypalizeResult<>(ASTNodes.bcsDeserialize(result));
         } catch (RuntimeException | DeserializationError e) {
             return new TypalizeResult<>(e);
+        } finally {
+            exports.wasmFree(textPtr);
         }
     }
 
@@ -74,7 +79,8 @@ public final class Core implements AutoCloseable {
     }
 
     public static final class Builder {
-        private Builder() {}
+        private Builder() {
+        }
 
         public Core build() {
             return new Core();

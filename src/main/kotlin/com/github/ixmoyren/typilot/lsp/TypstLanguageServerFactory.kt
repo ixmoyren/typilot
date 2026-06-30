@@ -19,6 +19,7 @@ class TypstLanguageServerFactory : LanguageServerFactory {
     @Suppress("UnstableApiUsage")
     override fun createClientFeatures(): LSPClientFeatures =
         LSPClientFeatures()
+            .setCodeLensFeature(TinymistCodeLensFeature())
             .setSemanticTokensFeature(
                 object : LSPSemanticTokensFeature() {
                     override fun shouldVisitPsiElement(file: PsiFile): Boolean = false

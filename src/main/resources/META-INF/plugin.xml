@@ -100,5 +100,12 @@
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift H"/>
         </action>
+
+        <action id="Tinymist.ExportPdf"
+                class="com.github.ixmoyren.typilot.actions.TinymistExportPdfAction"
+                icon="AllIcons.General.Export">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
     </actions>
 </idea-plugin>

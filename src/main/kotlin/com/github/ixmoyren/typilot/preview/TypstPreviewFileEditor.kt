@@ -11,19 +11,26 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.jcef.JBCefApp
 import com.intellij.ui.jcef.JCEFHtmlPanel
+import com.redhat.devtools.lsp4ij.LanguageServerWrapper
+import com.redhat.devtools.lsp4ij.ServerStatus
 import com.redhat.devtools.lsp4ij.commands.CommandExecutor
 import com.redhat.devtools.lsp4ij.commands.LSPCommandContext
+import com.redhat.devtools.lsp4ij.lifecycle.LanguageServerLifecycleListener
+import com.redhat.devtools.lsp4ij.lifecycle.LanguageServerLifecycleManager
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.handler.CefLoadHandler
 import org.cef.handler.CefLoadHandlerAdapter
 import org.cef.network.CefRequest
 import org.eclipse.lsp4j.Command
+import org.eclipse.lsp4j.jsonrpc.MessageConsumer
+import org.eclipse.lsp4j.jsonrpc.messages.Message
 import java.beans.PropertyChangeListener
 import java.util.*
 import javax.swing.JComponent
 import javax.swing.JLabel
 
+@Suppress("UnstableApiUsage")
 class TypstPreviewFileEditor(private val project: Project, private val virtualFile: VirtualFile) :
     JCEFHtmlPanel(false, null, null), FileEditor {
 
@@ -39,6 +46,8 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
     @Volatile
     private var previewTaskId: String? = null
 
+    private var serverRestartListener: LanguageServerLifecycleListener? = null
+
     private var unsupportedLabel: JLabel? = null
 
     init {
@@ -48,6 +57,7 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
         } else {
             logger.info("JCEF is supported, setting up browser.")
             setupLoadHandler()
+            registerServerRestartListener()
             ApplicationManager.getApplication().invokeLater {
                 if (!isDisposed) {
                     startPreview()
@@ -57,6 +67,37 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
             }
         }
         logger.info("TypstPreviewFileEditor: Initialization complete.")
+    }
+
+    private fun registerServerRestartListener() {
+        val listener = object : LanguageServerLifecycleListener {
+            override fun handleStatusChanged(languageServer: LanguageServerWrapper) {
+                if (languageServer.serverDefinition.id != TYPST_LANGUAGE_SERVER_ID) return
+                if (languageServer.serverStatus != ServerStatus.started) return
+                if (isDisposed) return
+
+                if (previewUrl != null || previewTaskId != null) {
+                    logger.info("tinymist restarted, resetting preview state and restarting preview.")
+                    previewUrl = null
+                    previewTaskId = null
+                    startPreview()
+                }
+            }
+
+            override fun handleLSPMessage(
+                message: Message,
+                messageConsumer: MessageConsumer,
+                languageServer: LanguageServerWrapper
+            ) = Unit
+
+            override fun handleError(languageServer: LanguageServerWrapper, exception: Throwable) = Unit
+
+            override fun dispose() = Unit
+        }
+
+        LanguageServerLifecycleManager.getInstance(project)
+            .addLanguageServerLifecycleListener(listener)
+        serverRestartListener = listener
     }
 
     private fun startPreview() {
@@ -168,20 +209,22 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
 
     override fun dispose() {
         logger.info("Disposing editor...")
+        serverRestartListener?.let {
+            LanguageServerLifecycleManager.getInstance(project)
+                ?.removeLanguageServerLifecycleListener(it)
+            serverRestartListener = null
+        }
         previewTaskId?.let { tid ->
             val cmd = Command("KillPreview", "tinymist.doKillPreview", listOf(listOf(tid)))
             CommandExecutor.executeCommand(
-                LSPCommandContext(cmd, project).setPreferredLanguageServerId(
-                    TYPST_LANGUAGE_SERVER_ID
-                )
+                LSPCommandContext(cmd, project).setPreferredLanguageServerId(TYPST_LANGUAGE_SERVER_ID)
             )
         }
         runCatching {
             if (JBCefApp.isSupported() && !isDisposed) cefBrowser.stopLoad()
+        }.onFailure { e ->
+            logger.error("Error during stopLoad: ${e.message}", e)
         }
-            .onFailure { e ->
-                logger.error("Error during stopLoad: ${e.message}", e)
-            }
         super.dispose()
         logger.info("Disposal complete.")
     }

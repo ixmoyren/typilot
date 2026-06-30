@@ -33,12 +33,16 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
         Gson()
     }
 
+    @Volatile
+    private var previewUrl: String? = null
+
+    @Volatile
+    private var previewTaskId: String? = null
+
     companion object {
         private const val PREVIEW_COMMAND = "tinymist.doStartPreview"
     }
 
-    @Volatile
-    private var isServerReady = false
     private var unsupportedLabel: JLabel? = null
 
     init {
@@ -80,6 +84,8 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
                 val url = extractPreviewUrl(result)
                 if (url != null) {
                     logger.info("Preview URL: $url")
+                    previewUrl = url
+                    previewTaskId = taskId
                     loadUrlSafely(url)
                 } else {
                     logger.warn("Cannot extract preview URL from result: $result")
@@ -148,11 +154,15 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
 
     override fun selectNotify() {
         logger.info("selectNotify called for ${virtualFile.name}")
-        if (JBCefApp.isSupported() && isServerReady && !isDisposed) {
-            logger.info("Reloading preview")
-            startPreview()
-        } else {
-            logger.warn("selectNotify skipped: supported=${JBCefApp.isSupported()}, ready=$isServerReady, disposed=$isDisposed")
+        when {
+            !JBCefApp.isSupported() || isDisposed -> logger.warn("selectNotify skipped: supported=${JBCefApp.isSupported()}, disposed=$isDisposed")
+
+            previewUrl != null -> {
+                logger.info("Reloading preview")
+                loadUrlSafely(previewUrl!!)
+            }
+
+            else -> startPreview()
         }
     }
 
@@ -162,13 +172,20 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
 
     override fun dispose() {
         logger.info("Disposing editor...")
-        try {
-            if (JBCefApp.isSupported() && !isDisposed) {
-                cefBrowser.stopLoad()
-            }
-        } catch (e: Exception) {
-            logger.error("Error during stopLoad: ${e.message}", e)
+        previewTaskId?.let { tid ->
+            val cmd = Command("KillPreview", "tinymist.doKillPreview", listOf(listOf(tid)))
+            CommandExecutor.executeCommand(
+                LSPCommandContext(cmd, project).setPreferredLanguageServerId(
+                    TYPST_LANGUAGE_SERVER_ID
+                )
+            )
         }
+        runCatching {
+            if (JBCefApp.isSupported() && !isDisposed) cefBrowser.stopLoad()
+        }
+            .onFailure { e ->
+                logger.error("Error during stopLoad: ${e.message}", e)
+            }
         super.dispose()
         logger.info("Disposal complete.")
     }

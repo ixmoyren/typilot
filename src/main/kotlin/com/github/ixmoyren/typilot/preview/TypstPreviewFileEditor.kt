@@ -39,10 +39,6 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
     @Volatile
     private var previewTaskId: String? = null
 
-    companion object {
-        private const val PREVIEW_COMMAND = "tinymist.doStartPreview"
-    }
-
     private var unsupportedLabel: JLabel? = null
 
     init {
@@ -226,6 +222,10 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
             },
             cefBrowser
         )
+    }
+
+    companion object {
+        private const val PREVIEW_COMMAND = "tinymist.doStartPreview"
     }
 }
 

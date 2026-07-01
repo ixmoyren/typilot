@@ -1,11 +1,17 @@
-<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin require-restart="true">
     <id>com.github.ixmoyren.typilot</id>
     <name>typilot</name>
     <vendor>ixmoyren</vendor>
     <description><![CDATA[
-        <p><b>typilot</b> is a repository that provides a pure template to make it easier to create a new plugin project.</p>
-        <p>The main goal of this template is to speed up the setup phase of plugin development for both new and experienced developers by preconfiguring the project scaffold and CI, linking to the proper documentation pages, and keeping everything organized.</p>
+        <p><b>typilot</b> provides comprehensive Typst language support for JetBrains IDEs.</p>
+        <ul>
+            <li><b>Rich Language Intelligence</b> — code completion, diagnostics, goto-definition, find references, rename, folding, signature help, and more via the <a href="https://github.com/Myriad-Dreamin/tinymist">tinymist</a> LSP server, automatically located or downloaded.</li>
+            <li><b>Live Preview</b> — side-by-side JCEF-based preview that updates as you type, with invert colors support.</li>
+            <li><b>Full PSI & Syntax Highlighting</b> — WASM-based lexer and parser covering all Typst syntax (markup, math, code) with lexical and semantic highlighting, rainbow brackets, and customizable color schemes.</li>
+            <li><b>Export PDF</b> — export the current Typst document to PDF via editor actions, context menus, or CodeLens inline buttons.</li>
+            <li><b>Language Injection</b> — syntax highlighting for 90+ languages inside Typst raw code blocks (e.g. ```rust).</li>
+            <li><b>Comprehensive Settings</b> — full tinymist configuration schema (output, formatting, preview, completion, linting, etc.) and auto-setup that finds or downloads the server binary.</li>
+        </ul>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

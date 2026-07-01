@@ -1,4 +1,5 @@
 use crate::{wasm_free, wasm_malloc};
+use std::ffi::c_void;
 
 pub trait Utf16Ext {
     fn get_offset(&self) -> Vec<usize>;
@@ -34,7 +35,7 @@ pub fn leak(bytes: &[u8]) -> i64 {
             panic!("error: allocation failed");
         }
 
-        std::ptr::copy_nonoverlapping(bytes.as_ptr(), ptr, len);
+        std::ptr::copy_nonoverlapping(bytes.as_ptr(), ptr as *mut u8, len);
 
         (((ptr as u32 as u64) << 32) | (len as u32 as u64)) as i64
     }
@@ -42,7 +43,9 @@ pub fn leak(bytes: &[u8]) -> i64 {
 
 pub fn consume_string(ptr: i32, len: i32) -> String {
     let result = read_string(ptr, len);
-    wasm_free(ptr as *mut u8);
+    unsafe {
+        wasm_free(ptr as *mut c_void);
+    }
     result
 }
 

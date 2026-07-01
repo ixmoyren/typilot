@@ -43,8 +43,6 @@ public final class Core implements AutoCloseable {
             return new TypalizeResult<>(Tokens.bcsDeserialize(result));
         } catch (RuntimeException | DeserializationError e) {
             return new TypalizeResult<>(e);
-        } finally {
-            exports.wasmFree(textPtr);
         }
     }
 
@@ -57,8 +55,6 @@ public final class Core implements AutoCloseable {
             return new TypalizeResult<>(ASTNodes.bcsDeserialize(result));
         } catch (RuntimeException | DeserializationError e) {
             return new TypalizeResult<>(e);
-        } finally {
-            exports.wasmFree(textPtr);
         }
     }
 
@@ -88,7 +84,7 @@ public final class Core implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (wasi != null) {
             wasi.close();
         }

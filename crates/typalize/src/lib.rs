@@ -1,6 +1,7 @@
 extern crate typst_syntax;
 
 pub use crate::envelope::{ASTNode, ASTNodes, Token, Tokens, TypstSyntaxKind};
+use std::ffi::c_void;
 
 use crate::{
     syntax::{ASTBuilder, Flatten},
@@ -14,17 +15,45 @@ mod syntax;
 mod util;
 
 unsafe extern "C" {
-    fn malloc(size: usize) -> *mut u8;
-    fn free(ptr: *mut u8);
+    fn malloc(size: usize) -> *mut c_void;
+    fn free(ptr: *mut c_void);
 }
 
+/// Allocates `size` bytes of memory and returns a pointer to the allocated block.
+///
+/// This is a thin wrapper around the C standard library `malloc`, exported for
+/// use by the host environment (e.g., a WebAssembly runtime such as Endive).
+///
+/// # Returns
+///
+/// - A non-null pointer to the allocated memory on success.
+/// - A null pointer if allocation fails.
+///
+/// # Safety
+///
+/// The caller is responsible for:
+/// - Passing the same pointer to [`wasm_free`] exactly once when done.
+/// - Not using the pointer after it has been freed.
+/// - Not reading from the returned memory before writing to it (it is uninitialized).
 #[unsafe(no_mangle)]
-pub extern "C" fn wasm_malloc(size: usize) -> *mut u8 {
+pub unsafe extern "C" fn wasm_malloc(size: usize) -> *mut c_void {
     unsafe { malloc(size) }
 }
 
+/// Frees a memory block previously allocated by [`wasm_malloc`].
+///
+/// This is a thin wrapper around the C standard library `free`, exported for
+/// use by the host environment (e.g., a WebAssembly runtime such as Chicory).
+///
+/// # Safety
+///
+/// The caller must ensure that:
+/// - `ptr` was returned by a prior call to [`wasm_malloc`].
+/// - `ptr` has not already been freed (double-free is undefined behavior).
+/// - No references to the memory exist after this call.
+/// - Passing a null pointer is safe (no-op, matching C `free` semantics).
 #[unsafe(no_mangle)]
-pub extern "C" fn wasm_free(ptr: *mut u8) {
+pub unsafe extern "C" fn wasm_free(ptr: *mut c_void) {
     unsafe { free(ptr) }
 }
 

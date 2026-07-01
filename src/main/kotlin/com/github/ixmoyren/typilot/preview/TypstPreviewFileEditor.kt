@@ -70,33 +70,33 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
     }
 
     private fun registerServerRestartListener() {
-        val listener = object : LanguageServerLifecycleListener {
-            override fun handleStatusChanged(languageServer: LanguageServerWrapper) {
-                if (languageServer.serverDefinition.id != TYPST_LANGUAGE_SERVER_ID) return
-                if (languageServer.serverStatus != ServerStatus.started) return
-                if (isDisposed) return
+        val listener =
+            object : LanguageServerLifecycleListener {
+                override fun handleStatusChanged(languageServer: LanguageServerWrapper) {
+                    if (languageServer.serverDefinition.id != TYPST_LANGUAGE_SERVER_ID) return
+                    if (languageServer.serverStatus != ServerStatus.started) return
+                    if (isDisposed) return
 
-                if (previewUrl != null || previewTaskId != null) {
-                    logger.info("tinymist restarted, resetting preview state and restarting preview.")
-                    previewUrl = null
-                    previewTaskId = null
-                    startPreview()
+                    if (previewUrl != null || previewTaskId != null) {
+                        logger.info("tinymist restarted, resetting preview state and restarting preview.")
+                        previewUrl = null
+                        previewTaskId = null
+                        startPreview()
+                    }
                 }
+
+                override fun handleLSPMessage(
+                    message: Message,
+                    messageConsumer: MessageConsumer,
+                    languageServer: LanguageServerWrapper
+                ) = Unit
+
+                override fun handleError(languageServer: LanguageServerWrapper, exception: Throwable) = Unit
+
+                override fun dispose() = Unit
             }
 
-            override fun handleLSPMessage(
-                message: Message,
-                messageConsumer: MessageConsumer,
-                languageServer: LanguageServerWrapper
-            ) = Unit
-
-            override fun handleError(languageServer: LanguageServerWrapper, exception: Throwable) = Unit
-
-            override fun dispose() = Unit
-        }
-
-        LanguageServerLifecycleManager.getInstance(project)
-            .addLanguageServerLifecycleListener(listener)
+        LanguageServerLifecycleManager.getInstance(project).addLanguageServerLifecycleListener(listener)
         serverRestartListener = listener
     }
 
@@ -210,21 +210,23 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
     override fun dispose() {
         logger.info("Disposing editor...")
         serverRestartListener?.let {
-            LanguageServerLifecycleManager.getInstance(project)
-                ?.removeLanguageServerLifecycleListener(it)
+            LanguageServerLifecycleManager.getInstance(project)?.removeLanguageServerLifecycleListener(it)
             serverRestartListener = null
         }
         previewTaskId?.let { tid ->
             val cmd = Command("KillPreview", "tinymist.doKillPreview", listOf(listOf(tid)))
             CommandExecutor.executeCommand(
-                LSPCommandContext(cmd, project).setPreferredLanguageServerId(TYPST_LANGUAGE_SERVER_ID)
+                LSPCommandContext(cmd, project).setPreferredLanguageServerId(
+                    TYPST_LANGUAGE_SERVER_ID
+                )
             )
         }
         runCatching {
             if (JBCefApp.isSupported() && !isDisposed) cefBrowser.stopLoad()
-        }.onFailure { e ->
-            logger.error("Error during stopLoad: ${e.message}", e)
         }
+            .onFailure { e ->
+                logger.error("Error during stopLoad: ${e.message}", e)
+            }
         super.dispose()
         logger.info("Disposal complete.")
     }

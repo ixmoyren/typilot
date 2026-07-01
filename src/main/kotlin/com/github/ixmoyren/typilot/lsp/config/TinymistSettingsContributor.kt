@@ -13,7 +13,7 @@ class TinymistSettingsContributor : LanguageServerSettingsContributorBase() {
 
         override fun getDefaultConfigurationContent(): String =
             // language=json
-            $$"""  
+            $$"""
             {  
               "outputPath": "$root/target/$dir/$name",  
               "exportPdf": "never",  
@@ -33,7 +33,8 @@ class TinymistSettingsContributor : LanguageServerSettingsContributorBase() {
               "customizedShowDocument": false,  
               "compileStatus": "disable"  
             }
-            """.trimIndent()
+            """
+                .trimIndent()
 
         override fun getDefaultConfigurationSchemaContent(): String =
             // language=json
@@ -252,6 +253,7 @@ class TinymistSettingsContributor : LanguageServerSettingsContributorBase() {
                 }  
               }  
             }
-            """.trimIndent()
+            """
+                .trimIndent()
     }
 }

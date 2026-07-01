@@ -19,10 +19,18 @@ class TinymistCodeLensFeature : LSPCodeLensFeature() {
             val languageServer = codeLensContext.languageServer
             val currentFile = codeLensContext.psiFile.virtualFile ?: return null
 
-            return ClickableTextCodeVisionEntry(text, providerId, { _, editor ->
-                val project = editor.project ?: return@ClickableTextCodeVisionEntry
-                TinymistExportPdfHandler.perform(project, currentFile, languageServer, null)
-            }, null, text, text, Collections.emptyList())
+            return ClickableTextCodeVisionEntry(
+                text,
+                providerId,
+                { _, editor ->
+                    val project = editor.project ?: return@ClickableTextCodeVisionEntry
+                    TinymistExportPdfHandler.perform(project, currentFile, languageServer, null)
+                },
+                null,
+                text,
+                text,
+                Collections.emptyList()
+            )
         }
         return super.createCodeVisionEntry(codeLens, providerId, codeLensContext)
     }

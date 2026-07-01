@@ -19,8 +19,7 @@ class TypstLanguageServerFactory : LanguageServerFactory {
 
     override fun createServerInstaller(): ServerInstaller = TinymistLocateService.getInstance().installer
 
-    override fun createLanguageClient(project: Project): LanguageClientImpl =
-        TinymistLanguageClient(project)
+    override fun createLanguageClient(project: Project): LanguageClientImpl = TinymistLanguageClient(project)
 
     override fun createLanguageServerSettingsContributor(): LanguageServerSettingsContributor =
         TinymistSettingsContributor()

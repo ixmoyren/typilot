@@ -19,6 +19,7 @@ class TypstSurroundDescriptor : SurroundDescriptor {
             TypstEmphasisSurrounder,
             TypstMathSurrounder,
             TypstCodeSurrounder,
+            TypstRawBlockSurrounder,
         )
 
     override fun isExclusive(): Boolean = false
@@ -38,9 +39,12 @@ class TypstSurroundDescriptor : SurroundDescriptor {
 }
 
 private abstract class TypstSurrounder(
-    private val delimiter: String,
+    protected val prefix: String,
+    protected val suffix: String,
     private val descriptionKey: String,
 ) : Surrounder {
+    constructor(delimiter: String, descriptionKey: String) : this(delimiter, delimiter, descriptionKey)
+
     override fun getTemplateDescription(): String = TypilotBundle[descriptionKey]
 
     override fun isApplicable(elements: Array<out PsiElement>): Boolean {
@@ -56,11 +60,12 @@ private abstract class TypstSurrounder(
         val endOffset = selectionModel.selectionEnd
         val selectedText = selectionModel.selectedText ?: return null
 
+        val newText = "$prefix$selectedText$suffix"
         WriteCommandAction.runWriteCommandAction(project) {
-            document.replaceString(startOffset, endOffset, "$delimiter$selectedText$delimiter")
+            document.replaceString(startOffset, endOffset, newText)
         }
 
-        return TextRange(startOffset, startOffset + delimiter.length + selectedText.length + delimiter.length)
+        return TextRange(startOffset, startOffset + newText.length)
     }
 }
 
@@ -71,3 +76,21 @@ private data object TypstEmphasisSurrounder : TypstSurrounder("_", "surround.emp
 private data object TypstMathSurrounder : TypstSurrounder("$", "surround.math")
 
 private data object TypstCodeSurrounder : TypstSurrounder("`", "surround.code")
+
+private object TypstRawBlockSurrounder : TypstSurrounder("```\n", "\n```", "surround.rawBlock") {
+    override fun surroundElements(project: Project, editor: Editor, elements: Array<out PsiElement>): TextRange? {
+        val document = editor.document
+        val selectionModel = editor.selectionModel
+        val startOffset = selectionModel.selectionStart
+        val endOffset = selectionModel.selectionEnd
+        val selectedText = selectionModel.selectedText ?: return null
+
+        val newText = "$prefix$selectedText$suffix"
+        WriteCommandAction.runWriteCommandAction(project) {
+            document.replaceString(startOffset, endOffset, newText)
+        }
+
+        val caretOffset = startOffset + 3
+        return TextRange(caretOffset, caretOffset)
+    }
+}

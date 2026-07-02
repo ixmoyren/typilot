@@ -103,16 +103,18 @@ tasks {
         interpretedFunctions.set(setOf())
     }
 
+    named("spotlessJava") {
+        mustRunAfter("endiveCompile")
+    }
+
     compileJava {
-        dependsOn(named("endiveCompile"))
+        dependsOn(named("spotlessApply"))
         classpath += files(generatedResources)
     }
 
     compileKotlin { dependsOn(named("endiveCompile")) }
 
     processResources { dependsOn(named("endiveCompile")) }
-
-    named("spotlessJava") { dependsOn(named("endiveCompile")) }
 
     test { useJUnit() }
 }

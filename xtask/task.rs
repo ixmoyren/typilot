@@ -156,16 +156,6 @@ pub fn generate_java_class() -> Result<()> {
             run(Command::new("./gradlew"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
         }
     }
-
-    let args = vec!["spotlessApply"];
-    cfg_select! {
-        target_os = "windows" => {
-            run(Command::new("./gradlew.bat"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
-        }
-        _ => {
-            run(Command::new("./gradlew"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
-        }
-    }
     Ok(())
 }
 

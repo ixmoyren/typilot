@@ -35,8 +35,8 @@ public final class Core implements AutoCloseable {
     }
 
     TypalizeResult<Tokens> tokenize(byte[] text) {
-        var textPtr = exports.wasmMalloc(text.length);
         try {
+            var textPtr = exports.wasmMalloc(text.length);
             exports.memory().write(textPtr, text);
             var resultPtr = exports.tokenize(textPtr, text.length);
             var result = unpackResult(resultPtr);
@@ -47,8 +47,8 @@ public final class Core implements AutoCloseable {
     }
 
     TypalizeResult<ASTNodes> parse(byte[] text) {
-        var textPtr = exports.wasmMalloc(text.length);
         try {
+            var textPtr = exports.wasmMalloc(text.length);
             exports.memory().write(textPtr, text);
             var resultPtr = exports.parse(textPtr, text.length);
             var result = unpackResult(resultPtr);
@@ -61,9 +61,16 @@ public final class Core implements AutoCloseable {
     private byte[] unpackResult(long packed) {
         var addr = (int) ((packed >>> 32) & 0xFFFFFFFFL);
         var len = (int) (packed & 0xFFFFFFFFL);
-        var result = instance.memory().readBytes(addr, len);
-        exports.wasmFree(addr);
-        return result;
+        if (addr < 0 || len < 0) {
+            exports.wasmFree(addr);
+            throw new IllegalArgumentException(
+                    "Invalid WASM result: addr=" + addr + ", len=" + len);
+        }
+        try {
+            return instance.memory().readBytes(addr, len);
+        } finally {
+            exports.wasmFree(addr);
+        }
     }
 
     public static Builder builder() {

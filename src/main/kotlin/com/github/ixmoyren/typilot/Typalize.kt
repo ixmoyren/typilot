@@ -5,7 +5,11 @@ import com.github.ixmoyren.typalize.Typalize
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-val typalizer: Typalize by lazy { Core.builder().build().typalizer().build() }
+private val typalizerThreadLocal = ThreadLocal.withInitial {
+    Core.builder().build().typalizer().build()
+}
+
+val typalizer: Typalize get() = typalizerThreadLocal.get()
 
 fun <T : Any> lazyNonNull(initializer: () -> T?): ReadOnlyProperty<Any?, T?> =
     object : ReadOnlyProperty<Any?, T?> {

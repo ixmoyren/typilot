@@ -21,8 +21,7 @@ class TypstLanguageServerFactory : LanguageServerFactory {
 
     override fun createLanguageClient(project: Project): LanguageClientImpl = TinymistLanguageClient(project)
 
-    override fun createLanguageServerSettingsContributor(): LanguageServerSettingsContributor =
-        TinymistSettingsContributor()
+    override fun createLanguageServerSettingsContributor(): LanguageServerSettingsContributor = TinymistSettingsContributor()
 
     @Suppress("UnstableApiUsage")
     override fun createClientFeatures(): LSPClientFeatures =

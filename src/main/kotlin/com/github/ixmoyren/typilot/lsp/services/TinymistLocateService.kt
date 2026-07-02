@@ -32,7 +32,6 @@ class TinymistLocateService {
     }
 
     companion object {
-        fun getInstance(): TinymistLocateService =
-            ApplicationManager.getApplication().getService(TinymistLocateService::class.java)
+        fun getInstance(): TinymistLocateService = ApplicationManager.getApplication().getService(TinymistLocateService::class.java)
     }
 }

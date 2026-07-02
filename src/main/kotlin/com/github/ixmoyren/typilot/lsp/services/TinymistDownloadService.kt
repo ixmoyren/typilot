@@ -37,23 +37,23 @@ class TinymistDownloadService : TinymistLocator {
         }
 
         object : Task.Backgroundable(project, TypilotBundle["download.tinymist.task.title"], true) {
-            override fun run(indicator: ProgressIndicator) {
-                try {
-                    performDownload(project, indicator)
-                    onComplete?.let { ApplicationManager.getApplication().invokeLater { it(true) } }
-                } catch (e: Exception) {
-                    if (indicator.isCanceled) {
-                        logger.info("Tinymist download cancelled by user")
-                    } else {
-                        logger.warn("Failed to download tinymist", e)
-                        notifyError(project, TypilotBundle["download.tinymist.failed", e.message ?: ""])
+                override fun run(indicator: ProgressIndicator) {
+                    try {
+                        performDownload(project, indicator)
+                        onComplete?.let { ApplicationManager.getApplication().invokeLater { it(true) } }
+                    } catch (e: Exception) {
+                        if (indicator.isCanceled) {
+                            logger.info("Tinymist download cancelled by user")
+                        } else {
+                            logger.warn("Failed to download tinymist", e)
+                            notifyError(project, TypilotBundle["download.tinymist.failed", e.message ?: ""])
+                        }
+                        onComplete?.let { ApplicationManager.getApplication().invokeLater { it(false) } }
+                    } finally {
+                        downloading.set(false)
                     }
-                    onComplete?.let { ApplicationManager.getApplication().invokeLater { it(false) } }
-                } finally {
-                    downloading.set(false)
                 }
             }
-        }
             .queue()
     }
 
@@ -90,11 +90,7 @@ class TinymistDownloadService : TinymistLocator {
 
         NotificationGroupManager.getInstance()
             .getNotificationGroup(TYPILOT_NOTIFICATION_GROUP_ID)
-            .createNotification(
-                TypilotBundle["notification.tinymist.downloaded.title"],
-                TypilotBundle["notification.tinymist.downloaded.body"],
-                NotificationType.INFORMATION
-            )
+            .createNotification(TypilotBundle["notification.tinymist.downloaded.title"], TypilotBundle["notification.tinymist.downloaded.body"], NotificationType.INFORMATION)
             .notify(project)
     }
 
@@ -124,17 +120,12 @@ class TinymistDownloadService : TinymistLocator {
     private fun notifyError(project: Project?, message: String) {
         NotificationGroupManager.getInstance()
             .getNotificationGroup(TYPILOT_NOTIFICATION_GROUP_ID)
-            .createNotification(
-                TypilotBundle["notification.tinymist.download.failed.title"],
-                message,
-                NotificationType.ERROR
-            )
+            .createNotification(TypilotBundle["notification.tinymist.download.failed.title"], message, NotificationType.ERROR)
             .notify(project)
     }
 
     companion object {
-        fun getInstance(): TinymistDownloadService =
-            ApplicationManager.getApplication().getService(TinymistDownloadService::class.java)
+        fun getInstance(): TinymistDownloadService = ApplicationManager.getApplication().getService(TinymistDownloadService::class.java)
 
         /**
          * Moves [tempFile] to [target], overwriting if [target] exists. Tries a fast rename first, falling back to copy + delete when the rename isn't possible (e.g. across

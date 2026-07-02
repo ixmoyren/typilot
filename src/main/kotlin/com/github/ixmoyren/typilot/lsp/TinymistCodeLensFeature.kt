@@ -3,16 +3,12 @@ package com.github.ixmoyren.typilot.lsp
 import com.intellij.codeInsight.codeVision.CodeVisionEntry
 import com.intellij.codeInsight.codeVision.ui.model.ClickableTextCodeVisionEntry
 import com.redhat.devtools.lsp4ij.client.features.LSPCodeLensFeature
-import org.eclipse.lsp4j.CodeLens
 import java.util.*
+import org.eclipse.lsp4j.CodeLens
 
 @Suppress("UnstableApiUsage")
 class TinymistCodeLensFeature : LSPCodeLensFeature() {
-    override fun createCodeVisionEntry(
-        codeLens: CodeLens,
-        providerId: String,
-        codeLensContext: LSPCodeLensContext
-    ): CodeVisionEntry? {
+    override fun createCodeVisionEntry(codeLens: CodeLens, providerId: String, codeLensContext: LSPCodeLensContext): CodeVisionEntry? {
         val command = codeLens.command
         if (command != null && command.command == EXPORT_PDF_COMMAND) {
             val text = getText(codeLens) ?: return null
@@ -29,8 +25,7 @@ class TinymistCodeLensFeature : LSPCodeLensFeature() {
                 null,
                 text,
                 text,
-                Collections.emptyList()
-            )
+                Collections.emptyList())
         }
         return super.createCodeVisionEntry(codeLens, providerId, codeLensContext)
     }

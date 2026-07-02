@@ -18,6 +18,10 @@ import com.redhat.devtools.lsp4ij.commands.CommandExecutor
 import com.redhat.devtools.lsp4ij.commands.LSPCommandContext
 import com.redhat.devtools.lsp4ij.lifecycle.LanguageServerLifecycleListener
 import com.redhat.devtools.lsp4ij.lifecycle.LanguageServerLifecycleManager
+import java.beans.PropertyChangeListener
+import java.util.*
+import javax.swing.JComponent
+import javax.swing.JLabel
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.handler.CefLoadHandler
@@ -26,14 +30,9 @@ import org.cef.network.CefRequest
 import org.eclipse.lsp4j.Command
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer
 import org.eclipse.lsp4j.jsonrpc.messages.Message
-import java.beans.PropertyChangeListener
-import java.util.*
-import javax.swing.JComponent
-import javax.swing.JLabel
 
 @Suppress("UnstableApiUsage")
-class TypstPreviewFileEditor(private val project: Project, private val virtualFile: VirtualFile) :
-    JCEFHtmlPanel(false, null, null), FileEditor {
+class TypstPreviewFileEditor(private val project: Project, private val virtualFile: VirtualFile) : JCEFHtmlPanel(false, null, null), FileEditor {
 
     private val logger = logger<TypstPreviewFileEditor>()
 
@@ -41,14 +40,11 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
         Gson()
     }
 
-    @Volatile
-    private var previewUrl: String? = null
+    @Volatile private var previewUrl: String? = null
 
-    @Volatile
-    private var previewTaskId: String? = null
+    @Volatile private var previewTaskId: String? = null
 
-    @Volatile
-    private var loadRetryCount = 0
+    @Volatile private var loadRetryCount = 0
 
     private val maxRetryCount = 10
 
@@ -91,11 +87,7 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
                     }
                 }
 
-                override fun handleLSPMessage(
-                    message: Message,
-                    messageConsumer: MessageConsumer,
-                    languageServer: LanguageServerWrapper
-                ) = Unit
+                override fun handleLSPMessage(message: Message, messageConsumer: MessageConsumer, languageServer: LanguageServerWrapper) = Unit
 
                 override fun handleError(languageServer: LanguageServerWrapper, exception: Throwable) = Unit
 
@@ -222,15 +214,11 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
         }
         previewTaskId?.let { tid ->
             val cmd = Command("KillPreview", "tinymist.doKillPreview", listOf(listOf(tid)))
-            CommandExecutor.executeCommand(
-                LSPCommandContext(cmd, project).setPreferredLanguageServerId(
-                    TYPST_LANGUAGE_SERVER_ID
-                )
-            )
+            CommandExecutor.executeCommand(LSPCommandContext(cmd, project).setPreferredLanguageServerId(TYPST_LANGUAGE_SERVER_ID))
         }
         runCatching {
-            if (JBCefApp.isSupported() && !isDisposed) cefBrowser.stopLoad()
-        }
+                if (JBCefApp.isSupported() && !isDisposed) cefBrowser.stopLoad()
+            }
             .onFailure { e ->
                 logger.error("Error during stopLoad: ${e.message}", e)
             }
@@ -241,20 +229,11 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
     private fun setupLoadHandler() {
         jbCefClient.addLoadHandler(
             object : CefLoadHandlerAdapter() {
-                override fun onLoadingStateChange(
-                    browser: CefBrowser?,
-                    isLoading: Boolean,
-                    canGoBack: Boolean,
-                    canGoForward: Boolean
-                ) {
+                override fun onLoadingStateChange(browser: CefBrowser?, isLoading: Boolean, canGoBack: Boolean, canGoForward: Boolean) {
                     logger.debug("Loading state changed: isLoading=$isLoading")
                 }
 
-                override fun onLoadStart(
-                    browser: CefBrowser?,
-                    frame: CefFrame?,
-                    transitionType: CefRequest.TransitionType?
-                ) {
+                override fun onLoadStart(browser: CefBrowser?, frame: CefFrame?, transitionType: CefRequest.TransitionType?) {
                     logger.debug("Load started: URL=${frame?.url}, main=${frame?.isMain}")
                 }
 
@@ -262,13 +241,7 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
                     logger.debug("Load ended: URL=${frame?.url}, status=$httpStatusCode, main=${frame?.isMain}")
                 }
 
-                override fun onLoadError(
-                    browser: CefBrowser,
-                    frame: CefFrame,
-                    errorCode: CefLoadHandler.ErrorCode,
-                    errorText: String,
-                    failedUrl: String
-                ) {
+                override fun onLoadError(browser: CefBrowser, frame: CefFrame, errorCode: CefLoadHandler.ErrorCode, errorText: String, failedUrl: String) {
                     if (!frame.isMain) return
                     if (errorCode == CefLoadHandler.ErrorCode.ERR_ABORTED) return
 
@@ -289,16 +262,14 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
                                         browser.loadURL(retryUrl)
                                     }
                                 },
-                                ModalityState.any()
-                            )
+                                ModalityState.any())
                         return
                     }
 
                     showErrorHtml("Preview load error: $errorCode — $errorText<br>URL: $failedUrl")
                 }
             },
-            cefBrowser
-        )
+            cefBrowser)
     }
 
     companion object {

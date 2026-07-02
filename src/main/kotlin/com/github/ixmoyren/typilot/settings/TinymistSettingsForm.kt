@@ -34,10 +34,7 @@ class TinymistSettingsForm : JPanel() {
                             val tinymistResolvePath = TinymistLocateService.getInstance().firstValidLocator?.locate()
                             tinymistTextFieldBrowseButton.setEmptyState(getEmptyState(tinymistResolvePath))
                             tinymistTextFieldBrowseButton.addBrowseFolderListener(
-                                null,
-                                FileChooserDescriptorFactory.singleFile()
-                                    .withTitle(TypilotBundle["settings.tinymist.panel.tinymistPath.fileChooserDescriptor.title"])
-                            )
+                                null, FileChooserDescriptorFactory.singleFile().withTitle(TypilotBundle["settings.tinymist.panel.tinymistPath.fileChooserDescriptor.title"]))
                             var cell =
                                 cell(tinymistTextFieldBrowseButton).applyToComponent {
                                     isOpaque = false
@@ -49,45 +46,43 @@ class TinymistSettingsForm : JPanel() {
                                 var tinymistPath = tinymistTextFieldBrowseButton.text
                                 val version =
                                     runCatching {
-                                        ApplicationManager.getApplication().runReadAction<String?> {
-                                            if (tinymistPath.isNotBlank()) {
-                                                TinymistFindService.getInstance().version(tinymistPath)
-                                            } else {
-                                                TinymistLocateService.getInstance().version
+                                            ApplicationManager.getApplication().runReadAction<String?> {
+                                                if (tinymistPath.isNotBlank()) {
+                                                    TinymistFindService.getInstance().version(tinymistPath)
+                                                } else {
+                                                    TinymistLocateService.getInstance().version
+                                                }
                                             }
                                         }
-                                    }
                                         .getOrNull()
 
                                 ApplicationManager.getApplication().invokeLater {
                                     tinymistVersionHint.applyToComponent {
                                         isVisible = true
-                                        text =
-                                            version ?: TypilotBundle["settings.tinymist.panel.versionHint.notVersion"]
+                                        text = version ?: TypilotBundle["settings.tinymist.panel.versionHint.notVersion"]
                                     }
                                 }
                             }
                         }
                         row {
-                            tinymistVersionHint =
-                                label(TypilotBundle["settings.tinymist.panel.versionHint"]).visible(false)
+                            tinymistVersionHint = label(TypilotBundle["settings.tinymist.panel.versionHint"]).visible(false)
                         }
                     }
                 }
             }
             row {
                 button(TypilotBundle["settings.tinymist.panel.tinymistDownload.buttonText"]) {
-                    TinymistDownloadService.getInstance().downloadInBackground(null) { success ->
-                        run {
-                            if (success) {
-                                tinymistTextFieldBrowseButton.text = getTinymistStatusText()
-                            } else {
-                                tinymistTextFieldBrowseButton.text = ""
-                                tinymistTextFieldBrowseButton.setEmptyState(TypilotBundle["settings.tinymist.panel.tinymistDownload.downloadFailedMessage"])
+                        TinymistDownloadService.getInstance().downloadInBackground(null) { success ->
+                            run {
+                                if (success) {
+                                    tinymistTextFieldBrowseButton.text = getTinymistStatusText()
+                                } else {
+                                    tinymistTextFieldBrowseButton.text = ""
+                                    tinymistTextFieldBrowseButton.setEmptyState(TypilotBundle["settings.tinymist.panel.tinymistDownload.downloadFailedMessage"])
+                                }
                             }
                         }
                     }
-                }
                     .comment(TypilotBundle["settings.tinymist.panel.tinymistDownload.comment"])
             }
         }

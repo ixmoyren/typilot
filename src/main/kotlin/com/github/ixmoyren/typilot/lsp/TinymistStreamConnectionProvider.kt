@@ -6,8 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
 import com.redhat.devtools.lsp4ij.server.OSProcessStreamConnectionProvider
 
-class TinymistStreamConnectionProvider(private val project: Project, private val locator: TinymistLocator?) :
-    OSProcessStreamConnectionProvider() {
+class TinymistStreamConnectionProvider(private val project: Project, private val locator: TinymistLocator?) : OSProcessStreamConnectionProvider() {
     private val logger = Logger.getInstance(TinymistStreamConnectionProvider::class.java)
 
     override fun start() {

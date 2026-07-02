@@ -10,50 +10,25 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
 @Serializable
-data class TinymistInstallerConfig(
-    val id: String,
-    val name: String,
-    val executeOnStartServer: Boolean = false,
-    val check: CheckConfig? = null,
-    val run: RunConfig? = null
-)
+data class TinymistInstallerConfig(val id: String, val name: String, val executeOnStartServer: Boolean = false, val check: CheckConfig? = null, val run: RunConfig? = null)
 
-@Serializable
-data class CheckConfig(val exec: ExecConfig? = null)
+@Serializable data class CheckConfig(val exec: ExecConfig? = null)
 
-@Serializable
-data class ExecConfig(val name: String, val command: String, val timeout: Int = 3000)
+@Serializable data class ExecConfig(val name: String, val command: String, val timeout: Int = 3000)
 
-@Serializable
-data class RunConfig(val download: DownloadConfig? = null)
+@Serializable data class RunConfig(val download: DownloadConfig? = null)
 
-@Serializable
-data class DownloadConfig(
-    val name: String,
-    val github: GitHubConfig? = null,
-    val output: OutputConfig? = null,
-    val onSuccess: OnSuccessConfig? = null
-)
+@Serializable data class DownloadConfig(val name: String, val github: GitHubConfig? = null, val output: OutputConfig? = null, val onSuccess: OnSuccessConfig? = null)
 
-@Serializable
-data class GitHubConfig(
-    val owner: String,
-    val repository: String,
-    val prerelease: Boolean = false,
-    val asset: AssetConfig? = null
-)
+@Serializable data class GitHubConfig(val owner: String, val repository: String, val prerelease: Boolean = false, val asset: AssetConfig? = null)
 
-@Serializable
-data class OutputConfig(val dir: String, val file: OutputFileConfig? = null)
+@Serializable data class OutputConfig(val dir: String, val file: OutputFileConfig? = null)
 
-@Serializable
-data class OutputFileConfig(val name: PlatformIndent? = null, val executable: Boolean = false)
+@Serializable data class OutputFileConfig(val name: PlatformIndent? = null, val executable: Boolean = false)
 
-@Serializable
-data class OnSuccessConfig(val configureServer: ConfigureServerConfig? = null)
+@Serializable data class OnSuccessConfig(val configureServer: ConfigureServerConfig? = null)
 
-@Serializable
-data class ConfigureServerConfig(val name: String, val command: PlatformIndent, val update: Boolean = false)
+@Serializable data class ConfigureServerConfig(val name: String, val command: PlatformIndent, val update: Boolean = false)
 
 enum class OsType(val key: String) {
     WINDOWS("windows"),

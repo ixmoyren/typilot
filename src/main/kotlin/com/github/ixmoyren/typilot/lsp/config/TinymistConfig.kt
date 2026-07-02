@@ -11,10 +11,9 @@ const val TINYMIST_INSTALLER_CONFIG_JSON: String = "/lsp/installer.json"
 
 val TINYMIST_INSTALLER_CONFIG: TinymistInstallerConfig? by lazy {
     runCatching {
-        val text = TinymistInstallerConfig::class.java.getResourceAsStream(TINYMIST_INSTALLER_CONFIG_JSON)
-            ?.use { it.readBytes().toString(Charsets.UTF_8) } ?: return@lazy null
-        json.decodeFromString<TinymistInstallerConfig>(text)
-    }
+            val text = TinymistInstallerConfig::class.java.getResourceAsStream(TINYMIST_INSTALLER_CONFIG_JSON)?.use { it.readBytes().toString(Charsets.UTF_8) } ?: return@lazy null
+            json.decodeFromString<TinymistInstallerConfig>(text)
+        }
         .getOrNull()
 }
 
@@ -22,8 +21,7 @@ val TINYMIST_GITHUB_DOWNLOAD_URL: String? by lazy {
     val github = TINYMIST_INSTALLER_CONFIG?.run?.download?.github ?: return@lazy null
     val assetName = github.asset?.resolve() ?: return@lazy null
 
-    val releaseMatcher =
-        if (github.prerelease) GitHubAssetFetcher.PRERELEASE_MATCHER else GitHubAssetFetcher.RELEASE_MATCHER
+    val releaseMatcher = if (github.prerelease) GitHubAssetFetcher.PRERELEASE_MATCHER else GitHubAssetFetcher.RELEASE_MATCHER
 
     val fetcher = GitHubAssetFetcherManager.getInstance().getAssetFetcher(github.owner, github.repository)
 

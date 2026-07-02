@@ -29,7 +29,6 @@ class ConfigureLocator : TinymistLocator {
     override fun locate(): String? = configuredPath.takeIf { it.isNotBlank() && isBinaryExecutable(File(it)) }
 
     companion object {
-        fun getInstance(): ConfigureLocator =
-            ApplicationManager.getApplication().getService(ConfigureLocator::class.java)
+        fun getInstance(): ConfigureLocator = ApplicationManager.getApplication().getService(ConfigureLocator::class.java)
     }
 }

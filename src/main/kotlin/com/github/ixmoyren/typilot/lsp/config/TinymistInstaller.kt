@@ -12,10 +12,10 @@ import com.redhat.devtools.lsp4ij.installation.ServerInstallationStatus
 import com.redhat.devtools.lsp4ij.installation.definition.InstallerContext
 import com.redhat.devtools.lsp4ij.installation.definition.ServerInstallerDescriptor
 import com.redhat.devtools.lsp4ij.installation.definition.ServerInstallerManager
-import org.jetbrains.annotations.Nullable
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
+import org.jetbrains.annotations.Nullable
 
 class TinymistInstaller : DeclarativeLanguageServerInstaller(), CommandLineUpdater {
     private val logger = logger<TinymistInstaller>()
@@ -31,17 +31,13 @@ class TinymistInstaller : DeclarativeLanguageServerInstaller(), CommandLineUpdat
         PropertiesComponent.getInstance().setValue(KEY_COMMAND, commandLine)
     }
 
-    override fun createInstallerContext(
-        action: InstallerContext.InstallerAction,
-        indicator: ProgressIndicator
-    ): InstallerContext {
+    override fun createInstallerContext(action: InstallerContext.InstallerAction, indicator: ProgressIndicator): InstallerContext {
         return super.createInstallerContext(action, indicator).also {
             it.commandLineUpdater = this
         }
     }
 
-    @Nullable
-    protected override fun getServerInstallerDescriptor(): ServerInstallerDescriptor? = descriptor
+    @Nullable protected override fun getServerInstallerDescriptor(): ServerInstallerDescriptor? = descriptor
 
     override fun canExecute(serverInstallerDescriptor: ServerInstallerDescriptor): Boolean =
         !PropertiesComponent.getInstance().isTrueValue(KEY_INSTALLED) && super.canExecute(serverInstallerDescriptor)

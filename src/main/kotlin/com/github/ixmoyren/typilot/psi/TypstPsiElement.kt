@@ -7,11 +7,7 @@ import com.intellij.lang.tree.util.children
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 
-inline fun PsiElement.nextSiblingOf(
-    stop: ((PsiElement) -> Boolean) = { false },
-    inclusive: Boolean = false,
-    condition: (PsiElement) -> Boolean
-): PsiElement? {
+inline fun PsiElement.nextSiblingOf(stop: ((PsiElement) -> Boolean) = { false }, inclusive: Boolean = false, condition: (PsiElement) -> Boolean): PsiElement? {
     var next = if (inclusive) this else this.nextSibling
     while (next != null && !stop(next)) {
         if (condition(next)) return next

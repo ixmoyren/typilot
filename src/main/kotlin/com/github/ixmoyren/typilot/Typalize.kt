@@ -14,8 +14,7 @@ val typalizer: Typalize
 
 fun <T : Any> lazyNonNull(initializer: () -> T?): ReadOnlyProperty<Any?, T?> =
     object : ReadOnlyProperty<Any?, T?> {
-        @Volatile
-        private var value: T? = null
+        @Volatile private var value: T? = null
 
         override fun getValue(thisRef: Any?, property: KProperty<*>): T? = value ?: initializer().also { value = it }
     }

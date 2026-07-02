@@ -16,8 +16,8 @@ import com.intellij.psi.tree.IElementType
 class TypstLexicalHighlighter : SyntaxHighlighterBase() {
     override fun getHighlightingLexer(): Lexer = TypstLexer()
 
-    override fun getTokenHighlights(tokenType: IElementType?): Array<out TextAttributesKey?> {
-        val typstToken = tokenType as? TypstTokenType ?: return arrayOf()
+    override fun getTokenHighlights(tokenType: IElementType?): Array<TextAttributesKey> {
+        val typstToken = tokenType as? TypstTokenType ?: return emptyArray()
         return when (typstToken.kind) {
             is TypstSyntaxKind.LineComment -> arrayOf(TypstHighlightingColors.LINE_COMMENT.key)
             is TypstSyntaxKind.BlockComment -> arrayOf(TypstHighlightingColors.BLOCK_COMMENT.key)
@@ -25,9 +25,8 @@ class TypstLexicalHighlighter : SyntaxHighlighterBase() {
             is TypstSyntaxKind.Str -> arrayOf(TypstHighlightingColors.STRINGS.key)
             in TypstSyntaxKindUtils.keywordSet -> arrayOf(TypstHighlightingColors.KEYWORD.key)
             in TypstSyntaxKindUtils.operatorSet -> arrayOf(TypstHighlightingColors.OPERATOR.key)
-            else -> arrayOf()
+            else -> emptyArray()
         }
-            as Array<out TextAttributesKey?>
     }
 }
 

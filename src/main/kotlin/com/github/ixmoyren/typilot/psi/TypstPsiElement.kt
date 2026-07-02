@@ -5,15 +5,13 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.lang.tree.util.children
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.ElementManipulators
-import com.intellij.psi.LiteralTextEscaper
-import com.intellij.psi.NavigatablePsiElement
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiElementVisitor
-import com.intellij.psi.PsiLanguageInjectionHost
-import kotlin.to
+import com.intellij.psi.*
 
-inline fun PsiElement.nextSiblingOf(stop: ((PsiElement) -> Boolean) = { false }, inclusive: Boolean = false, condition: (PsiElement) -> Boolean): PsiElement? {
+inline fun PsiElement.nextSiblingOf(
+    stop: ((PsiElement) -> Boolean) = { false },
+    inclusive: Boolean = false,
+    condition: (PsiElement) -> Boolean
+): PsiElement? {
     var next = if (inclusive) this else this.nextSibling
     while (next != null && !stop(next)) {
         if (condition(next)) return next

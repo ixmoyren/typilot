@@ -7,7 +7,6 @@ import com.intellij.openapi.options.colors.AttributesDescriptor
 import com.intellij.openapi.options.colors.ColorDescriptor
 import com.intellij.openapi.options.colors.ColorSettingsPage
 import javax.swing.Icon
-import kotlin.to
 
 class TypstColorSettingsPage : ColorSettingsPage {
     override fun getIcon(): Icon = TypstFileType.icon

@@ -19,7 +19,7 @@ class TypstHighlightAnnotator : Annotator {
         if (element.children.isNotEmpty()) return
         val colorize =
             when (element) {
-                is TypstHashPsiElement -> element.nextSibling.firstLeaf().parent
+                is TypstHashPsiElement -> element.nextSibling?.firstLeaf()?.parent ?: return
                 is TypstSemicolonPsiElement -> {
                     element.prevSibling.takeIf { it is TypstEmbeddedCodePsiElement }?.lastLeaf()?.parent ?: element
                 }
@@ -57,28 +57,28 @@ class TypstHighlightAnnotator : Annotator {
     private fun computeTextKey(element: PsiElement): List<TextAttributesKey>? {
         val result = mutableListOf<TextAttributesKey>()
         var prev: PsiElement? = null
-        var element: PsiElement = element
-        while (element is ATypstPsiElement) {
-            when (element) {
+        var current: PsiElement = element
+        while (current is ATypstPsiElement) {
+            when (current) {
                 is TypstKeyword,
                 is TypstUnOp,
                 is TypstBinOp,
                 is TypstAssignOp,
                 is TypstIgnored,
-                is TypstNumericLiteral -> if (element !is TypstStarPsiElement) return null
+                is TypstNumericLiteral -> if (current !is TypstStarPsiElement) return null
                 is TypstEquationPsiElement -> result.add(TypstHighlightingColors.MATHS.key)
                 is TypstRawPsiElement -> result.add(TypstHighlightingColors.RAWS.key)
                 is TypstRawBlockPsiElement -> {
-                    val lang = element.langTag()
-                    if (lang == null) result.add(TypstHighlightingColors.RAWS.key) else return listOf()
+                    val lang = current.langTag()
+                    if (lang == null) result.add(TypstHighlightingColors.RAWS.key) else return emptyList()
                 }
                 is TypstContentBlockPsiElement -> {
-                    if (element.parent is TypstRefPsiElement) {
+                    if (current.parent is TypstRefPsiElement) {
                         result.add(TypstHighlightingColors.REFERENCES.key)
                     } else return result
                 }
                 is TypstCodePart -> return result
-                is TypstParam -> if (element !is TypstUnderscorePsiElement) return result
+                is TypstParam -> if (current !is TypstUnderscorePsiElement) return result
                 is TypstEmbeddedCodePsiElement -> return result
                 is TypstEmphPsiElement -> result.add(TypstHighlightingColors.EMPH.key)
                 is TypstHeadingPsiElement -> result.add(TypstHighlightingColors.HEADING.key)
@@ -90,8 +90,8 @@ class TypstHighlightAnnotator : Annotator {
                 }
                 else -> Unit
             }
-            prev = element
-            element = element.parent
+            prev = current
+            current = current.parent
         }
 
         return result

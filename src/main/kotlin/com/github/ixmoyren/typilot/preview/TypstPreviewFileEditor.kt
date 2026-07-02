@@ -3,6 +3,7 @@ package com.github.ixmoyren.typilot.preview
 import com.github.ixmoyren.typilot.TYPST_LANGUAGE_SERVER_ID
 import com.google.gson.Gson
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.FileEditorState
@@ -45,6 +46,11 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
 
     @Volatile
     private var previewTaskId: String? = null
+
+    @Volatile
+    private var loadRetryCount = 0
+
+    private val maxRetryCount = 10
 
     private var serverRestartListener: LanguageServerLifecycleListener? = null
 
@@ -123,6 +129,7 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
                     logger.info("Preview URL: $url")
                     previewUrl = url
                     previewTaskId = taskId
+                    loadRetryCount = 0
                     loadUrlSafely(url)
                 } else {
                     logger.warn("Cannot extract preview URL from result: $result")
@@ -262,7 +269,28 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
                     errorText: String,
                     failedUrl: String
                 ) {
-                    logger.warn("Load error: code=$errorCode, text=$errorText, url=$failedUrl, main=${frame.isMain}")
+                    if (!frame.isMain) return
+                    if (errorCode == CefLoadHandler.ErrorCode.ERR_ABORTED) return
+
+                    logger.warn("Load error: code=$errorCode, text=$errorText, url=$failedUrl")
+
+                    if (errorCode == CefLoadHandler.ErrorCode.ERR_CONNECTION_REFUSED) {
+                        val retryUrl = previewUrl ?: return
+                        if (loadRetryCount >= maxRetryCount) {
+                            showErrorHtml("Preview server did not start after $maxRetryCount retries.")
+                            return
+                        }
+                        loadRetryCount += 1
+                        ApplicationManager.getApplication().invokeLater({
+                            if (!isDisposed && JBCefApp.isSupported()) {
+                                logger.info("Retrying preview URL: $retryUrl")
+                                browser.loadURL(retryUrl)
+                            }
+                        }, ModalityState.any())
+                        return
+                    }
+
+                    showErrorHtml("Preview load error: $errorCode — $errorText<br>URL: $failedUrl")
                 }
             },
             cefBrowser

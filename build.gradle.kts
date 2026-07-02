@@ -103,6 +103,10 @@ tasks {
         interpretedFunctions.set(setOf())
     }
 
+    named("endiveCompile") {
+        finalizedBy("spotlessJavaApply")
+    }
+
     named("spotlessJava") {
         mustRunAfter("endiveCompile")
     }

@@ -112,5 +112,7 @@ tasks {
 
     processResources { dependsOn(named("endiveCompile")) }
 
+    named("spotlessJava") { dependsOn(named("endiveCompile")) }
+
     test { useJUnit() }
 }

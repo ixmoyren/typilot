@@ -75,6 +75,10 @@
         <lang.commenter language="Typst"
                         implementationClass="com.github.ixmoyren.typilot.language.TypstCommenter"/>
 
+        <lang.surroundDescriptor
+                language="Typst"
+                implementationClass="com.github.ixmoyren.typilot.surround.TypstSurroundDescriptor"/>
+
         <postStartupActivity implementation="com.github.ixmoyren.typilot.StartupActivity"/>
 
         <applicationService

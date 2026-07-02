@@ -63,8 +63,7 @@ public final class Core implements AutoCloseable {
         var len = (int) (packed & 0xFFFFFFFFL);
         if (addr < 0 || len < 0) {
             exports.wasmFree(addr);
-            throw new IllegalArgumentException(
-                    "Invalid WASM result: addr=" + addr + ", len=" + len);
+            throw new IllegalArgumentException("Invalid WASM result: addr=" + addr + ", len=" + len);
         }
         try {
             return instance.memory().readBytes(addr, len);

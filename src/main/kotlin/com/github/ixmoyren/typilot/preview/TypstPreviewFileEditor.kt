@@ -281,12 +281,16 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
                             return
                         }
                         loadRetryCount += 1
-                        ApplicationManager.getApplication().invokeLater({
-                            if (!isDisposed && JBCefApp.isSupported()) {
-                                logger.info("Retrying preview URL: $retryUrl")
-                                browser.loadURL(retryUrl)
-                            }
-                        }, ModalityState.any())
+                        ApplicationManager.getApplication()
+                            .invokeLater(
+                                {
+                                    if (!isDisposed && JBCefApp.isSupported()) {
+                                        logger.info("Retrying preview URL: $retryUrl")
+                                        browser.loadURL(retryUrl)
+                                    }
+                                },
+                                ModalityState.any()
+                            )
                         return
                     }
 

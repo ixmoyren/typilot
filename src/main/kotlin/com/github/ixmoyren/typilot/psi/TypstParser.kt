@@ -1,19 +1,18 @@
 package com.github.ixmoyren.typilot.psi
 
+import com.github.ixmoyren.typalize.ASTNode as TypalizeASTNode
 import com.github.ixmoyren.typilot.typalizer
 import com.intellij.lang.ASTNode
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiParser
 import com.intellij.psi.tree.IElementType
-import com.github.ixmoyren.typalize.ASTNode as TypalizeASTNode
 
 class TypstParser : PsiParser {
     override fun parse(root: IElementType, builder: PsiBuilder): ASTNode {
         val rootMark = builder.mark()
         try {
             val text = builder.originalText
-            val parseResult =
-                typalizer.parse(text) ?: throw IllegalStateException("The typst parser returned null")
+            val parseResult = typalizer.parse(text) ?: throw IllegalStateException("The typst parser returned null")
             if (parseResult.failure()) {
                 throw IllegalStateException("The typst parser couldn't work.", parseResult.error)
             }

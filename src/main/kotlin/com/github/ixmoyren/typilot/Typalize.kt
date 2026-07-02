@@ -9,7 +9,8 @@ private val typalizerThreadLocal = ThreadLocal.withInitial {
     Core.builder().build().typalizer().build()
 }
 
-val typalizer: Typalize get() = typalizerThreadLocal.get()
+val typalizer: Typalize
+    get() = typalizerThreadLocal.get()
 
 fun <T : Any> lazyNonNull(initializer: () -> T?): ReadOnlyProperty<Any?, T?> =
     object : ReadOnlyProperty<Any?, T?> {

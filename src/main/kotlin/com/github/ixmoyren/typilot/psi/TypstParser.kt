@@ -9,34 +9,35 @@ import com.github.ixmoyren.typalize.ASTNode as TypalizeASTNode
 
 class TypstParser : PsiParser {
     override fun parse(root: IElementType, builder: PsiBuilder): ASTNode {
-        builder.setDebugMode(true)
-        val text = builder.originalText
-        val nodes =
-            typalizer
-                .parse(text)
-                .run {
-                    if (this == null || failure()) {
-                        throw Exception("The typst parser couldn't work.", this?.error)
-                    }
-                    result ?: throw Exception("The typst parse result is null")
-                }
-                .value
         val rootMark = builder.mark()
-        builder.replayTree(nodes)
+        try {
+            val text = builder.originalText
+            val parseResult =
+                typalizer.parse(text) ?: throw IllegalStateException("The typst parser returned null")
+            if (parseResult.failure()) {
+                throw IllegalStateException("The typst parser couldn't work.", parseResult.error)
+            }
+            val astNodes = parseResult.result ?: throw IllegalStateException("The typst parse result is null")
+            builder.replayTree(astNodes.value)
+        } catch (e: Exception) {
+            val errorMark = builder.mark()
+            while (!builder.eof()) builder.advanceLexer()
+            errorMark.error("Typst parsing failed: ${e.message}")
+        }
         rootMark.done(root)
         return builder.treeBuilt
     }
 
-    fun PsiBuilder.replayTree(nodes: List<TypalizeASTNode>) {
+    private fun PsiBuilder.replayTree(nodes: List<TypalizeASTNode>) {
         val stack = ArrayDeque<Triple<PsiBuilder.Marker, TypalizeASTNode, Int>>()
 
         for (node in nodes) {
             if (node.isLeaf) {
-                if (!this.eof()) this.advanceLexer()
+                advanceToOffset(node.end)
                 stack.decrementAndClose()
             } else if (node.isError) {
                 val marker = this.mark()
-                if (!this.eof()) this.advanceLexer()
+                advanceToOffset(node.end)
                 marker.error(node.errorMessage ?: "syntax error")
                 stack.decrementAndClose()
             } else {
@@ -52,7 +53,13 @@ class TypstParser : PsiParser {
         }
     }
 
-    fun ArrayDeque<Triple<PsiBuilder.Marker, TypalizeASTNode, Int>>.decrementAndClose() {
+    private fun PsiBuilder.advanceToOffset(endOffset: Int) {
+        while (!this.eof() && this.currentOffset < endOffset) {
+            this.advanceLexer()
+        }
+    }
+
+    private fun ArrayDeque<Triple<PsiBuilder.Marker, TypalizeASTNode, Int>>.decrementAndClose() {
         while (this.isNotEmpty()) {
             val (marker, node, remaining) = this.removeLast()
             if (remaining == 1) {

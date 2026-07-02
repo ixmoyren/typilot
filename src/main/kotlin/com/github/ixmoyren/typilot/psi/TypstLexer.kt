@@ -17,16 +17,13 @@ class TypstLexer : LexerBase() {
         this.startOffset = startOffset
         this.endOffset = endOffset
         val text = buffer.subSequence(startOffset, endOffset)
+        val tokenResult =
+            typalizer.tokenize(text) ?: throw IllegalStateException("The typst lexer returned null")
+        if (tokenResult.failure()) {
+            throw IllegalStateException("The typst lexer couldn't work.", tokenResult.error)
+        }
         this.tokenList =
-            typalizer
-                .tokenize(text)
-                .run {
-                    if (this == null || failure()) {
-                        throw Exception("The typst lexer couldn't work.", this?.error)
-                    }
-                    result ?: throw Exception("The typst tokenize result is null")
-                }
-                .value
+            tokenResult.result?.value ?: throw IllegalStateException("The typst tokenize result is null")
         this.index = 0
     }
 

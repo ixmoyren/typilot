@@ -43,6 +43,14 @@
                 implementationClass="com.redhat.devtools.lsp4ij.features.foldingRange.LSPFoldingRangeBuilder"
                 order="first"/>
 
+        <lang.psiStructureViewFactory language="Typst"
+                                      implementationClass="com.redhat.devtools.lsp4ij.features.documentSymbol.LSPDocumentSymbolStructureViewFactory"
+                                      order="first"/>
+
+        <codeBlockProvider language="Typst"
+                           implementationClass="com.redhat.devtools.lsp4ij.features.codeBlockProvider.LSPCodeBlockProvider"
+                           order="first"/>
+
         <codeInsight.parameterInfo
                 language="Typst"
                 implementationClass="com.redhat.devtools.lsp4ij.features.signatureHelp.LSPParameterInfoHandler"/>

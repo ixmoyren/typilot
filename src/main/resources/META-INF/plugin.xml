@@ -93,6 +93,8 @@
                 id="com.github.pndv.typstrenderer.settings.TypstConfigurable"
                 bundle="messages.TypilotBundle" key="settings.displayName"/>
 
+        <typedHandler implementation="com.github.ixmoyren.typilot.misc.TypstTypedHandler"/>
+
         <notificationGroup id="Typst" displayType="BALLOON" bundle="messages.TypilotBundle"
                            key="notification.group.typilot"/>
     </extensions>

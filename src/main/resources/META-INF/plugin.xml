@@ -70,7 +70,7 @@
 
         <lang.elementManipulator
                 implementationClass="com.github.ixmoyren.typilot.injection.TypstRawBlockManipulator"
-                forClass="com.example.TypstRawBlockPsiElement"/>
+                forClass="com.github.ixmoyren.typilot.psi.TypstRawBlockPsiElement"/>
 
         <lang.commenter language="Typst"
                         implementationClass="com.github.ixmoyren.typilot.language.TypstCommenter"/>

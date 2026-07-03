@@ -23,6 +23,7 @@ sealed interface TypstPsiElement : NavigatablePsiElement {
         get() =
             when (val type = node.elementType) {
                 is TypstElementType -> type.kind
+                is TypstTokenType -> type.kind
                 else -> return null
             }
 }
@@ -398,6 +399,27 @@ class TypstMathRootPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstMath
     }
 }
 
+/** A field access in math: `arrow.r.long.double.bar`. */
+class TypstMathFieldAccessPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstMathPart {
+    override fun accept(visitor: TypstPsiElementVisitor) {
+        visitor.visitMathFieldAccess(this)
+    }
+}
+
+/** A function call in math: `mat(delim: "[", a, b; ..#($c$,), d)`. */
+class TypstMathCallPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstMathPart {
+    override fun accept(visitor: TypstPsiElementVisitor) {
+        visitor.visitMathCall(this)
+    }
+}
+
+/** Function arguments in math: `(delim: "[", a, b; ..#($c$,), d)`. */
+class TypstMathArgsPsiElement(node: ASTNode) : ATypstPsiElement(node) {
+    override fun accept(visitor: TypstPsiElementVisitor) {
+        visitor.visitMathArgs(this)
+    }
+}
+
 /** A hash that switches into code mode: `#`. */
 class TypstHashPsiElement(node: ASTNode) : ATypstPsiElement(node) {
     override fun accept(visitor: TypstPsiElementVisitor) {
@@ -626,6 +648,13 @@ class TypstArrowPsiElement(node: ASTNode) : ATypstPsiElement(node) {
 class TypstRootPsiElement(node: ASTNode) : ATypstPsiElement(node) {
     override fun accept(visitor: TypstPsiElementVisitor) {
         visitor.visitRoot(this)
+    }
+}
+
+/** An exclamation mark; groups with directly preceding text in math: `!`. */
+class TypstBangPsiElement(node: ASTNode) : ATypstPsiElement(node) {
+    override fun accept(visitor: TypstPsiElementVisitor) {
+        visitor.visitBang(this)
     }
 }
 
@@ -1170,6 +1199,9 @@ val TypstSyntaxKindToPsiElementMap: Map<TypstSyntaxKind, (ASTNode) -> PsiElement
         TypstSyntaxKind.MathPrimes() to ::TypstMathPrimesPsiElement,
         TypstSyntaxKind.MathFrac() to ::TypstMathFracPsiElement,
         TypstSyntaxKind.MathRoot() to ::TypstMathRootPsiElement,
+        TypstSyntaxKind.MathFieldAccess() to ::TypstMathFieldAccessPsiElement,
+        TypstSyntaxKind.MathCall() to ::TypstMathCallPsiElement,
+        TypstSyntaxKind.MathArgs() to ::TypstMathArgsPsiElement,
         TypstSyntaxKind.Hash() to ::TypstHashPsiElement,
         TypstSyntaxKind.LeftBrace() to ::TypstLeftBracePsiElement,
         TypstSyntaxKind.RightBrace() to ::TypstRightBracePsiElement,
@@ -1202,6 +1234,7 @@ val TypstSyntaxKindToPsiElementMap: Map<TypstSyntaxKind, (ASTNode) -> PsiElement
         TypstSyntaxKind.Dots() to ::TypstDotsPsiElement,
         TypstSyntaxKind.Arrow() to ::TypstArrowPsiElement,
         TypstSyntaxKind.Root() to ::TypstRootPsiElement,
+        TypstSyntaxKind.Bang() to ::TypstBangPsiElement,
         TypstSyntaxKind.Not() to ::TypstNotPsiElement,
         TypstSyntaxKind.And() to ::TypstAndPsiElement,
         TypstSyntaxKind.Or() to ::TypstOrPsiElement,

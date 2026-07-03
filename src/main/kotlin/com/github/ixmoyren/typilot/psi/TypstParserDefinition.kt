@@ -28,7 +28,7 @@ class TypstParserDefinition : ParserDefinition {
 
     override fun getCommentTokens(): TokenSet = TypstTokenType.COMMENT_TOKEN_SET
 
-    override fun getStringLiteralElements(): TokenSet = TokenSet.EMPTY
+    override fun getStringLiteralElements(): TokenSet = TypstSyntaxKind.Str().tokenType.let { TokenSet.create(it) }
 
     override fun createFile(viewProvider: FileViewProvider): PsiFile = TypstPsiFile(viewProvider)
 

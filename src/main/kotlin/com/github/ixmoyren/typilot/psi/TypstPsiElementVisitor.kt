@@ -130,6 +130,15 @@ abstract class TypstPsiElementVisitor : PsiElementVisitor() {
     /** A root in math: `√x`, `∛x` or `∜x`. */
     open fun visitMathRoot(element: TypstMathRootPsiElement) = visitTypstElement(element)
 
+    /** A field access in math: `arrow.r.long.double.bar`. */
+    open fun visitMathFieldAccess(element: TypstMathFieldAccessPsiElement) = visitTypstElement(element)
+
+    /** A function call in math: `mat(delim: "[", a, b; ..#($c$,), d)`. */
+    open fun visitMathCall(element: TypstMathCallPsiElement) = visitTypstElement(element)
+
+    /** Function arguments in math: `(delim: "[", a, b; ..#($c$,), d)`. */
+    open fun visitMathArgs(element: TypstMathArgsPsiElement) = visitTypstElement(element)
+
     /** A hash that switches into code mode: `#`. */
     open fun visitHash(element: TypstHashPsiElement) = visitTypstElement(element)
 
@@ -228,6 +237,9 @@ abstract class TypstPsiElementVisitor : PsiElementVisitor() {
 
     /** A root: `√`, `∛` or `∜`. */
     open fun visitRoot(element: TypstRootPsiElement) = visitTypstElement(element)
+
+    /** An exclamation mark; groups with directly preceding text in math: `!`. */
+    open fun visitBang(element: TypstBangPsiElement) = visitTypstElement(element)
 
     /** The `not` operator. */
     open fun visitNot(element: TypstNotPsiElement) = visitTypstElement(element)

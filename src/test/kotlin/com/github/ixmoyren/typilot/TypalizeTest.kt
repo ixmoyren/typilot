@@ -67,4 +67,15 @@ class TypalizeTest : BasePlatformTestCase() {
         assertSame(TypstSyntaxKind.Markup().elementType, astNode.type)
         assertEquals(false, astNode.is_leaf)
     }
+
+    fun testTypstParse3() {
+        val text = "天若有情天亦老，人间正道是沧桑"
+        val parseResult = typalizer.parse(text) ?: throw IllegalStateException("The typst parser returned null")
+        if (parseResult.failure()) {
+            throw IllegalStateException("The typst parser couldn't work.", parseResult.error)
+        }
+        val astNodes = parseResult.result?.value ?: throw IllegalStateException("The typst parse result is null")
+        val node = astNodes.last()
+        assertSame(TypstSyntaxKind.Text().elementType, node.type)
+    }
 }

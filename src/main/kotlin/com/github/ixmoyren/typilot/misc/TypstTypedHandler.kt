@@ -75,10 +75,16 @@ private open class Action(val insert: String?, val caretDelta: Int) {
 
                 '_',
                 '*',
-                '$',
-                '`' ->
+                '$' ->
                     when {
                         chars.getOrElse(offset) { Char.MAX_VALUE } == c -> SkipAction()
+                        file.markupContext(offset) != null -> PairAction(c, c)
+                        else -> null
+                    }
+                '`' ->
+                    when {
+                        chars.getOrElse(offset) { Char.MAX_VALUE } == c && chars.getOrElse(offset - 1) { Char.MAX_VALUE } != c -> SkipAction()
+                        chars.getOrElse(offset) { Char.MAX_VALUE } == c && chars.getOrElse(offset - 1) { Char.MAX_VALUE } == c -> PairAction(c, c)
                         file.markupContext(offset) != null -> PairAction(c, c)
                         else -> null
                     }

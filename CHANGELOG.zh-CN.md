@@ -6,33 +6,33 @@
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/)，并遵循 [Semantic Versioning](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## [未发布]
 
 ## [0.3.1] - 2026-07-04
 
-### Added
+### 新增
 
 - **TypedHandler** — 自动补全配对符号（`*`、`_`、`$`、`` ` ``、`(`、`[`、`{`、`<`）及包裹选中文本
 - **连续反引号补全** — 在已配对的反引号之间再次输入 `` ` `` 时，继续补全而非跳过，以支持三重反引号
 
 ## [0.3.0] - 2026-07-03
 
-### Added
+### 新增
 
 - **拼写检查** — 初步实现拼写检查功能
 - **Surround With** — 实现选中文本包裹功能（`*`、`_`、`$`、`` ` ``），并优化体验
 
-### Changed
+### 更改
 
 - **PSI 元素类型** — 改进元素类型，为拼写检查提供更准确的支持
 - **构建流程** — `endiveCompile` 后自动执行 `spotlessJavaApply`，声明任务依赖关系，优化任务流程（
 
-### Fixed
+### 修复
 
 - **语言注入** — 修复语言注入区域对拼写检查的误报
 - **构建任务** — 修复构建失败问题
 
-### Updated
+### 更新
 
 - 更新 `serde-generate` 和 `serde-reflection`
 - 更新 Gradle 版本
@@ -40,15 +40,15 @@
 
 ## [0.2.0] - 2026-07-02
 
-### Added
+### 新增
 
 - **结构视图** — 添加结构视图（Structure View）和代码块支持
 
-### Changed
+### 更改
 
 - **typalize 调整** — 调整 malloc/free，移除 Java 端 wasmFree 避免双重释放
 
-### Fixed
+### 新增
 
 - 修复无法自动启动问题，启动时自动为打开的 .typ 文件启动服务端
 - 修复源文件修改时预览窗口不自动加载的问题
@@ -58,7 +58,7 @@
 
 ## [0.0.1] - 2026-05-17
 
-### Added
+### 新增
 
 - 定义 Typst 语言和文件类型，添加插件图标
 - **注释支持** — 为 Typst 提供 Commenter

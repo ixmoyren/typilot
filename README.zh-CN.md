@@ -2,7 +2,7 @@
 
 ![Build](https://github.com/ixmoyren/typilot/workflows/Build/badge.svg)
 
-基于 `typst-syntax`、`tinymist`、`endive` 和 `lsp4ij` 构建的 [Typst](https://typst.org/) 排版语言 IntelliJ IDEA 插件。
+基于 `typst-syntax`、`endive`、`tinymist` 和 `lsp4ij` 构建的 [Typst](https://typst.org/) 语言 IntelliJ IDEA 插件。
 
 ## 功能特性
 

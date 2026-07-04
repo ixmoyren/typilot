@@ -2,7 +2,7 @@
 
 ![Build](https://github.com/ixmoyren/typilot/workflows/Build/badge.svg)
 
-An IntelliJ IDEA plugin for the [Typst](https://typst.org/) typesetting language, built on `typst-syntax`, `tinymist`, `endive`, and `lsp4ij`.
+An IntelliJ IDEA plugin for the [Typst](https://typst.org/) language, built on `typst-syntax`, `tinymist`, `endive`, and `lsp4ij`.
 
 ## Features
 

@@ -12,9 +12,9 @@ fun TextAttributesKey.resolve() = defaultScheme.getAttributes(this)!!
 val defaultScheme
     get() = EditorColorsManager.getInstance().globalScheme
 
-class TextAttributeHelper(val displayName: String, val parent: TextAttributesKey?) {
+class TextAttributeHelper(val displayName: String, default: TextAttributesKey?) {
     val id: String = "TYPST_${displayName.replace(" ", "_").replace("//", "__").replace("+", "and").uppercase()}"
-    val key: TextAttributesKey = parent?.let { createTextAttributesKey(id, it) } ?: createTextAttributesKey(id)
+    val key: TextAttributesKey = default?.let { createTextAttributesKey(id, it) } ?: createTextAttributesKey(id)
     val descriptor = AttributesDescriptor(displayName, key)
 }
 
@@ -23,9 +23,9 @@ object TypstHighlightingColors {
 
     private fun attribute(
         displayName: String,
-        parent: TextAttributesKey? = null,
+        default: TextAttributesKey? = null,
     ): TextAttributeHelper {
-        val helper = TextAttributeHelper(displayName, parent)
+        val helper = TextAttributeHelper(displayName, default)
         collection.add(helper)
         return helper
     }
@@ -39,11 +39,11 @@ object TypstHighlightingColors {
     val STRINGS = attribute("Code//String", DefaultLanguageHighlighterColors.STRING)
     val BLOCK_COMMENT = attribute("BlockComment", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
     val LINE_COMMENT = attribute("LineComment", DefaultLanguageHighlighterColors.LINE_COMMENT)
-    val RAWS = attribute("Raw", DefaultLanguageHighlighterColors.IDENTIFIER)
+    val RAWS = attribute("Raw", DefaultLanguageHighlighterColors.DOC_CODE_BLOCK)
     val LABELS = attribute("Label", DefaultLanguageHighlighterColors.LABEL)
     val ESCAPES = attribute("Markup//Escape", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
     val REFERENCES = attribute("Markup//Reference", DefaultLanguageHighlighterColors.LABEL)
-    val SHORTHANDS = attribute("Markup//Shorthand", DefaultLanguageHighlighterColors.KEYWORD)
+    val SHORTHANDS = attribute("Markup//Shorthand", DefaultLanguageHighlighterColors.OPERATION_SIGN)
     val LINKS = attribute("Markup//Link", CodeInsightColors.HYPERLINK_ATTRIBUTES)
     val EMPH = attribute("Markup//Emphasis")
     val STRONG = attribute("Markup//Strong")

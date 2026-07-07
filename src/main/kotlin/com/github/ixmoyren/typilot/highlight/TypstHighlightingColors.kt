@@ -1,6 +1,7 @@
 package com.github.ixmoyren.typilot.highlight
 
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
+import com.intellij.openapi.editor.colors.CodeInsightColors
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey
@@ -43,7 +44,7 @@ object TypstHighlightingColors {
     val ESCAPES = attribute("Markup//Escape", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
     val REFERENCES = attribute("Markup//Reference", DefaultLanguageHighlighterColors.LABEL)
     val SHORTHANDS = attribute("Markup//Shorthand", DefaultLanguageHighlighterColors.KEYWORD)
-    val LINKS = attribute("Markup//Link", DefaultLanguageHighlighterColors.HIGHLIGHTED_REFERENCE)
+    val LINKS = attribute("Markup//Link", CodeInsightColors.HYPERLINK_ATTRIBUTES)
     val EMPH = attribute("Markup//Emphasis")
     val STRONG = attribute("Markup//Strong")
     val HEADING = attribute("Markup//Heading")

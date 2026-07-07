@@ -17,9 +17,9 @@
     </option>
     <option name="TYPST_MARKUP__LINK">
         <value>
-            <option name="FOREGROUND" value="574a90"/>
+            <option name="FOREGROUND" value="0000ee"/>
             <option name="EFFECT_TYPE" value="1"/>
-            <option name="EFFECT_COLOR" value="574a90"/>
+            <option name="EFFECT_COLOR" value="0000ee"/>
         </value>
     </option>
     <option name="TYPST_MARKUP__EMPHASIS">

@@ -19,6 +19,7 @@ class TypstLexicalHighlighter : SyntaxHighlighterBase() {
     override fun getTokenHighlights(tokenType: IElementType?): Array<TextAttributesKey> {
         val typstToken = tokenType as? TypstTokenType ?: return emptyArray()
         return when (typstToken.kind) {
+            is TypstSyntaxKind.Link -> arrayOf(TypstHighlightingColors.LINKS.key)
             is TypstSyntaxKind.LineComment -> arrayOf(TypstHighlightingColors.LINE_COMMENT.key)
             is TypstSyntaxKind.BlockComment -> arrayOf(TypstHighlightingColors.BLOCK_COMMENT.key)
             is TypstSyntaxKind.Label -> arrayOf(TypstHighlightingColors.LABELS.key)

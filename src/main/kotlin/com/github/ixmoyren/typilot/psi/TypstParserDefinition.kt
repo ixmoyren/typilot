@@ -51,8 +51,7 @@ class TypstParserDefinition : ParserDefinition {
         val prev = node.treePrev ?: return false
         if ((prev.elementType as? TypstTokenType)?.kind != TypstSyntaxKind.Hash()) return false
         val firstChild = node.firstChildNode ?: return false
-        return (firstChild.elementType as? TypstTokenType)?.kind == TypstSyntaxKind.Ident() &&
-            firstChild.text == "link"
+        return (firstChild.elementType as? TypstTokenType)?.kind == TypstSyntaxKind.Ident() && firstChild.text == "link"
     }
 
     private fun isRawBlock(node: ASTNode): Boolean {

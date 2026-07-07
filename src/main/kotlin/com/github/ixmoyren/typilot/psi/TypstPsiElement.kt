@@ -1148,15 +1148,18 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
 }
 
 class TypstLinkFuncPsiElement(node: ASTNode) : ATypstPsiElement(node) {
-    fun getUrl(): String {
-        val args = node.children().firstOrNull { child ->
-            (child.elementType as? TypstElementType)?.kind == TypstSyntaxKind.Args()
-        } ?: return ""
+    fun getUrl(): String = urlPsiElement()?.text ?: ""
+
+    fun urlPsiElement(): PsiElement? {
+        val args =
+            node.children().firstOrNull { child ->
+                (child.elementType as? TypstElementType)?.kind == TypstSyntaxKind.Args()
+            } ?: return null
         val iter = args.children().iterator()
-        val first = if (iter.hasNext()) iter.next() else return ""
-        val second = if (iter.hasNext()) iter.next() else return ""
-        if ((first.elementType as? TypstTokenType)?.kind != TypstSyntaxKind.LeftParen()) return ""
-        return second.text
+        val first = if (iter.hasNext()) iter.next() else return null
+        val second = if (iter.hasNext()) iter.next() else return null
+        if ((first.elementType as? TypstTokenType)?.kind != TypstSyntaxKind.LeftParen()) return null
+        return second.psi
     }
 
     override fun accept(visitor: TypstPsiElementVisitor) {

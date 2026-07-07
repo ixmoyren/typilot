@@ -7,15 +7,6 @@ import com.intellij.lang.tree.util.children
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 
-inline fun PsiElement.nextSiblingOf(stop: ((PsiElement) -> Boolean) = { false }, inclusive: Boolean = false, condition: (PsiElement) -> Boolean): PsiElement? {
-    var next = if (inclusive) this else this.nextSibling
-    while (next != null && !stop(next)) {
-        if (condition(next)) return next
-        next = next.nextSibling
-    }
-    return null
-}
-
 sealed interface TypstPsiElement : NavigatablePsiElement {
     fun accept(visitor: TypstPsiElementVisitor)
 
@@ -1153,6 +1144,23 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
 
     override fun accept(visitor: TypstPsiElementVisitor) {
         visitor.visitRawBlock(this)
+    }
+}
+
+class TypstLinkFuncPsiElement(node: ASTNode) : ATypstPsiElement(node) {
+    fun getUrl(): String {
+        val args = node.children().firstOrNull { child ->
+            (child.elementType as? TypstElementType)?.kind == TypstSyntaxKind.Args()
+        } ?: return ""
+        val iter = args.children().iterator()
+        val first = if (iter.hasNext()) iter.next() else return ""
+        val second = if (iter.hasNext()) iter.next() else return ""
+        if ((first.elementType as? TypstTokenType)?.kind != TypstSyntaxKind.LeftParen()) return ""
+        return second.text
+    }
+
+    override fun accept(visitor: TypstPsiElementVisitor) {
+        visitor.visitLinkFuncBlock(this)
     }
 }
 

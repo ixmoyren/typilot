@@ -428,4 +428,6 @@ abstract class TypstPsiElementVisitor : PsiElementVisitor() {
     open fun visitIdentRef(element: TypstIdentRefPsiElement) = visitTypstElement(element)
 
     open fun visitRawBlock(element: TypstRawBlockPsiElement) = visitTypstElement(element)
+
+    open fun visitLinkFuncBlock(element: TypstLinkFuncPsiElement) = visitTypstElement(element)
 }

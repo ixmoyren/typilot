@@ -38,10 +38,21 @@ class TypstParserDefinition : ParserDefinition {
                 is TypstElementType -> type.kind!!
                 else -> return ASTWrapperPsiElement(node)
             }
+        if (kind == TypstSyntaxKind.FuncCall() && isLinkFunc(node)) {
+            return TypstLinkFuncPsiElement(node)
+        }
         if (kind == TypstSyntaxKind.Raw() && isRawBlock(node)) {
             return TypstRawBlockPsiElement(node)
         }
         return TypstSyntaxKindToPsiElementMap[kind]?.let { it(node) } ?: TypstErrorPsiElement(node)
+    }
+
+    private fun isLinkFunc(node: ASTNode): Boolean {
+        val prev = node.treePrev ?: return false
+        if ((prev.elementType as? TypstTokenType)?.kind != TypstSyntaxKind.Hash()) return false
+        val firstChild = node.firstChildNode ?: return false
+        return (firstChild.elementType as? TypstTokenType)?.kind == TypstSyntaxKind.Ident() &&
+            firstChild.text == "link"
     }
 
     private fun isRawBlock(node: ASTNode): Boolean {

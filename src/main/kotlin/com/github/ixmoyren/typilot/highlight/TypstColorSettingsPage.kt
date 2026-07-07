@@ -31,8 +31,7 @@ class TypstColorSettingsPage : ColorSettingsPage {
             "num" to TypstHighlightingColors.NUMERIC_LITERAL.key,
             "string" to TypstHighlightingColors.STRINGS.key,
             "escape" to TypstHighlightingColors.ESCAPES.key,
-            "link" to TypstHighlightingColors.LINKS.key
-        ) + (1..12).associate { "rc$it" to TypstHighlightingColors.RAINBOW[it - 1].key }
+            "link" to TypstHighlightingColors.LINKS.key)
 
     override fun getDemoText(): String =
         """

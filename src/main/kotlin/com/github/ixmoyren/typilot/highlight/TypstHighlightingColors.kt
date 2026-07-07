@@ -2,15 +2,9 @@ package com.github.ixmoyren.typilot.highlight
 
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.CodeInsightColors
-import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey
 import com.intellij.openapi.options.colors.AttributesDescriptor
-
-fun TextAttributesKey.resolve() = defaultScheme.getAttributes(this)!!
-
-val defaultScheme
-    get() = EditorColorsManager.getInstance().globalScheme
 
 class TextAttributeHelper(val displayName: String, default: TextAttributesKey?) {
     val id: String = "TYPST_${displayName.replace(" ", "_").replace("//", "__").replace("+", "and").uppercase()}"
@@ -33,24 +27,19 @@ object TypstHighlightingColors {
     val descriptors by lazy { collection.map { it.descriptor }.toTypedArray() }
 
     val KEYWORD = attribute("Code//Keyword", DefaultLanguageHighlighterColors.KEYWORD)
-    val KEYWORD_LITERAL = attribute("Code//Keyword Literal", KEYWORD.key)
     val OPERATOR = attribute("Code//Operator", DefaultLanguageHighlighterColors.OPERATION_SIGN)
     val NUMERIC_LITERAL = attribute("Code//Numeric literal", DefaultLanguageHighlighterColors.NUMBER)
     val STRINGS = attribute("Code//String", DefaultLanguageHighlighterColors.STRING)
     val BLOCK_COMMENT = attribute("BlockComment", DefaultLanguageHighlighterColors.BLOCK_COMMENT)
     val LINE_COMMENT = attribute("LineComment", DefaultLanguageHighlighterColors.LINE_COMMENT)
-    val RAWS = attribute("Raw", DefaultLanguageHighlighterColors.DOC_CODE_BLOCK)
     val LABELS = attribute("Label", DefaultLanguageHighlighterColors.LABEL)
     val ESCAPES = attribute("Markup//Escape", DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE)
     val REFERENCES = attribute("Markup//Reference", DefaultLanguageHighlighterColors.LABEL)
     val SHORTHANDS = attribute("Markup//Shorthand", DefaultLanguageHighlighterColors.OPERATION_SIGN)
     val LINKS = attribute("Markup//Link", CodeInsightColors.HYPERLINK_ATTRIBUTES)
-    val EMPH = attribute("Markup//Emphasis")
-    val STRONG = attribute("Markup//Strong")
-    val HEADING = attribute("Markup//Heading")
-    val TERM = attribute("Markup//Term")
+    val EMPH = attribute("Markup//Emphasis", createTextAttributesKey("MARKDOWN_ITALIC"))
+    val STRONG = attribute("Markup//Strong", createTextAttributesKey("MARKDOWN_BOLD"))
+    val HEADING = attribute("Markup//Heading", createTextAttributesKey("MARKDOWN_HEADER_LEVEL_1"))
+    val TERM = attribute("Markup//Term", DefaultLanguageHighlighterColors.IDENTIFIER)
     val MATHS = attribute("Math//Math", DefaultLanguageHighlighterColors.STRING)
-    val RAINBOW = (1..12).map { attribute("Rainbow//Color $it") }
-    val RAINBOW_BACK_WEAK = (1..12).map { attribute("Rainbow background weak//Color $it") }
-    val RAINBOW_BACK_STRONG = (1..12).map { attribute("Rainbow background strong//Color $it") }
 }

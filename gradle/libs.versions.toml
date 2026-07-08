@@ -2,7 +2,7 @@
 # libraries
 endiveCompiler = "1.0.0"
 endiveBuildTimeCompiler = "1.0.0"
-endiveRuntime = "1.0.0"
+endiveRuntime = "1.0.1"
 endiveWasi = "1.0.0"
 junit4 = "4.13.2"
 

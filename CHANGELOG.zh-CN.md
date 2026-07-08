@@ -8,6 +8,17 @@
 
 ## [未发布]
 
+## [0.3.2] - 2026-07-08
+
+### 新增
+
+- 高亮链接文本和链接函数
+- 高亮函数标识符
+
+### 移除
+
+- 清理 `Kvasir` 的配色
+
 ## [0.3.1] - 2026-07-04
 
 ### 新增
@@ -46,7 +57,7 @@
 
 ### 更改
 
-- **typalize 调整** — 调整 malloc/free，移除 Java 端 wasmFree 避免双重释放
+- **`typalize` 调整** — 调整 malloc/free，移除 Java 端 wasmFree 避免双重释放
 
 ### 新增
 
@@ -67,5 +78,5 @@
 - **PSI 树构建** — 借助 PSI 的 `PsiBuilder.Marker` 方式将 Parser 中返回的 ASTNode 列表重建成 PSI 树
 - **语言服务器** — 基于 LSP4IJ + Tinymist 实现 Typst 语言服务器，支持自动启动、下载管理、配置项等功能
 - **分屏预览** — 提供实时预览窗口，支持 PDF 导出（Tinymist 实现）
-- **语法高亮** — 实现 Annotator 语法高亮，迁移 Kvasir 插件配色方案
+- **语法高亮** — 实现 Annotator 语法高亮，迁移 `Kvasir` 插件配色方案
 - **语言注入** — 实现语言注入功能，支持嵌入代码区域识别

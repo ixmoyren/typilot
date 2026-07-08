@@ -8,6 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-07-08
+
+### Added
+
+- Highlight link text and link functions
+- Highlight function identifiers
+
+### Removed
+
+- Clean up `Kvasir` color scheme
+
 ## [0.3.1] - 2026-07-04
 
 ### Added
@@ -46,7 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- **typalize adjustments** — adjusted malloc/free, removed wasmFree on the Java side to avoid double-free
+- **`typalize` adjustments** — adjusted malloc/free, removed wasmFree on the Java side to avoid double-free
 
 ### Fixed
 
@@ -67,5 +78,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **PSI tree construction** — rebuilding the ASTNode list returned by the Parser into a PSI tree using `PsiBuilder.Marker`
 - **Language server** — Typst language server based on LSP4IJ + Tinymist, supporting auto-startup, download management, configuration, etc.
 - **Split-screen preview** — provided real-time preview window with PDF export (powered by Tinymist)
-- **Syntax highlighting** — implemented Annotator-based syntax highlighting, migrated color schemes from the Kvasir plugin
+- **Syntax highlighting** — implemented Annotator-based syntax highlighting, migrated color schemes from the `Kvasir` plugin
 - **Language injection** — implemented language injection with embedded code region detection

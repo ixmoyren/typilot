@@ -903,7 +903,20 @@ class TypstFieldAccessPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstE
 
 /** An invocation of a function or method: `f(x, y)`. */
 open class TypstFuncCallPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstExpr {
-    fun getIndentPsiElement(): PsiElement? = node.firstChildNode?.takeIf { (it.elementType as? TypstTokenType)?.kind == TypstSyntaxKind.Ident() }?.psi
+    fun getIndentPsiElement(): PsiElement? {
+        val firstChild = node.firstChildNode ?: return null
+        return when {
+            (firstChild.elementType as? TypstTokenType)?.kind == TypstSyntaxKind.Ident() -> firstChild.psi
+            (firstChild.elementType as? TypstElementType)?.kind == TypstSyntaxKind.FieldAccess() ->
+                firstChild
+                    .children()
+                    .lastOrNull { child ->
+                        (child.elementType as? TypstTokenType)?.kind == TypstSyntaxKind.Ident()
+                    }
+                    ?.psi
+            else -> null
+        }
+    }
 
     override fun accept(visitor: TypstPsiElementVisitor) {
         visitor.visitFuncCall(this)

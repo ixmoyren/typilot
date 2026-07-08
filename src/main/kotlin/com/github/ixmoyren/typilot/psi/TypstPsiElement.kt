@@ -902,7 +902,10 @@ class TypstFieldAccessPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstE
 }
 
 /** An invocation of a function or method: `f(x, y)`. */
-class TypstFuncCallPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstExpr {
+open class TypstFuncCallPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstExpr {
+    fun getIndentPsiElement(): PsiElement? =
+        node.firstChildNode?.takeIf { (it.elementType as? TypstTokenType)?.kind == TypstSyntaxKind.Ident() }?.psi
+
     override fun accept(visitor: TypstPsiElementVisitor) {
         visitor.visitFuncCall(this)
     }
@@ -1106,60 +1109,48 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
             .toCollection(mutableListOf())
 
     fun getContentRange(): TextRange {
-        var start = -1
-        var end = -1
-        for (child in node.children()) {
-            if (child.elementType == TypstSyntaxKind.Text().tokenType) {
-                if (start == -1) {
-                    start = child.startOffsetInParent
-                }
-                end = child.startOffsetInParent + child.textLength
-            }
-        }
-        return if (start == -1) TextRange.EMPTY_RANGE else TextRange(start, end)
+        val textChildren = node.children()
+            .filter { it.elementType == TypstSyntaxKind.Text().tokenType }
+            .toList()
+        if (textChildren.isEmpty()) return TextRange.EMPTY_RANGE
+        val first = textChildren.first()
+        val last = textChildren.last()
+        return TextRange(first.startOffsetInParent, last.startOffsetInParent + last.textLength)
     }
 
     override fun isValidHost(): Boolean = langTag() != null
 
-    override fun updateText(text: String): PsiLanguageInjectionHost {
-        return ElementManipulators.handleContentChange(this, text)
-    }
+    override fun updateText(text: String): PsiLanguageInjectionHost =
+        ElementManipulators.handleContentChange(this, text)
 
-    override fun createLiteralTextEscaper(): LiteralTextEscaper<out PsiLanguageInjectionHost?> {
-        return object : LiteralTextEscaper<TypstRawBlockPsiElement>(this) {
+    override fun createLiteralTextEscaper(): LiteralTextEscaper<out PsiLanguageInjectionHost?> =
+        object : LiteralTextEscaper<TypstRawBlockPsiElement>(this) {
             override fun decode(rangeInsideHost: TextRange, outChars: StringBuilder): Boolean {
                 outChars.append(rangeInsideHost.substring(originalElement.text))
                 return true
             }
 
-            override fun getOffsetInHost(offset: Int, rangeInsideHost: TextRange): Int {
-                return offset + rangeInsideHost.startOffset
-            }
+            override fun getOffsetInHost(offset: Int, rangeInsideHost: TextRange): Int =
+                offset + rangeInsideHost.startOffset
 
-            override fun isOneLine(): Boolean {
-                return false
-            }
+            override fun isOneLine(): Boolean = false
         }
-    }
 
     override fun accept(visitor: TypstPsiElementVisitor) {
         visitor.visitRawBlock(this)
     }
 }
 
-class TypstLinkFuncPsiElement(node: ASTNode) : ATypstPsiElement(node) {
+class TypstLinkFuncPsiElement(node: ASTNode) : TypstFuncCallPsiElement(node) {
     fun getUrl(): String = urlPsiElement()?.text ?: ""
 
     fun urlPsiElement(): PsiElement? {
-        val args =
-            node.children().firstOrNull { child ->
-                (child.elementType as? TypstElementType)?.kind == TypstSyntaxKind.Args()
-            } ?: return null
-        val iter = args.children().iterator()
-        val first = if (iter.hasNext()) iter.next() else return null
-        val second = if (iter.hasNext()) iter.next() else return null
+        val args = node.children().firstOrNull { child ->
+            (child.elementType as? TypstElementType)?.kind == TypstSyntaxKind.Args()
+        } ?: return null
+        val first = args.children().firstOrNull() ?: return null
         if ((first.elementType as? TypstTokenType)?.kind != TypstSyntaxKind.LeftParen()) return null
-        return second.psi
+        return args.children().drop(1).firstOrNull()?.psi
     }
 
     override fun accept(visitor: TypstPsiElementVisitor) {

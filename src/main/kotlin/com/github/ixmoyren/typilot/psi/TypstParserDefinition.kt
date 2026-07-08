@@ -33,18 +33,12 @@ class TypstParserDefinition : ParserDefinition {
     override fun createFile(viewProvider: FileViewProvider): PsiFile = TypstPsiFile(viewProvider)
 
     override fun createElement(node: ASTNode): PsiElement {
-        val kind =
-            when (val type = node.elementType) {
-                is TypstElementType -> type.kind!!
-                else -> return ASTWrapperPsiElement(node)
-            }
-        if (kind == TypstSyntaxKind.FuncCall() && isLinkFunc(node)) {
-            return TypstLinkFuncPsiElement(node)
+        val kind = (node.elementType as? TypstElementType)?.kind ?: return ASTWrapperPsiElement(node)
+        return when (kind) {
+            TypstSyntaxKind.FuncCall() -> if (isLinkFunc(node)) TypstLinkFuncPsiElement(node) else TypstFuncCallPsiElement(node)
+            TypstSyntaxKind.Raw() if isRawBlock(node) -> TypstRawBlockPsiElement(node)
+            else -> TypstSyntaxKindToPsiElementMap[kind]?.invoke(node) ?: TypstErrorPsiElement(node)
         }
-        if (kind == TypstSyntaxKind.Raw() && isRawBlock(node)) {
-            return TypstRawBlockPsiElement(node)
-        }
-        return TypstSyntaxKindToPsiElementMap[kind]?.let { it(node) } ?: TypstErrorPsiElement(node)
     }
 
     private fun isLinkFunc(node: ASTNode): Boolean {

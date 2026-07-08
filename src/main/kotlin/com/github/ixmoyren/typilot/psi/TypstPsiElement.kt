@@ -903,8 +903,7 @@ class TypstFieldAccessPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstE
 
 /** An invocation of a function or method: `f(x, y)`. */
 open class TypstFuncCallPsiElement(node: ASTNode) : ATypstPsiElement(node), TypstExpr {
-    fun getIndentPsiElement(): PsiElement? =
-        node.firstChildNode?.takeIf { (it.elementType as? TypstTokenType)?.kind == TypstSyntaxKind.Ident() }?.psi
+    fun getIndentPsiElement(): PsiElement? = node.firstChildNode?.takeIf { (it.elementType as? TypstTokenType)?.kind == TypstSyntaxKind.Ident() }?.psi
 
     override fun accept(visitor: TypstPsiElementVisitor) {
         visitor.visitFuncCall(this)
@@ -1109,9 +1108,7 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
             .toCollection(mutableListOf())
 
     fun getContentRange(): TextRange {
-        val textChildren = node.children()
-            .filter { it.elementType == TypstSyntaxKind.Text().tokenType }
-            .toList()
+        val textChildren = node.children().filter { it.elementType == TypstSyntaxKind.Text().tokenType }.toList()
         if (textChildren.isEmpty()) return TextRange.EMPTY_RANGE
         val first = textChildren.first()
         val last = textChildren.last()
@@ -1120,8 +1117,7 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
 
     override fun isValidHost(): Boolean = langTag() != null
 
-    override fun updateText(text: String): PsiLanguageInjectionHost =
-        ElementManipulators.handleContentChange(this, text)
+    override fun updateText(text: String): PsiLanguageInjectionHost = ElementManipulators.handleContentChange(this, text)
 
     override fun createLiteralTextEscaper(): LiteralTextEscaper<out PsiLanguageInjectionHost?> =
         object : LiteralTextEscaper<TypstRawBlockPsiElement>(this) {
@@ -1130,8 +1126,7 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
                 return true
             }
 
-            override fun getOffsetInHost(offset: Int, rangeInsideHost: TextRange): Int =
-                offset + rangeInsideHost.startOffset
+            override fun getOffsetInHost(offset: Int, rangeInsideHost: TextRange): Int = offset + rangeInsideHost.startOffset
 
             override fun isOneLine(): Boolean = false
         }
@@ -1145,9 +1140,10 @@ class TypstLinkFuncPsiElement(node: ASTNode) : TypstFuncCallPsiElement(node) {
     fun getUrl(): String = urlPsiElement()?.text ?: ""
 
     fun urlPsiElement(): PsiElement? {
-        val args = node.children().firstOrNull { child ->
-            (child.elementType as? TypstElementType)?.kind == TypstSyntaxKind.Args()
-        } ?: return null
+        val args =
+            node.children().firstOrNull { child ->
+                (child.elementType as? TypstElementType)?.kind == TypstSyntaxKind.Args()
+            } ?: return null
         val first = args.children().firstOrNull() ?: return null
         if ((first.elementType as? TypstTokenType)?.kind != TypstSyntaxKind.LeftParen()) return null
         return args.children().drop(1).firstOrNull()?.psi

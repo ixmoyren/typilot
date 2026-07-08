@@ -42,4 +42,5 @@ object TypstHighlightingColors {
     val HEADING = attribute("Markup//Heading", createTextAttributesKey("MARKDOWN_HEADER_LEVEL_1"))
     val TERM = attribute("Markup//Term", DefaultLanguageHighlighterColors.IDENTIFIER)
     val MATHS = attribute("Math//Math", DefaultLanguageHighlighterColors.STRING)
+    val FUNCTION = attribute("Code//Function", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
 }

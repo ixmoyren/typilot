@@ -1,9 +1,6 @@
 [versions]
 # libraries
-endiveCompiler = "1.0.0"
-endiveBuildTimeCompiler = "1.0.0"
-endiveRuntime = "1.0.0"
-endiveWasi = "1.0.0"
+endive = "1.0.1"
 junit4 = "4.13.2"
 
 # plugins
@@ -13,10 +10,10 @@ kotlin = "2.4.0"
 spotless = "8.7.0"
 
 [libraries]
-endiveCompiler = { group = "run.endive", name = "compiler", version.ref = "endiveCompiler" }
-endiveBuildTimeCompiler = { group = "run.endive", name = "build-time-compiler", version.ref = "endiveBuildTimeCompiler" }
-endiveRuntime = { group = "run.endive", name = "runtime", version.ref = "endiveRuntime" }
-endiveWasi = { group = "run.endive", name = "wasi", version.ref = "endiveWasi" }
+endiveCompiler = { group = "run.endive", name = "compiler", version.ref = "endive" }
+endiveBuildTimeCompiler = { group = "run.endive", name = "build-time-compiler", version.ref = "endive" }
+endiveRuntime = { group = "run.endive", name = "runtime", version.ref = "endive" }
+endiveWasi = { group = "run.endive", name = "wasi", version.ref = "endive" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 
 [plugins]

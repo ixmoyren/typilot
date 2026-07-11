@@ -3,7 +3,7 @@
     <name>Typilot</name>
     <vendor>ixmoyren</vendor>
     <description><![CDATA[
-        <p><b>typilot</b> provides comprehensive Typst language support for JetBrains IDEs.</p>
+        <p><b>Typilot</b> provides comprehensive Typst language support for JetBrains IDEs.</p>
         <ul>
             <li><b>Rich Language Intelligence</b> — code completion, diagnostics, goto-definition, find references, rename, folding, signature help, and more via the <a href="https://github.com/Myriad-Dreamin/tinymist">tinymist</a> LSP server, automatically located or downloaded.</li>
             <li><b>Live Preview</b> — side-by-side JCEF-based preview that updates as you type, with invert colors support.</li>
@@ -16,9 +16,12 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.jcef</depends>
     <depends>com.intellij.modules.spellchecker</depends>
     <depends>com.intellij.java</depends>
     <depends>com.redhat.devtools.lsp4ij</depends>
+
+    <idea-version since-build="262"/>
 
     <resource-bundle>messages.TypilotBundle</resource-bundle>
 

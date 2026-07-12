@@ -7,16 +7,16 @@ import com.intellij.lang.tree.util.children
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 
+fun PsiElement.getTypstSyntaxKind(): TypstSyntaxKind? {
+    return when (val type = node.elementType) {
+        is TypstElementType -> type.kind
+        is TypstTokenType -> type.kind
+        else -> null
+    }
+}
+
 sealed interface TypstPsiElement : NavigatablePsiElement {
     fun accept(visitor: TypstPsiElementVisitor)
-
-    val kind: TypstSyntaxKind?
-        get() =
-            when (val type = node.elementType) {
-                is TypstElementType -> type.kind
-                is TypstTokenType -> type.kind
-                else -> return null
-            }
 }
 
 sealed class ATypstPsiElement(node: ASTNode) : ASTWrapperPsiElement(node), TypstPsiElement {
@@ -914,6 +914,7 @@ open class TypstFuncCallPsiElement(node: ASTNode) : ATypstPsiElement(node), Typs
                         (child.elementType as? TypstTokenType)?.kind == TypstSyntaxKind.Ident()
                     }
                     ?.psi
+
             else -> null
         }
     }
@@ -1072,9 +1073,7 @@ class TypstDestructAssignmentPsiElement(node: ASTNode) : ATypstPsiElement(node),
 
 /** An in-code whitespace */
 class TypstWhitespacePsiElement(node: ASTNode) : ATypstPsiElement(node), TypstCodePart {
-    override fun accept(visitor: TypstPsiElementVisitor) {
-        // TODO
-    }
+    override fun accept(visitor: TypstPsiElementVisitor) = Unit
 }
 
 /** An embedded code expression: `#f(1)` */
@@ -1150,8 +1149,6 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
 }
 
 class TypstLinkFuncPsiElement(node: ASTNode) : TypstFuncCallPsiElement(node) {
-    fun getUrl(): String = urlPsiElement()?.text ?: ""
-
     fun urlPsiElement(): PsiElement? {
         val args =
             node.children().firstOrNull { child ->

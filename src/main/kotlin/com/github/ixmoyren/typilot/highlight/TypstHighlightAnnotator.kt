@@ -1,29 +1,41 @@
 package com.github.ixmoyren.typilot.highlight
 
+import com.github.ixmoyren.typalize.TypstSyntaxKind
 import com.github.ixmoyren.typilot.psi.TypstFuncCallPsiElement
-import com.github.ixmoyren.typilot.psi.TypstLinkFuncPsiElement
+import com.github.ixmoyren.typilot.psi.getTypstSyntaxKind
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.psi.PsiElement
+import com.intellij.util.io.URLUtil
 
 class TypstHighlightAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        when (element) {
-            is TypstLinkFuncPsiElement -> annotateLinkFunc(element, holder)
-            is TypstFuncCallPsiElement -> annotateFuncCall(element, holder)
+        if (element.firstChild != null) return
+        val kind = element.getTypstSyntaxKind() ?: return
+        when (kind) {
+            is TypstSyntaxKind.Ident -> annotateIdent(element, holder)
+            is TypstSyntaxKind.Str if (isUrlStr(element)) -> annotateUrlStr(element, holder)
+            else -> return
         }
     }
 
-    private fun annotateLinkFunc(element: TypstLinkFuncPsiElement, holder: AnnotationHolder) {
-        annotateFuncCall(element, holder)
-        val urlPsi = element.urlPsiElement() ?: return
-        if (urlPsi.text.isNullOrBlank()) return
-        holder.newSilentAnnotation(HighlightSeverity.INFORMATION).range(urlPsi.textRange).textAttributes(TypstHighlightingColors.LINKS.key).create()
+    private fun isUrlStr(element: PsiElement): Boolean {
+        val text = element.text ?: return false
+        return URLUtil.URL_PATTERN.matcher(text).find()
     }
 
-    private fun annotateFuncCall(element: TypstFuncCallPsiElement, holder: AnnotationHolder) {
-        val identPsi = element.getIndentPsiElement() ?: return
-        holder.newSilentAnnotation(HighlightSeverity.INFORMATION).range(identPsi.textRange).textAttributes(TypstHighlightingColors.FUNCTION.key).create()
+    private fun annotateIdent(element: PsiElement, holder: AnnotationHolder) {
+        val parent = element.parent ?: return
+        when (parent) {
+            is TypstFuncCallPsiElement ->
+                holder.newSilentAnnotation(HighlightSeverity.INFORMATION).range(element.textRange).textAttributes(TypstHighlightingColors.FUNCTION.key).create()
+        }
+    }
+
+    private fun annotateUrlStr(element: PsiElement, holder: AnnotationHolder) {
+        val attrs = EditorColorsManager.getInstance().globalScheme.getAttributes(TypstHighlightingColors.LINKS.key)
+        holder.newSilentAnnotation(HighlightSeverity.INFORMATION).range(element.textRange).enforcedTextAttributes(attrs).create()
     }
 }

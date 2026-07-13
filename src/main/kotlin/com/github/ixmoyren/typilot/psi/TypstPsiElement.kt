@@ -4,6 +4,8 @@ import com.github.ixmoyren.typalize.TypstSyntaxKind
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.lang.tree.util.children
+import com.intellij.openapi.paths.GlobalPathReferenceProvider
+import com.intellij.openapi.paths.WebReference
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 
@@ -1148,7 +1150,27 @@ class TypstRawBlockPsiElement(node: ASTNode) : ATypstPsiElement(node), PsiLangua
     }
 }
 
-class TypstLinkFuncPsiElement(node: ASTNode) : TypstFuncCallPsiElement(node) {
+class TypstLinkFuncPsiElement(node: ASTNode) : TypstFuncCallPsiElement(node), HintedReferenceHost {
+    override fun getReferences(): Array<PsiReference> {
+        val url = getUrl()
+        if (!GlobalPathReferenceProvider.isWebReferenceUrl(url)) return PsiReference.EMPTY_ARRAY
+        // TextRange 去掉引号的范围
+        val range = ElementManipulators.getValueTextRange(this)
+        return arrayOf(WebReference(this, range, url))
+    }
+
+    override fun getReferences(hints: PsiReferenceService.Hints): Array<PsiReference> {
+        return getReferences()
+    }
+
+    override fun shouldAskParentForReferences(hints: PsiReferenceService.Hints): Boolean = false
+
+    fun getUrl(): String {
+        val text = urlPsiElement()?.text ?: return ""
+        val url = text.trim('"')
+        return if (GlobalPathReferenceProvider.isWebReferenceUrl(url)) url else ""
+    }
+
     fun urlPsiElement(): PsiElement? {
         val args =
             node.children().firstOrNull { child ->

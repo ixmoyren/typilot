@@ -46,11 +46,30 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: zulu
-          java-version: 21
+          java-version: 25
 
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
+
+      # Set up the Rust toolchain (nightly channel + targets) required by the code generation crates
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@nightly
+
+      # Cache the Cargo registry, git checkouts and the target directory
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      # Cache the WASM toolchain (WASI SDK, Binaryen) downloaded by 'cargo xtask'
+      - name: Cache WASM tools
+        uses: actions/cache@v4
+        with:
+          path: .tools
+          key: wasm-tools-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}
+
+      # Generate the WASM binary and the Java sources consumed by the plugin build
+      - name: Generate WASM and Java Sources
+        run: cargo xtask generate
 
       # Build plugin
       - name: Build plugin
@@ -86,13 +105,32 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: zulu
-          java-version: 21
+          java-version: 25
 
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: true
+
+      # Set up the Rust toolchain (nightly channel + targets) required by the code generation crates
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@nightly
+
+      # Cache the Cargo registry, git checkouts and the target directory
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      # Cache the WASM toolchain (WASI SDK, Binaryen) downloaded by 'cargo xtask'
+      - name: Cache WASM tools
+        uses: actions/cache@v4
+        with:
+          path: .tools
+          key: wasm-tools-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}
+
+      # Generate the WASM binary and the Java sources consumed by the plugin build
+      - name: Generate WASM and Java Sources
+        run: cargo xtask generate
 
       # Run tests
       - name: Run Tests
@@ -129,13 +167,32 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: zulu
-          java-version: 21
+          java-version: 25
 
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: true
+
+      # Set up the Rust toolchain (nightly channel + targets) required by the code generation crates
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@nightly
+
+      # Cache the Cargo registry, git checkouts and the target directory
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      # Cache the WASM toolchain (WASI SDK, Binaryen) downloaded by 'cargo xtask'
+      - name: Cache WASM tools
+        uses: actions/cache@v4
+        with:
+          path: .tools
+          key: wasm-tools-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}
+
+      # Generate the WASM binary and the Java sources consumed by the plugin build
+      - name: Generate WASM and Java Sources
+        run: cargo xtask generate
 
       # Run Verify Plugin task and IntelliJ Plugin Verifier tool
       - name: Run Plugin Verification tasks
@@ -169,7 +226,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: zulu
-          java-version: 21
+          java-version: 25
 
       # Setup Gradle
       - name: Setup Gradle

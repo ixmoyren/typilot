@@ -140,9 +140,9 @@ This runs all 6 steps above sequentially.
 
 | Tool                                                     | Resource Type | Version     |
 |----------------------------------------------------------|---------------|-------------|
-| [WASI SDK](https://github.com/WebAssembly/wasi-sdk)      | `WasiSdk`     | 33.0        |
-| [Wasmtime](https://github.com/bytecodealliance/wasmtime) | `Wasmtime`    | v46.0.1     |
-| [Binaryen](https://github.com/WebAssembly/binaryen)      | `Binaryen`    | version_130 |
+| [WASI SDK](https://github.com/WebAssembly/wasi-sdk)      | `WasiSdk`     | 34.0        |
+| [Wasmtime](https://github.com/bytecodealliance/wasmtime) | `Wasmtime`    | v48.0.2     |
+| [Binaryen](https://github.com/WebAssembly/binaryen)      | `Binaryen`    | version_132 |
 
 Download URLs can be overridden via environment variables: `WASI_SDK_URL`, `WASMTIME_URL`, `BINARYEN_URL`.
 

@@ -139,9 +139,9 @@ cargo xtask generate
 
 | 工具                                                     | 资源类型   | 版本        |
 |----------------------------------------------------------|------------|-------------|
-| [WASI SDK](https://github.com/WebAssembly/wasi-sdk)      | `WasiSdk`  | 33.0        |
-| [Wasmtime](https://github.com/bytecodealliance/wasmtime) | `Wasmtime` | v46.0.1     |
-| [Binaryen](https://github.com/WebAssembly/binaryen)      | `Binaryen` | version_130 |
+| [WASI SDK](https://github.com/WebAssembly/wasi-sdk)      | `WasiSdk`  | 34.0        |
+| [Wasmtime](https://github.com/bytecodealliance/wasmtime) | `Wasmtime` | v48.0.2     |
+| [Binaryen](https://github.com/WebAssembly/binaryen)      | `Binaryen` | version_132 |
 
 可通过环境变量 `WASI_SDK_URL`、`WASMTIME_URL`、`BINARYEN_URL` 覆盖下载地址。
 

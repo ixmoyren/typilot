@@ -21,17 +21,17 @@ pub fn generate_reflection_code() -> Result<()> {
         "-p",
         "typalize",
         "--bin",
-        "gen_reflection",
+        "gen-reflection",
         "--features",
         "gen_reflection",
     ];
     let output = Command::new("cargo")
         .args(args)
         .output()
-        .with_whatever_context(|_| "Failed to run gen_reflection to generate reflection")?;
+        .with_whatever_context(|_| "Failed to run gen-reflection to generate reflection")?;
     ensure_whatever!(
         !output.stdout.is_empty(),
-        "The gen_reflection output is empty"
+        "The gen-reflection output is empty"
     );
     let reflection = String::from_utf8(output.stdout)
         .with_whatever_context(|_| "Failed get the reflection info")?;
@@ -131,12 +131,8 @@ pub fn optimize_wasm(tool: Option<PathBuf>) -> Result<()> {
         output_path.as_str(),
     ];
     let wasm_opt = cfg_select! {
-        target_os = "windows" => {
-            wasmtime_path.join("bin").join("wasm-opt.exe")
-        }
-        _ => {
-            binaryen_path.join("bin").join("wasm-opt")
-        }
+        target_os = "windows" => wasmtime_path.join("bin").join("wasm-opt.exe"),
+        _ => binaryen_path.join("bin").join("wasm-opt"),
     };
     run(Command::new(wasm_opt), args).with_whatever_context(|_| "Failed to run cargo build")?;
     fs::remove_file(&resource_path)
@@ -150,10 +146,12 @@ pub fn generate_java_class() -> Result<()> {
     let args = vec!["endiveCompile"];
     cfg_select! {
         target_os = "windows" => {
-            run(Command::new("./gradlew.bat"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
+            run(Command::new("./gradlew.bat"), args)
+                .with_whatever_context(|_| "Failed to format the kotlin code")?;
         }
         _ => {
-            run(Command::new("./gradlew"), args).with_whatever_context(|_| "Failed to format the kotlin code")?;
+            run(Command::new("./gradlew"), args)
+                .with_whatever_context(|_| "Failed to format the kotlin code")?;
         }
     }
     Ok(())

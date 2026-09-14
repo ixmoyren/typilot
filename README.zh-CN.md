@@ -61,14 +61,14 @@ cargo xtask generate
 
 ### 分步说明
 
-| 步骤               | 命令                                     | 说明                                                                         |
-|------------------|----------------------------------------|----------------------------------------------------------------------------|
-| 1. 安装 WASM 工具链   | `cargo xtask get-wasm-tool <type>`     | 下载 WASI SDK、wasmtime 或 binaryen 至 `.tools/` 目录                             |
-| 2. 生成序列化代码       | `cargo xtask generate-reflection-code` | 运行 `gen_reflection` 二进制文件生成 serde-reflection YAML → 生成 Java BCS 序列化代码      |
-| 3. 编译 WASM       | `cargo xtask build-wasm`               | 使用 WASI SDK 将 `typalize` crate 交叉编译为 `wasm32-wasip1`                       |
-| 4. 复制 WASM       | `cargo xtask copy-wasm`                | 将 `.wasm` 复制至 `src/main/resources/wasm/`                                   |
-| 5. 优化 WASM       | `cargo xtask optimize-wasm`            | 通过 binaryen 的 `wasm-opt -Oz --strip-debug` 优化                              |
-| 6. 生成 Java class | `cargo xtask generate-java-class`      | 运行 Endive 编译器（`./gradlew endiveCompile`）+ 代码格式化（`./gradlew spotlessApply`） |
+| 步骤                | 命令                                   | 说明                                                                                     |
+|---------------------|----------------------------------------|------------------------------------------------------------------------------------------|
+| 1. 安装 WASM 工具链 | `cargo xtask get-wasm-tool <type>`     | 下载 WASI SDK、wasmtime 或 binaryen 至 `.tools/` 目录                                    |
+| 2. 生成序列化代码   | `cargo xtask generate-reflection-code` | 运行 `gen-reflection`，生成 serde-reflection YAML，再生成 Java BCS 序列化代码            |
+| 3. 编译 WASM        | `cargo xtask build-wasm`               | 使用 WASI SDK 将 `typalize` crate 交叉编译为 `wasm32-wasip1`                             |
+| 4. 复制 WASM        | `cargo xtask copy-wasm`                | 将 `.wasm` 复制至 `src/main/resources/wasm/`                                             |
+| 5. 优化 WASM        | `cargo xtask optimize-wasm`            | 通过 binaryen 的 `wasm-opt -Oz --strip-debug` 优化                                       |
+| 6. 生成 Java class  | `cargo xtask generate-java-class`      | 运行 Endive 编译器（`./gradlew endiveCompile`）+ 代码格式化（`./gradlew spotlessApply`） |
 
 ### 一键构建
 
@@ -137,7 +137,7 @@ cargo xtask generate
 
 ### WASM 工具链资源
 
-| 工具                                                       | 资源类型       | 版本          |
+| 工具                                                     | 资源类型   | 版本        |
 |----------------------------------------------------------|------------|-------------|
 | [WASI SDK](https://github.com/WebAssembly/wasi-sdk)      | `WasiSdk`  | 33.0        |
 | [Wasmtime](https://github.com/bytecodealliance/wasmtime) | `Wasmtime` | v46.0.1     |

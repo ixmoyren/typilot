@@ -64,7 +64,7 @@ Compiles `typst-syntax` (Rust) into JVM bytecode.
 | Step                           | Command                                | Description                                                                                         |
 |--------------------------------|----------------------------------------|-----------------------------------------------------------------------------------------------------|
 | 1. Install WASM tools          | `cargo xtask get-wasm-tool <type>`     | Download WASI SDK, wasmtime, or binaryen to `.tools/`                                               |
-| 2. Generate serialization code | `cargo xtask generate-reflection-code` | Run `gen_reflection` binary to produce serde-reflection YAML → generate Java BCS serialization code |
+| 2. Generate serialization code | `cargo xtask generate-reflection-code` | Run `gen-reflection` binary to produce serde-reflection YAML → generate Java BCS serialization code |
 | 3. Build WASM                  | `cargo xtask build-wasm`               | Cross-compile `typalize` crate to `wasm32-wasip1` using WASI SDK                                    |
 | 4. Copy WASM                   | `cargo xtask copy-wasm`                | Copy `.wasm` to `src/main/resources/wasm/`                                                          |
 | 5. Optimize WASM               | `cargo xtask optimize-wasm`            | Run `wasm-opt -Oz --strip-debug` via binaryen                                                       |

@@ -8,7 +8,7 @@ crate-type = ["cdylib", "rlib"]
 name = "typalize"
 
 [[bin]]
-name = "gen_reflection"
+name = "gen-reflection"
 path = "src/bin/gen_reflection.rs"
 required-features = ["gen_reflection"]
 

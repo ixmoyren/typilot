@@ -14,7 +14,7 @@ class TypalizeTest : BasePlatformTestCase() {
             throw IllegalStateException("The typst lexer couldn't work.", versionResult.error)
         }
         val version = versionResult.result ?: throw IllegalStateException("The typst version result is null")
-        assertEquals("typst-syntax 0.15.0", version)
+        assertEquals("typst-syntax 0.15.1", version)
     }
 
     fun testTypstSyntaxKindEntries() {

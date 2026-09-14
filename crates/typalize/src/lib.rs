@@ -59,7 +59,7 @@ pub unsafe extern "C" fn wasm_free(ptr: *mut c_void) {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn version() -> i64 {
-    let version = "typst-syntax 0.15.0".to_owned();
+    let version = "typst-syntax 0.15.1".to_owned();
     leak(version.as_bytes())
 }
 

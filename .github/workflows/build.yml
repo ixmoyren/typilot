@@ -52,20 +52,24 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      # Set up the Rust toolchain (nightly channel + targets) required by the code generation crates
+      # Install the toolchain channel, components and targets declared in 'rust-toolchain.toml'
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@nightly
+        uses: actions-rust-lang/setup-rust-toolchain@v2
 
-      # Cache the Cargo registry, git checkouts and the target directory
-      - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
-
-      # Cache the WASM toolchain (WASI SDK, Binaryen) downloaded by 'cargo xtask'
-      - name: Cache WASM tools
+      # Cache the WASM tools installed into the project root '.tools' directory
+      - name: Cache WASM Tools
+        id: wasm-tools
         uses: actions/cache@v4
         with:
           path: .tools
-          key: wasm-tools-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}
+          key: wasm-tools-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml', 'xtask/main.rs') }}
+
+      # Install the WASM tooling required by 'cargo xtask' into the project root '.tools' directory
+      - name: Install WASM Tools
+        if: steps.wasm-tools.outputs.cache-hit != 'true'
+        run: |
+          cargo xtask get-wasm-tool -i .tools/ wasi-sdk
+          cargo xtask get-wasm-tool -i .tools/ binaryen
 
       # Generate the WASM binary and the Java sources consumed by the plugin build
       - name: Generate WASM and Java Sources
@@ -113,20 +117,24 @@ jobs:
         with:
           cache-read-only: true
 
-      # Set up the Rust toolchain (nightly channel + targets) required by the code generation crates
+      # Install the toolchain channel, components and targets declared in 'rust-toolchain.toml'
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@nightly
+        uses: actions-rust-lang/setup-rust-toolchain@v2
 
-      # Cache the Cargo registry, git checkouts and the target directory
-      - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
-
-      # Cache the WASM toolchain (WASI SDK, Binaryen) downloaded by 'cargo xtask'
-      - name: Cache WASM tools
+      # Cache the WASM tools installed into the project root '.tools' directory
+      - name: Cache WASM Tools
+        id: wasm-tools
         uses: actions/cache@v4
         with:
           path: .tools
-          key: wasm-tools-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}
+          key: wasm-tools-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml', 'xtask/main.rs') }}
+
+      # Install the WASM tooling required by 'cargo xtask' into the project root '.tools' directory
+      - name: Install WASM Tools
+        if: steps.wasm-tools.outputs.cache-hit != 'true'
+        run: |
+          cargo xtask get-wasm-tool -i .tools/ wasi-sdk
+          cargo xtask get-wasm-tool -i .tools/ binaryen
 
       # Generate the WASM binary and the Java sources consumed by the plugin build
       - name: Generate WASM and Java Sources
@@ -175,20 +183,24 @@ jobs:
         with:
           cache-read-only: true
 
-      # Set up the Rust toolchain (nightly channel + targets) required by the code generation crates
+      # Install the toolchain channel, components and targets declared in 'rust-toolchain.toml'
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@nightly
+        uses: actions-rust-lang/setup-rust-toolchain@v2
 
-      # Cache the Cargo registry, git checkouts and the target directory
-      - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
-
-      # Cache the WASM toolchain (WASI SDK, Binaryen) downloaded by 'cargo xtask'
-      - name: Cache WASM tools
+      # Cache the WASM tools installed into the project root '.tools' directory
+      - name: Cache WASM Tools
+        id: wasm-tools
         uses: actions/cache@v4
         with:
           path: .tools
-          key: wasm-tools-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml') }}
+          key: wasm-tools-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml', 'xtask/main.rs') }}
+
+      # Install the WASM tooling required by 'cargo xtask' into the project root '.tools' directory
+      - name: Install WASM Tools
+        if: steps.wasm-tools.outputs.cache-hit != 'true'
+        run: |
+          cargo xtask get-wasm-tool -i .tools/ wasi-sdk
+          cargo xtask get-wasm-tool -i .tools/ binaryen
 
       # Generate the WASM binary and the Java sources consumed by the plugin build
       - name: Generate WASM and Java Sources

@@ -19,9 +19,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
 
   # Run the test suite of every crate under 'crates/*'
@@ -34,13 +31,9 @@ jobs:
       - name: Fetch Sources
         uses: actions/checkout@v6
 
-      # Install the Rust toolchain (nightly channel + targets) declared in rust-toolchain.toml
+      # Install the toolchain channel, components and targets declared in 'rust-toolchain.toml'
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@nightly
-
-      # Cache the Cargo registry, git checkouts and the target directory
-      - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
+        uses: actions-rust-lang/setup-rust-toolchain@v2
 
       # Test all workspace members under 'crates/*' ('xtask' is a build tool, not a crate)
       - name: Run Tests

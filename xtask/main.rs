@@ -61,42 +61,23 @@ impl ResourceType {
         match self {
             Self::WasiSdk => {
                 cfg_select! {
-                    target_os = "windows" => {
-                        "wasi-sdk-33.0-x86_64-windows"
-                    }
-                    target_os = "macos" => {
-                        "wasi-sdk-33.0-arm64-macos"
-                    }
-                    _ => {
-                        "wasi-sdk-33.0-x86_64-linux"
-                    }
+                    target_os = "windows" => "wasi-sdk-34.0-x86_64-windows",
+                    target_os = "macos" => "wasi-sdk-34.0-arm64-macos",
+                    _ => "wasi-sdk-34.0-x86_64-linux",
                 }
             }
             Self::Wasmtime => {
                 cfg_select! {
-                        target_os = "windows" => {
-                            "wasmtime-v46.0.1-x86_64-windows"
-                        }
-                        target_os = "macos" => {
-                            "wasmtime-v46.0.1-aarch64-macos"
-                        }
-                        _ => {
-                            "wasmtime-v46.0.1-x86_64-linux"
-                        }
-
+                    target_os = "windows" => "wasmtime-v48.0.2-x86_64-windows",
+                    target_os = "macos" => "wasmtime-v48.0.2-aarch64-macos",
+                    _ => "wasmtime-v48.0.2-x86_64-linux",
                 }
             }
             Self::Binaryen => {
                 cfg_select! {
-                    target_os = "windows" => {
-                        "binaryen-version_130"
-                    }
-                    target_os = "macos" => {
-                        "binaryen-version_130"
-                    }
-                    _ => {
-                        "binaryen-version_130"
-                    }
+                    target_os = "windows" => "binaryen-version_132",
+                    target_os = "macos" => "binaryen-version_132",
+                    _ => "binaryen-version_132",
                 }
             }
         }
@@ -109,13 +90,13 @@ impl ResourceType {
                 } else {
                     cfg_select! {
                         target_os = "windows" => {
-                            "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-33/wasi-sdk-33.0-x86_64-windows.tar.gz".into()
+                            "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-34/wasi-sdk-34.0-x86_64-windows.tar.gz".into()
                         }
                         target_os = "macos" => {
-                            "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-33/wasi-sdk-33.0-arm64-macos.tar.gz".into()
+                            "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-34/wasi-sdk-34.0-arm64-macos.tar.gz".into()
                         }
                         _ => {
-                            "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-33/wasi-sdk-33.0-x86_64-linux.tar.gz".into()
+                            "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-34/wasi-sdk-34.0-x86_64-linux.tar.gz".into()
                         }
                     }
                 }
@@ -126,13 +107,13 @@ impl ResourceType {
                 } else {
                     cfg_select! {
                         target_os = "windows" => {
-                            "https://github.com/bytecodealliance/wasmtime/releases/download/v46.0.1/wasmtime-v46.0.1-x86_64-windows.zip".into()
+                            "https://github.com/bytecodealliance/wasmtime/releases/download/v48.0.2/wasmtime-v48.0.2-x86_64-windows.zip".into()
                         }
                         target_os = "macos" => {
-                            "https://github.com/bytecodealliance/wasmtime/releases/download/v46.0.1/wasmtime-v45.0.1-aarch64-macos.tar.xz".into()
+                            "https://github.com/bytecodealliance/wasmtime/releases/download/v48.0.2/wasmtime-v48.0.2-aarch64-macos.tar.xz".into()
                         }
                         _ => {
-                            "https://github.com/bytecodealliance/wasmtime/releases/download/v46.0.1/wasmtime-v45.0.1-x86_64-linux.tar.xz".into()
+                            "https://github.com/bytecodealliance/wasmtime/releases/download/v48.0.2/wasmtime-v48.0.2-x86_64-linux.tar.xz".into()
                         }
                     }
                 }
@@ -143,13 +124,13 @@ impl ResourceType {
                 } else {
                     cfg_select! {
                         target_os = "windows" => {
-                            "https://github.com/WebAssembly/binaryen/releases/download/version_130/binaryen-version_130-x86_64-windows.tar.gz".into()
+                            "https://github.com/WebAssembly/binaryen/releases/download/version_132/binaryen-version_132-x86_64-windows.tar.gz".into()
                         }
                         target_os = "macos" => {
-                            "https://github.com/WebAssembly/binaryen/releases/download/version_130/binaryen-version_130-arm64-macos.tar.gz".into()
+                            "https://github.com/WebAssembly/binaryen/releases/download/version_132/binaryen-version_132-arm64-macos.tar.gz".into()
                         }
                         _ => {
-                            "https://github.com/WebAssembly/binaryen/releases/download/version_130/binaryen-version_130-x86_64-linux.tar.gz".into()
+                            "https://github.com/WebAssembly/binaryen/releases/download/version_132/binaryen-version_132-x86_64-linux.tar.gz".into()
                         }
                     }
                 }

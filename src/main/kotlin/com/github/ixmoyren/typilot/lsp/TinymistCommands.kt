@@ -60,9 +60,12 @@ object TinymistCommands {
     /** Stops the preview server with the given [taskId]. */
     fun killPreview(project: Project, taskId: String) {
         val client = findRunningClient(project) ?: return
-        client.sendNotification {
-            it.workspaceService.executeCommand(ExecuteCommandParams(KILL_PREVIEW_COMMAND, listOf(taskId)))
-        }
+        runCatching {
+                client.sendNotification {
+                    it.workspaceService.executeCommand(ExecuteCommandParams(KILL_PREVIEW_COMMAND, listOf(taskId)))
+                }
+            }
+            .onFailure { e -> logger.warn("Failed to stop tinymist preview task $taskId: ${e.message}") }
     }
 
     private fun exportPdfParams(file: VirtualFile): ExecuteCommandParams =

@@ -16,6 +16,7 @@ import com.intellij.ui.jcef.JBCefApp
 import com.intellij.ui.jcef.JCEFHtmlPanel
 import java.beans.PropertyChangeListener
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
 import javax.swing.JLabel
 import org.cef.browser.CefBrowser
@@ -38,6 +39,12 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
     @Volatile private var previewTaskId: String? = null
 
     @Volatile private var loadRetryCount = 0
+
+    private val previewStartInProgress = AtomicBoolean(false)
+
+    private val previewTaskLock = Any()
+
+    @Volatile private var closed = false
 
     private val maxRetryCount = 10
 
@@ -71,36 +78,58 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
     private fun onTinymistServerStarted() {
         if (isDisposed) return
         if (previewUrl != null || previewTaskId != null) {
-            logger.info("tinymist (re)started, resetting preview state and restarting preview.")
-            previewUrl = null
-            previewTaskId = null
+            logger.info("tinymist (re)started, restarting preview.")
             startPreview()
         }
     }
 
     private fun startPreview() {
         if (isDisposed) return
+        if (!previewStartInProgress.compareAndSet(false, true)) return
         val file = virtualFile
         ApplicationManager.getApplication().executeOnPooledThread {
-            if (isDisposed) return@executeOnPooledThread
-            val taskId = UUID.randomUUID().toString().substring(0, 7)
-            val result = TinymistCommands.startPreview(project, file, taskId)
-            if (result == null) {
-                logger.warn("Command ${PREVIEW_COMMAND} failed or tinymist is not running")
-                showErrorHtml("typst-preview.preview command not found. Is tinymist running?")
-                return@executeOnPooledThread
-            }
+            try {
+                val taskId = UUID.randomUUID().toString().substring(0, 7)
+                val result = TinymistCommands.startPreview(project, file, taskId)
+                if (result == null) {
+                    logger.warn("Command ${PREVIEW_COMMAND} failed or tinymist is not running")
+                    showErrorHtml("typst-preview.preview command not found. Is tinymist running?")
+                    return@executeOnPooledThread
+                }
 
-            val url = extractPreviewUrl(result)
-            if (url != null) {
+                val url = extractPreviewUrl(result)
+                if (url == null) {
+                    logger.warn("Cannot extract preview URL from result: $result")
+                    TinymistCommands.killPreview(project, taskId)
+                    showErrorHtml("Could not get preview URL from tinymist (result=$result)")
+                    return@executeOnPooledThread
+                }
+
+                var shouldDiscard = false
+                var previousTaskId: String? = null
+                synchronized(previewTaskLock) {
+                    if (closed) {
+                        shouldDiscard = true
+                    } else {
+                        previousTaskId = previewTaskId
+                        previewUrl = url
+                        previewTaskId = taskId
+                    }
+                }
+                if (shouldDiscard) {
+                    logger.info("Editor disposed while starting preview, killing task $taskId.")
+                    TinymistCommands.killPreview(project, taskId)
+                    return@executeOnPooledThread
+                }
+                if (previousTaskId != null && previousTaskId != taskId) {
+                    TinymistCommands.killPreview(project, previousTaskId)
+                }
+
                 logger.info("Preview URL: $url")
-                previewUrl = url
-                previewTaskId = taskId
                 loadRetryCount = 0
                 loadUrlSafely(url)
-            } else {
-                logger.warn("Cannot extract preview URL from result: $result")
-                showErrorHtml("Could not get preview URL from tinymist (result=$result)")
+            } finally {
+                previewStartInProgress.set(false)
             }
         }
     }
@@ -139,7 +168,7 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
 
     override fun isModified(): Boolean = false
 
-    override fun isValid(): Boolean = true
+    override fun isValid(): Boolean = !isDisposed
 
     override fun addPropertyChangeListener(listener: PropertyChangeListener) = Unit
 
@@ -179,13 +208,18 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
     override fun dispose() {
         logger.info("Disposing editor...")
         runCatching { TinymistLspService.getInstance(project).removeListener(serverStartedListener) }
-        previewTaskId?.let { taskId -> TinymistCommands.killPreview(project, taskId) }
-        runCatching {
-                if (JBCefApp.isSupported() && !isDisposed) cefBrowser.stopLoad()
+            .onFailure { e -> logger.warn("Cannot remove tinymist server listener: ${e.message}") }
+        val taskId =
+            synchronized(previewTaskLock) {
+                closed = true
+                val current = previewTaskId
+                previewUrl = null
+                previewTaskId = null
+                current
             }
-            .onFailure { e ->
-                logger.error("Error during stopLoad: ${e.message}", e)
-            }
+        if (taskId != null) {
+            runCatching { TinymistCommands.killPreview(project, taskId) }.onFailure { e -> logger.warn("Cannot kill preview task $taskId: ${e.message}") }
+        }
         super.dispose()
         logger.info("Disposal complete.")
     }

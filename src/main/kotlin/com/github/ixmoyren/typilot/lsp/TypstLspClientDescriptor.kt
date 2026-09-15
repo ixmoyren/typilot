@@ -2,12 +2,15 @@ package com.github.ixmoyren.typilot.lsp
 
 import com.github.ixmoyren.typilot.language.TypstFileType
 import com.github.ixmoyren.typilot.lsp.config.TinymistServerConfiguration
+import com.github.ixmoyren.typilot.lsp.services.TinymistDownloadService
 import com.github.ixmoyren.typilot.lsp.services.TinymistLocateService
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.lsp.api.LspClient
+import com.intellij.platform.lsp.api.LspClientManager
 import com.intellij.platform.lsp.api.LspServerListener
 import com.intellij.platform.lsp.api.ProjectWideLspClientDescriptor
 import com.intellij.platform.lsp.api.customization.LspCodeLensCustomizer
@@ -36,10 +39,26 @@ class TypstLspClientDescriptor(project: Project) : ProjectWideLspClientDescripto
     override fun createCommandLine(): GeneralCommandLine {
         val command = TinymistLocateService.getInstance().firstValidLocator?.locate()
         if (command.isNullOrBlank()) {
+            downloadTinymistThenRetry()
             throw ExecutionException(
                 "Could not locate the tinymist language server. Configure its path in Settings | Tools | Typst, install it on PATH, or download it from the settings page.")
         }
         return GeneralCommandLine(ParametersListUtil.parse(command)).withCharset(Charsets.UTF_8)
+    }
+
+    /** Downloads tinymist in the background, then re-resolves the command and restarts the LSP clients so they start with the freshly downloaded binary. */
+    private fun downloadTinymistThenRetry() {
+        val locateService = TinymistLocateService.getInstance()
+        TinymistDownloadService.getInstance().downloadInBackground(null) { success ->
+            if (!success) return@downloadInBackground
+            ApplicationManager.getApplication().executeOnPooledThread {
+                locateService.invalidate()
+                val downloadedCommand = locateService.firstValidLocator?.locate()
+                if (!downloadedCommand.isNullOrBlank() && !project.isDisposed) {
+                    LspClientManager.getInstance(project).stopAndRestartClientsIfNeeded(TypstLspIntegrationProvider::class.java)
+                }
+            }
+        }
     }
 
     /** `tinymist` accepts its configuration as the LSP `initializationOptions` object, which is confirmed by the server log line `config update_by_map { ... }`. */

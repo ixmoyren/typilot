@@ -59,7 +59,7 @@ jobs:
       # Cache the WASM tools installed into the project root '.tools' directory
       - name: Cache WASM Tools
         id: wasm-tools
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .tools
           key: wasm-tools-${{ runner.os }}-${{ hashFiles('rust-toolchain.toml', 'xtask/main.rs') }}

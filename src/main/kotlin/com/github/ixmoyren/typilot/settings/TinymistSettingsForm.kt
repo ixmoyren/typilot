@@ -1,6 +1,7 @@
 package com.github.ixmoyren.typilot.settings
 
 import com.github.ixmoyren.typilot.TypilotBundle
+import com.github.ixmoyren.typilot.lsp.config.TinymistServerConfiguration
 import com.github.ixmoyren.typilot.lsp.services.TinymistDownloadService
 import com.github.ixmoyren.typilot.lsp.services.TinymistFindService
 import com.github.ixmoyren.typilot.lsp.services.TinymistLocateService
@@ -104,6 +105,12 @@ class TinymistSettingsForm : JPanel(), Disposable {
         }
         group(TypilotBundle["settings.serverConfiguration.panel.title"]) {
             row {
+                link(TypilotBundle["settings.serverConfiguration.restoreDefault"]) {
+                        restoreDefaultServerConfiguration()
+                    }
+                    .align(AlignX.RIGHT)
+            }
+            row {
                     cell(serverConfigurationEditor).align(Align.FILL).comment(TypilotBundle["settings.serverConfiguration.panel.comment"])
                 }
                 .resizableRow()
@@ -138,6 +145,13 @@ class TinymistSettingsForm : JPanel(), Disposable {
 
     override fun dispose() {
         Disposer.dispose(serverConfigurationEditor)
+    }
+
+    /** Restores the bundled default tinymist configuration in the editor. */
+    internal fun restoreDefaultServerConfiguration() {
+        val defaultConfiguration = TinymistServerConfiguration.DEFAULT_CONFIGURATION
+        serverConfigurationEditor.text = defaultConfiguration
+        serverConfiguration.set(defaultConfiguration)
     }
 
     /**

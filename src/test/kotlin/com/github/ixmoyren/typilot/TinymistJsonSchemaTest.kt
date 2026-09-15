@@ -1,5 +1,7 @@
 package com.github.ixmoyren.typilot
 
+import com.github.ixmoyren.typilot.lsp.config.TinymistServerConfiguration
+import com.github.ixmoyren.typilot.settings.TinymistSettingsForm
 import com.github.ixmoyren.typilot.settings.jsonSchema.TinymistConfigurationJsonTextField
 import com.github.ixmoyren.typilot.settings.jsonSchema.TinymistJsonSchemaFileProvider
 import com.github.ixmoyren.typilot.settings.jsonSchema.TinymistJsonSchemaProviderFactory
@@ -42,6 +44,19 @@ class TinymistJsonSchemaTest : BasePlatformTestCase() {
 
         val schemaFiles = JsonSchemaService.Impl.get(project).getSchemaFilesForFile(file)
         assertTrue("The tinymist schema is not associated with the editor. Found: ${schemaFiles.map { it.name }}", schemaFiles.any { it.name == "tinymist.settings.schema.json" })
+    }
+
+    fun testRestoreDefaultConfigurationResetsEditor() {
+        val form = TinymistSettingsForm()
+        Disposer.register(testRootDisposable, form)
+
+        form.serverConfigurationEditor.text = "{ \"formatterMode\": \"disable\" }"
+        form.serverConfiguration.set("{ \"formatterMode\": \"disable\" }")
+
+        form.restoreDefaultServerConfiguration()
+
+        assertEquals(TinymistServerConfiguration.DEFAULT_CONFIGURATION, form.serverConfigurationEditor.text)
+        assertEquals(TinymistServerConfiguration.DEFAULT_CONFIGURATION, form.serverConfiguration.get())
     }
 
     fun testJsonEditorReportsInvalidJson() {

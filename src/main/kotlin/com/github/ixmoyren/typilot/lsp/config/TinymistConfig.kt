@@ -2,26 +2,19 @@ package com.github.ixmoyren.typilot.lsp.config
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.util.io.HttpRequests
 import com.intellij.util.system.CpuArch
-import java.net.HttpURLConnection
-import java.net.URI
+import kotlinx.serialization.json.*
 import java.util.concurrent.atomic.AtomicReference
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 const val TINYMIST_INSTALLER_CONFIG_JSON: String = "/lsp/installer.json"
 
 val TINYMIST_INSTALLER_CONFIG: TinymistInstallerConfig? by lazy {
     runCatching {
-            val text = TinymistInstallerConfig::class.java.getResourceAsStream(TINYMIST_INSTALLER_CONFIG_JSON)?.use { it.readBytes().toString(Charsets.UTF_8) } ?: return@lazy null
-            json.decodeFromString<TinymistInstallerConfig>(text)
-        }
+        val text = TinymistInstallerConfig::class.java.getResourceAsStream(TINYMIST_INSTALLER_CONFIG_JSON)
+            ?.use { it.readBytes().toString(Charsets.UTF_8) } ?: return@lazy null
+        json.decodeFromString<TinymistInstallerConfig>(text)
+    }
         .getOrNull()
 }
 
@@ -74,28 +67,40 @@ val IS_SUPPORTED_PLATFORM: Boolean by lazy {
  * Resolves the `browser_download_url` of [assetName] from the newest release of the repository that matches [prerelease]. This replaces the LSP4IJ `GitHubAssetFetcher`, which was
  * the only remaining LSP4IJ dependency of the plugin.
  */
-private fun fetchLatestGitHubAssetUrl(owner: String, repository: String, assetName: String, prerelease: Boolean): String? =
+private fun fetchLatestGitHubAssetUrl(
+    owner: String,
+    repository: String,
+    assetName: String,
+    prerelease: Boolean
+): String? =
     runCatching {
-            val url = URI("https://api.github.com/repos/$owner/$repository/releases").toURL()
-            val connection = url.openConnection() as HttpURLConnection
-            connection.setRequestProperty("Accept", "application/vnd.github+json")
-            connection.setRequestProperty("User-Agent", "typilot-intellij-plugin")
-            connection.connectTimeout = 10_000
-            connection.readTimeout = 10_000
-            if (connection.responseCode != 200) {
-                LOG.warn("GitHub releases request for $owner/$repository returned HTTP ${connection.responseCode}")
+        val url = "https://api.github.com/repos/$owner/$repository/releases"
+        val body =
+            try {
+                HttpRequests.request(url).accept("application/vnd.github+json").userAgent("typilot-intellij-plugin")
+                    .connectTimeout(10_000).readTimeout(10_000).readString()
+            } catch (e: HttpRequests.HttpStatusException) {
+                LOG.warn("GitHub releases request for $owner/$repository returned HTTP ${e.statusCode}")
                 return@runCatching null
             }
-            val body = connection.inputStream.bufferedReader().use { it.readText() }
-            val releases = json.parseToJsonElement(body).jsonArray
-            val release =
-                releases.firstOrNull { element ->
-                    val obj = element.jsonObject
-                    obj.booleanOrNull("prerelease") == prerelease && obj.booleanOrNull("draft") != true
-                } ?: return@runCatching null
-            val assets = release.jsonObject["assets"]?.jsonArray ?: return@runCatching null
-            assets.firstOrNull { it.jsonObject["name"]?.jsonPrimitive?.contentOrNull == assetName }?.jsonObject?.get("browser_download_url")?.jsonPrimitive?.contentOrNull
-        }
+
+        val releases = json.parseToJsonElement(body).jsonArray
+        val release =
+            releases.firstOrNull { element ->
+                val obj = element.jsonObject
+                obj.booleanOrNull("prerelease") == prerelease && obj.booleanOrNull("draft") != true
+            } ?: return@runCatching null
+
+        val assets = release.jsonObject["assets"]?.jsonArray ?: return@runCatching null
+        assets
+            .firstOrNull {
+                it.jsonObject["name"]?.jsonPrimitive?.contentOrNull == assetName
+            }
+            ?.jsonObject
+            ?.get("browser_download_url")
+            ?.jsonPrimitive
+            ?.contentOrNull
+    }
         .getOrNull()
 
 private fun JsonObject.booleanOrNull(memberName: String): Boolean? = (get(memberName) as? JsonPrimitive)?.booleanOrNull

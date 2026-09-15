@@ -43,10 +43,10 @@ class TypstLspClientDescriptor(project: Project) : ProjectWideLspClientDescripto
     }
 
     /** `tinymist` accepts its configuration as the LSP `initializationOptions` object, which is confirmed by the server log line `config update_by_map { ... }`. */
-    override fun createInitializationOptions(): Any = TinymistServerConfiguration.parse()
+    override fun createInitializationOptions(): Any = TinymistServerConfiguration.parseForLsp()
 
     /** `tinymist` does not use pull-based configuration, but answering `workspace/configuration` keeps the implementation correct for servers that do. */
-    override fun getWorkspaceConfiguration(item: ConfigurationItem): Any = TinymistServerConfiguration.parse()
+    override fun getWorkspaceConfiguration(item: ConfigurationItem): Any = TinymistServerConfiguration.parseForLsp()
 
     override val lspCustomization: LspCustomization =
         object : LspCustomization() {

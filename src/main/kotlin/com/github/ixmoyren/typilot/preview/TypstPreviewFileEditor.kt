@@ -3,7 +3,6 @@ package com.github.ixmoyren.typilot.preview
 import com.github.ixmoyren.typilot.lsp.TinymistCommands
 import com.github.ixmoyren.typilot.lsp.TinymistLspService
 import com.github.ixmoyren.typilot.lsp.TinymistServerStartedListener
-import com.google.gson.Gson
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.logger
@@ -19,6 +18,13 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JComponent
 import javax.swing.JLabel
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.handler.CefLoadHandler
@@ -29,10 +35,6 @@ import org.cef.network.CefRequest
 class TypstPreviewFileEditor(private val project: Project, private val virtualFile: VirtualFile) : JCEFHtmlPanel(false, null, null), FileEditor {
 
     private val logger = logger<TypstPreviewFileEditor>()
-
-    private val gson: Gson by lazy {
-        Gson()
-    }
 
     @Volatile private var previewUrl: String? = null
 
@@ -134,12 +136,10 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
         }
     }
 
-    private fun extractPreviewUrl(result: Any?): String? =
-        result
-            ?.let { gson.fromJson(gson.toJsonTree(it), StartPreviewResponse::class.java) }
-            ?.run {
-                staticServerAddr?.let { "http://$it" } ?: staticServerPort?.let { "http://127.0.0.1:$it" }
-            }
+    private fun extractPreviewUrl(result: Any?): String? {
+        val response = result?.toJsonElement()?.let { runCatching { json.decodeFromJsonElement(StartPreviewResponse.serializer(), it) }.getOrNull() } ?: return null
+        return response.staticServerAddr?.let { "http://$it" } ?: response.staticServerPort?.let { "http://127.0.0.1:$it" }
+    }
 
     @Suppress("SameParameterValue")
     private fun loadUrlSafely(url: String) {
@@ -275,9 +275,27 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
     }
 }
 
+@Serializable
 data class StartPreviewResponse(
     val staticServerPort: Int? = null,
     val staticServerAddr: String? = null,
     val dataPlanePort: Int? = null,
     val isPrimary: Boolean = false,
 )
+
+private val json = Json { ignoreUnknownKeys = true }
+
+/**
+ * LSP4J deserializes an untyped `ExecuteCommand` result with Gson into `Map`, `List` and primitive values, which kotlinx.serialization cannot decode directly. Convert them back
+ * into a [JsonElement] so the result can be decoded with kotlinx.serialization.
+ */
+private fun Any?.toJsonElement(): JsonElement =
+    when (this) {
+        null -> JsonNull
+        is JsonElement -> this
+        is Map<*, *> -> JsonObject(entries.associate { (key, value) -> key.toString() to value.toJsonElement() })
+        is Iterable<*> -> JsonArray(map { it.toJsonElement() })
+        is Boolean -> JsonPrimitive(this)
+        is Number -> if (toDouble() == toLong().toDouble()) JsonPrimitive(toLong()) else JsonPrimitive(toDouble())
+        else -> JsonPrimitive(toString())
+    }

@@ -5,12 +5,13 @@ import com.github.ixmoyren.typilot.settings.TinymistSettingsForm
 import com.github.ixmoyren.typilot.settings.jsonSchema.TinymistConfigurationJsonTextField
 import com.github.ixmoyren.typilot.settings.jsonSchema.TinymistJsonSchemaFileProvider
 import com.github.ixmoyren.typilot.settings.jsonSchema.TinymistJsonSchemaProviderFactory
-import com.google.gson.JsonParser
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.jetbrains.jsonSchema.extension.JsonSchemaProviderFactory
 import com.jetbrains.jsonSchema.ide.JsonSchemaService
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 
 class TinymistJsonSchemaTest : BasePlatformTestCase() {
 
@@ -29,9 +30,10 @@ class TinymistJsonSchemaTest : BasePlatformTestCase() {
 
         val schemaFile = provider.schemaFile
         assertNotNull("JSON schema resource was not found", schemaFile)
-        val schema = JsonParser.parseString(VfsUtilCore.loadText(schemaFile!!)).asJsonObject
-        assertTrue(schema.getAsJsonObject("properties").has("formatterMode"))
-        assertTrue(schema.getAsJsonObject("properties").has("semanticTokens"))
+        val properties = Json.parseToJsonElement(VfsUtilCore.loadText(schemaFile!!)).jsonObject["properties"]?.jsonObject
+        assertNotNull(properties)
+        assertTrue(properties!!.containsKey("formatterMode"))
+        assertTrue(properties.containsKey("semanticTokens"))
     }
 
     fun testJsonEditorIsAssociatedWithTinymistSchema() {

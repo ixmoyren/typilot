@@ -1,7 +1,6 @@
 package com.github.ixmoyren.typilot.navigation
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.json.Json
 
 /**
  * Maps the name of a Typst built-in function, type or module to its page in the official documentation.
@@ -13,12 +12,11 @@ object TypstBuiltinDocumentation {
 
     private const val RESOURCE_PATH = "/lsp/typst-builtin-docs.json"
 
+    private val json = Json
+
     private val documentationUrls: Map<String, String> by lazy {
         val stream = TypstBuiltinDocumentation::class.java.getResourceAsStream(RESOURCE_PATH) ?: return@lazy emptyMap()
-        stream.use {
-            val type = object : TypeToken<Map<String, String>>() {}.type
-            Gson().fromJson<Map<String, String>>(it.reader(Charsets.UTF_8), type) ?: emptyMap()
-        }
+        runCatching { json.decodeFromString<Map<String, String>>(stream.use { it.readBytes().toString(Charsets.UTF_8) }) }.getOrElse { emptyMap() }
     }
 
     /** The documentation URL of the built-in [name], or `null` when the name is not a documented built-in. */

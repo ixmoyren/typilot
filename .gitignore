@@ -22,3 +22,6 @@ src/main/java/com/github/ixmoyren/typalize/TypstSyntaxKind.java
 
 # wasm source
 src/main/resources/wasm/*.wasm
+
+# zig
+.zig-cache

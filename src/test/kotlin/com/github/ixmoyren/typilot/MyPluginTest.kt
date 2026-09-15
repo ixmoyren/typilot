@@ -3,13 +3,13 @@ package com.github.ixmoyren.typilot
 import com.github.ixmoyren.typilot.lsp.config.TINYMIST_GITHUB_DOWNLOAD_URL
 import com.github.ixmoyren.typilot.lsp.config.TINYMIST_INSTALLER_CONFIG
 import com.github.ixmoyren.typilot.lsp.config.TinymistServerConfiguration
-import com.google.gson.JsonObject
 import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.xml.XmlFile
 import com.intellij.testFramework.TestDataPath
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.PsiErrorElementUtil
+import kotlinx.serialization.json.jsonPrimitive
 
 @TestDataPath($$"$CONTENT_ROOT/src/test/testData")
 class MyPluginTest : BasePlatformTestCase() {
@@ -51,10 +51,8 @@ class MyPluginTest : BasePlatformTestCase() {
 
     fun testTinymistServerConfigurationIsValid() {
         val configuration = TinymistServerConfiguration.parse()
-        assertTrue(configuration is JsonObject)
-        val json = configuration as JsonObject
-        assertEquals("enable", json.get("semanticTokens").asString)
-        assertEquals("typstyle", json.get("formatterMode").asString)
+        assertEquals("enable", configuration["semanticTokens"]?.jsonPrimitive?.content)
+        assertEquals("typstyle", configuration["formatterMode"]?.jsonPrimitive?.content)
     }
 
     override fun getTestDataPath() = "src/test/testData/rename"

@@ -1,12 +1,19 @@
 package com.github.ixmoyren.typilot.lsp.config
 
-import com.google.gson.JsonParser
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.system.CpuArch
 import java.net.HttpURLConnection
 import java.net.URI
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 const val TINYMIST_INSTALLER_CONFIG_JSON: String = "/lsp/installer.json"
 
@@ -18,12 +25,26 @@ val TINYMIST_INSTALLER_CONFIG: TinymistInstallerConfig? by lazy {
         .getOrNull()
 }
 
-val TINYMIST_GITHUB_DOWNLOAD_URL: String? by lazy {
-    val github = TINYMIST_INSTALLER_CONFIG?.run?.download?.github ?: return@lazy null
-    val assetName = github.asset?.resolve() ?: return@lazy null
+private val githubDownloadUrlCache = AtomicReference<String?>()
 
-    fetchLatestGitHubAssetUrl(github.owner, github.repository, assetName, github.prerelease)
-}
+/**
+ * The `browser_download_url` of the configured tinymist asset for the current platform. Successful resolutions are cached, while failures are not, so a transient network error or
+ * a GitHub rate limit does not permanently disable the download.
+ */
+val TINYMIST_GITHUB_DOWNLOAD_URL: String?
+    get() {
+        githubDownloadUrlCache.get()?.let {
+            return it
+        }
+
+        val github = TINYMIST_INSTALLER_CONFIG?.run?.download?.github ?: return null
+        val assetName = github.asset?.resolve() ?: return null
+        val url = fetchLatestGitHubAssetUrl(github.owner, github.repository, assetName, github.prerelease)
+        if (url != null) {
+            githubDownloadUrlCache.set(url)
+        }
+        return url
+    }
 
 val TINYMIST_SUPPORTED_PLATFORMS: Set<String>? by lazy {
     TINYMIST_INSTALLER_CONFIG?.run?.download?.github?.asset?.supportedPlatforms()
@@ -66,14 +87,18 @@ private fun fetchLatestGitHubAssetUrl(owner: String, repository: String, assetNa
                 return@runCatching null
             }
             val body = connection.inputStream.bufferedReader().use { it.readText() }
-            val releases = JsonParser.parseString(body).asJsonArray
-            val release = releases.firstOrNull { it.asJsonObject.get("prerelease")?.asBoolean == prerelease } ?: return@runCatching null
-            val assets = release.asJsonObject.getAsJsonArray("assets")
-            val names = assets.mapNotNull { it.asJsonObject.get("name")?.asString }
-            val matchedName = names.firstOrNull { it == assetName } ?: names.firstOrNull { it.contains(assetName, ignoreCase = true) }
-            assets.firstOrNull { it.asJsonObject.get("name")?.asString == matchedName }?.asJsonObject?.get("browser_download_url")?.asString
+            val releases = json.parseToJsonElement(body).jsonArray
+            val release =
+                releases.firstOrNull { element ->
+                    val obj = element.jsonObject
+                    obj.booleanOrNull("prerelease") == prerelease && obj.booleanOrNull("draft") != true
+                } ?: return@runCatching null
+            val assets = release.jsonObject["assets"]?.jsonArray ?: return@runCatching null
+            assets.firstOrNull { it.jsonObject["name"]?.jsonPrimitive?.contentOrNull == assetName }?.jsonObject?.get("browser_download_url")?.jsonPrimitive?.contentOrNull
         }
         .getOrNull()
+
+private fun JsonObject.booleanOrNull(memberName: String): Boolean? = (get(memberName) as? JsonPrimitive)?.booleanOrNull
 
 private val json = Json { ignoreUnknownKeys = true }
 

@@ -11,7 +11,7 @@
 ### 变更
 
 - **LSP 客户端** — 移除 `lsp4ij` 依赖，迁移到 IntelliJ IDEA 2026.2 内置的 LSP 客户端（`com.intellij.modules.lsp`）。折叠、结构视图、面包屑、参数信息、代码透镜和语义高亮改由平台提供。
-- **tinymist 配置** — JSON 配置通过 LSP `initializationOptions` 发送，并可在 Settings | Tools | Typst 中编辑。
+- **tinymist 配置** — JSON 配置通过 LSP `initializationOptions` 发送，并可在 Settings | Tools | Typst 中编辑，支持 JSON 语法高亮、基于 Schema 的校验与补全。
 
 ### 移除
 

@@ -4,6 +4,7 @@ import com.github.ixmoyren.typilot.lsp.TypstLspIntegrationProvider
 import com.github.ixmoyren.typilot.lsp.services.TinymistLocateService
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.util.Disposer
 import com.intellij.platform.lsp.api.LspClientManager
 import javax.swing.JComponent
 
@@ -42,6 +43,7 @@ class TinymistConfigurable : Configurable {
     }
 
     override fun disposeUIResources() {
+        settingsForm?.let { Disposer.dispose(it) }
         settingsForm = null
     }
 

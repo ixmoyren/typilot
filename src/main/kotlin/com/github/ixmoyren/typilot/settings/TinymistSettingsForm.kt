@@ -4,17 +4,25 @@ import com.github.ixmoyren.typilot.TypilotBundle
 import com.github.ixmoyren.typilot.lsp.services.TinymistDownloadService
 import com.github.ixmoyren.typilot.lsp.services.TinymistFindService
 import com.github.ixmoyren.typilot.lsp.services.TinymistLocateService
+import com.github.ixmoyren.typilot.settings.jsonSchema.TinymistConfigurationJsonTextField
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.event.DocumentEvent
+import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.observable.properties.PropertyGraph
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.openapi.ui.setEmptyState
+import com.intellij.openapi.util.Disposer
 import com.intellij.ui.dsl.builder.*
 import java.awt.BorderLayout
+import java.awt.Dimension
 import javax.swing.JLabel
 import javax.swing.JPanel
 
-class TinymistSettingsForm : JPanel() {
+class TinymistSettingsForm : JPanel(), Disposable {
     private val settings
         get() = TinymistSettings.getInstance()
 
@@ -24,6 +32,13 @@ class TinymistSettingsForm : JPanel() {
     val serverConfiguration = properties.property(settings.serverConfiguration)
     var tinymistTextFieldBrowseButton: TextFieldWithBrowseButton = TextFieldWithBrowseButton()
     lateinit var tinymistVersionHint: Cell<JLabel>
+
+    /** JSON editor associated with the tinymist settings JSON schema. */
+    val serverConfigurationEditor =
+        TinymistConfigurationJsonTextField(projectForEditor()).apply {
+            text = settings.serverConfiguration
+            preferredSize = Dimension(600, 300)
+        }
 
     private val generalSettingsGroup = panel {
         group(TypilotBundle["settings.tinymist.panel.title"]) {
@@ -89,13 +104,20 @@ class TinymistSettingsForm : JPanel() {
         }
         group(TypilotBundle["settings.serverConfiguration.panel.title"]) {
             row {
-                    textArea().rows(15).align(Align.FILL).bindText(serverConfiguration).comment(TypilotBundle["settings.serverConfiguration.panel.comment"])
+                    cell(serverConfigurationEditor).align(Align.FILL).comment(TypilotBundle["settings.serverConfiguration.panel.comment"])
                 }
                 .resizableRow()
         }
     }
 
     init {
+        serverConfigurationEditor.addDocumentListener(
+            object : DocumentListener {
+                override fun documentChanged(event: DocumentEvent) {
+                    serverConfiguration.set(serverConfigurationEditor.text)
+                }
+            })
+
         layout = BorderLayout()
         add(
             panel {
@@ -106,12 +128,23 @@ class TinymistSettingsForm : JPanel() {
     fun reset() {
         tinymistPath.set(settings.tinymistPath)
         serverConfiguration.set(settings.serverConfiguration)
+        serverConfigurationEditor.text = settings.serverConfiguration
         tinymistTextFieldBrowseButton.setEmptyState(getEmptyState(TinymistLocateService.getInstance().firstValidLocator?.locate()))
         tinymistVersionHint.applyToComponent {
             isVisible = false
             text = TypilotBundle["settings.tinymist.panel.versionHint"]
         }
     }
+
+    override fun dispose() {
+        Disposer.dispose(serverConfigurationEditor)
+    }
+
+    /**
+     * The settings page is application-level and has no project of its own. The JSON editor still needs one for the JSON plugin to resolve the schema, so use the first open
+     * project or the default project.
+     */
+    private fun projectForEditor(): Project = ProjectManager.getInstance().openProjects.firstOrNull { !it.isDefault } ?: ProjectManager.getInstance().defaultProject
 
     private fun getEmptyState(resolvedPath: String?): String {
         return if (resolvedPath != null) {

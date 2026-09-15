@@ -2,7 +2,7 @@
 
 ![Build](https://github.com/ixmoyren/typilot/workflows/Build/badge.svg)
 
-An IntelliJ IDEA plugin for the [Typst](https://typst.org/) language, built on `typst-syntax`, `endive`, `tinymist` and `lsp4ij`.
+An IntelliJ IDEA plugin for the [Typst](https://typst.org/) language, built on `typst-syntax`, `endive`, `tinymist` and the IDE's built-in LSP client.
 
 ## Features
 
@@ -20,7 +20,7 @@ An IntelliJ IDEA plugin for the [Typst](https://typst.org/) language, built on `
 ┌────────────────────────────────────────────────────────┐
 │                 IntelliJ IDEA Plugin                   │
 │  ┌──────────────┐ ┌───────────┐ ┌───────────────────┐  │
-│  │ PSI / Lexing │ │ Preview   │ │ LSP (via LSP4IJ)  │  │
+│  │ PSI / Lexing │ │ Preview   │ │ LSP (built-in)    │  │
 │  │ (WASM/JVM)   │ │ (JCEF)    │ │ (tinymist proc)   │  │
 │  └──────┬───────┘ └───────────┘ └─────────┬─────────┘  │
 └─────────┼─────────────────────────────────┼────────────┘
@@ -38,7 +38,7 @@ An IntelliJ IDEA plugin for the [Typst](https://typst.org/) language, built on `
 
 2. **WASM → Java Bridge** — Uses [Endive](https://endive.run/) (an endive-based WASM-to-Java toolchain) to compile the WASM binary to Java bytecode. The `Core` interface provides `tokenize()`, `parse()`, and `version()` methods directly callable from JVM languages.
 
-3. **Plugin** — Consumes the wrapped Java API for lexing (`TypstLexer`) and parsing (`TypstParser`), building a full PSI tree. LSP features are handled by LSP4IJ delegating to an external `tinymist` process. Preview uses JCEF to connect to tinymist's preview endpoint.
+3. **Plugin** — Consumes the wrapped Java API for lexing (`TypstLexer`) and parsing (`TypstParser`), building a full PSI tree. LSP features are handled by the IDE's built-in LSP client delegating to an external `tinymist` process. Preview uses JCEF to connect to tinymist's preview endpoint.
 
 ## Prerequisites
 
@@ -116,7 +116,7 @@ This runs all 6 steps above sequentially.
               │   IntelliJ IDEA Plugin           │
               │   - TypstLexer → tokenize()      │
               │   - TypstParser → parse()        │
-              │   - LSP4IJ → tinymist            │
+              │   - Built-in LSP → tinymist       │
               └──────────────────────────────────┘
 ```
 

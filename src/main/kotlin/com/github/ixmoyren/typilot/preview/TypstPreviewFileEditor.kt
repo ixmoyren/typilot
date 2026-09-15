@@ -1,6 +1,8 @@
 package com.github.ixmoyren.typilot.preview
 
-import com.github.ixmoyren.typilot.TYPST_LANGUAGE_SERVER_ID
+import com.github.ixmoyren.typilot.lsp.TinymistCommands
+import com.github.ixmoyren.typilot.lsp.TinymistLspService
+import com.github.ixmoyren.typilot.lsp.TinymistServerStartedListener
 import com.google.gson.Gson
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
@@ -12,12 +14,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.jcef.JBCefApp
 import com.intellij.ui.jcef.JCEFHtmlPanel
-import com.redhat.devtools.lsp4ij.LanguageServerWrapper
-import com.redhat.devtools.lsp4ij.ServerStatus
-import com.redhat.devtools.lsp4ij.commands.CommandExecutor
-import com.redhat.devtools.lsp4ij.commands.LSPCommandContext
-import com.redhat.devtools.lsp4ij.lifecycle.LanguageServerLifecycleListener
-import com.redhat.devtools.lsp4ij.lifecycle.LanguageServerLifecycleManager
 import java.beans.PropertyChangeListener
 import java.util.*
 import javax.swing.JComponent
@@ -27,9 +23,6 @@ import org.cef.browser.CefFrame
 import org.cef.handler.CefLoadHandler
 import org.cef.handler.CefLoadHandlerAdapter
 import org.cef.network.CefRequest
-import org.eclipse.lsp4j.Command
-import org.eclipse.lsp4j.jsonrpc.MessageConsumer
-import org.eclipse.lsp4j.jsonrpc.messages.Message
 
 @Suppress("UnstableApiUsage")
 class TypstPreviewFileEditor(private val project: Project, private val virtualFile: VirtualFile) : JCEFHtmlPanel(false, null, null), FileEditor {
@@ -48,7 +41,7 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
 
     private val maxRetryCount = 10
 
-    private var serverRestartListener: LanguageServerLifecycleListener? = null
+    private val serverStartedListener = TinymistServerStartedListener { onTinymistServerStarted() }
 
     private var unsupportedLabel: JLabel? = null
 
@@ -59,7 +52,7 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
         } else {
             logger.info("JCEF is supported, setting up browser.")
             setupLoadHandler()
-            registerServerRestartListener()
+            registerServerStartedListener()
             ApplicationManager.getApplication().invokeLater {
                 if (!isDisposed) {
                     startPreview()
@@ -71,68 +64,45 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
         logger.info("TypstPreviewFileEditor: Initialization complete.")
     }
 
-    private fun registerServerRestartListener() {
-        val listener =
-            object : LanguageServerLifecycleListener {
-                override fun handleStatusChanged(languageServer: LanguageServerWrapper) {
-                    if (languageServer.serverDefinition.id != TYPST_LANGUAGE_SERVER_ID) return
-                    if (languageServer.serverStatus != ServerStatus.started) return
-                    if (isDisposed) return
+    private fun registerServerStartedListener() {
+        TinymistLspService.getInstance(project).addListener(serverStartedListener)
+    }
 
-                    if (previewUrl != null || previewTaskId != null) {
-                        logger.info("tinymist restarted, resetting preview state and restarting preview.")
-                        previewUrl = null
-                        previewTaskId = null
-                        startPreview()
-                    }
-                }
-
-                override fun handleLSPMessage(message: Message, messageConsumer: MessageConsumer, languageServer: LanguageServerWrapper) = Unit
-
-                override fun handleError(languageServer: LanguageServerWrapper, exception: Throwable) = Unit
-
-                override fun dispose() = Unit
-            }
-
-        LanguageServerLifecycleManager.getInstance(project).addLanguageServerLifecycleListener(listener)
-        serverRestartListener = listener
+    private fun onTinymistServerStarted() {
+        if (isDisposed) return
+        if (previewUrl != null || previewTaskId != null) {
+            logger.info("tinymist (re)started, resetting preview state and restarting preview.")
+            previewUrl = null
+            previewTaskId = null
+            startPreview()
+        }
     }
 
     private fun startPreview() {
-        val fsPath = virtualFile.path
-        val taskId = UUID.randomUUID().toString().substring(0, 7)
-        val previewArgs = listOf("--task-id", taskId, "--data-plane-host", "127.0.0.1:0", fsPath)
-        val args: List<Any> = listOf(previewArgs)
-        val command = Command("Preview", PREVIEW_COMMAND, args)
-        val context = LSPCommandContext(command, project).setPreferredLanguageServerId(TYPST_LANGUAGE_SERVER_ID)
+        if (isDisposed) return
+        val file = virtualFile
+        ApplicationManager.getApplication().executeOnPooledThread {
+            if (isDisposed) return@executeOnPooledThread
+            val taskId = UUID.randomUUID().toString().substring(0, 7)
+            val result = TinymistCommands.startPreview(project, file, taskId)
+            if (result == null) {
+                logger.warn("Command ${PREVIEW_COMMAND} failed or tinymist is not running")
+                showErrorHtml("typst-preview.preview command not found. Is tinymist running?")
+                return@executeOnPooledThread
+            }
 
-        val response = CommandExecutor.executeCommand(context)
-        if (!response.exists()) {
-            logger.warn("Command $PREVIEW_COMMAND not found on server $TYPST_LANGUAGE_SERVER_ID")
-            showErrorHtml("typst-preview.preview command not found. Is tinymist running?")
-            return
+            val url = extractPreviewUrl(result)
+            if (url != null) {
+                logger.info("Preview URL: $url")
+                previewUrl = url
+                previewTaskId = taskId
+                loadRetryCount = 0
+                loadUrlSafely(url)
+            } else {
+                logger.warn("Cannot extract preview URL from result: $result")
+                showErrorHtml("Could not get preview URL from tinymist (result=$result)")
+            }
         }
-
-        response
-            .response()
-            ?.thenAccept { result ->
-                val url = extractPreviewUrl(result)
-                if (url != null) {
-                    logger.info("Preview URL: $url")
-                    previewUrl = url
-                    previewTaskId = taskId
-                    loadRetryCount = 0
-                    loadUrlSafely(url)
-                } else {
-                    logger.warn("Cannot extract preview URL from result: $result")
-                    showErrorHtml("Could not get preview URL from tinymist (result=$result)")
-                }
-            }
-            ?.exceptionally { error ->
-                logger.warn("Error starting preview: ${error.message}")
-                showErrorHtml("Error starting preview: ${error.message}")
-                null
-            }
     }
 
     private fun extractPreviewUrl(result: Any?): String? =
@@ -208,14 +178,8 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
 
     override fun dispose() {
         logger.info("Disposing editor...")
-        serverRestartListener?.let {
-            LanguageServerLifecycleManager.getInstance(project)?.removeLanguageServerLifecycleListener(it)
-            serverRestartListener = null
-        }
-        previewTaskId?.let { tid ->
-            val cmd = Command("KillPreview", "tinymist.doKillPreview", listOf(listOf(tid)))
-            CommandExecutor.executeCommand(LSPCommandContext(cmd, project).setPreferredLanguageServerId(TYPST_LANGUAGE_SERVER_ID))
-        }
+        runCatching { TinymistLspService.getInstance(project).removeListener(serverStartedListener) }
+        previewTaskId?.let { taskId -> TinymistCommands.killPreview(project, taskId) }
         runCatching {
                 if (JBCefApp.isSupported() && !isDisposed) cefBrowser.stopLoad()
             }
@@ -273,7 +237,7 @@ class TypstPreviewFileEditor(private val project: Project, private val virtualFi
     }
 
     companion object {
-        private const val PREVIEW_COMMAND = "tinymist.doStartPreview"
+        private const val PREVIEW_COMMAND = TinymistCommands.START_PREVIEW_COMMAND
     }
 }
 

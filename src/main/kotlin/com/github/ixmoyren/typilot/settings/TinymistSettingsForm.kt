@@ -21,6 +21,7 @@ class TinymistSettingsForm : JPanel() {
     private val properties = PropertyGraph()
 
     val tinymistPath = properties.property(settings.tinymistPath)
+    val serverConfiguration = properties.property(settings.serverConfiguration)
     var tinymistTextFieldBrowseButton: TextFieldWithBrowseButton = TextFieldWithBrowseButton()
     lateinit var tinymistVersionHint: Cell<JLabel>
 
@@ -86,6 +87,12 @@ class TinymistSettingsForm : JPanel() {
                     .comment(TypilotBundle["settings.tinymist.panel.tinymistDownload.comment"])
             }
         }
+        group(TypilotBundle["settings.serverConfiguration.panel.title"]) {
+            row {
+                    textArea().rows(15).align(Align.FILL).bindText(serverConfiguration).comment(TypilotBundle["settings.serverConfiguration.panel.comment"])
+                }
+                .resizableRow()
+        }
     }
 
     init {
@@ -98,6 +105,7 @@ class TinymistSettingsForm : JPanel() {
 
     fun reset() {
         tinymistPath.set(settings.tinymistPath)
+        serverConfiguration.set(settings.serverConfiguration)
         tinymistTextFieldBrowseButton.setEmptyState(getEmptyState(TinymistLocateService.getInstance().firstValidLocator?.locate()))
         tinymistVersionHint.applyToComponent {
             isVisible = false

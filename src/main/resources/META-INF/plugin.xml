@@ -10,16 +10,17 @@
             <li><b>Full PSI & Syntax Highlighting</b> — WASM-based lexer and parser covering all Typst syntax (markup, math, code) with lexical and semantic highlighting, rainbow brackets, and customizable color schemes.</li>
             <li><b>Export PDF</b> — export the current Typst document to PDF via editor actions, context menus, or CodeLens inline buttons.</li>
             <li><b>Language Injection</b> — syntax highlighting for 90+ languages inside Typst raw code blocks (e.g. ```rust).</li>
-            <li><b>Comprehensive Settings</b> — full tinymist configuration schema (output, formatting, preview, completion, linting, etc.) and auto-setup that finds or downloads the server binary.</li>
+            <li><b>Comprehensive Settings</b> — editable tinymist JSON configuration (output, formatting, preview, completion, linting, etc.) and auto-setup that finds or downloads the server binary.</li>
         </ul>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
+    <!-- LSP support is built into IntelliJ IDEA 2026.2+. -->
+    <depends>com.intellij.modules.lsp</depends>
     <depends>com.intellij.modules.jcef</depends>
     <depends>com.intellij.modules.spellchecker</depends>
     <depends>com.intellij.java</depends>
-    <depends>com.redhat.devtools.lsp4ij</depends>
 
     <idea-version since-build="262"/>
 
@@ -42,22 +43,10 @@
                 language="Typst"
                 implementationClass="com.github.ixmoyren.typilot.highlight.TypstSyntaxHighlighterFactory"/>
 
-        <lang.foldingBuilder
-                language="Typst"
-                implementationClass="com.redhat.devtools.lsp4ij.features.foldingRange.LSPFoldingRangeBuilder"
-                order="first"/>
-
-        <lang.psiStructureViewFactory language="Typst"
-                                      implementationClass="com.redhat.devtools.lsp4ij.features.documentSymbol.LSPDocumentSymbolStructureViewFactory"
-                                      order="first"/>
-
-        <codeBlockProvider language="Typst"
-                           implementationClass="com.redhat.devtools.lsp4ij.features.codeBlockProvider.LSPCodeBlockProvider"
-                           order="first"/>
-
-        <codeInsight.parameterInfo
-                language="Typst"
-                implementationClass="com.redhat.devtools.lsp4ij.features.signatureHelp.LSPParameterInfoHandler"/>
+        <!-- Folding ranges, structure view, breadcrumbs, parameter info and code vision are
+             provided by the built-in LSP client (com.intellij.modules.lsp). -->
+        <platform.lsp.integrationProvider
+                implementation="com.github.ixmoyren.typilot.lsp.TypstLspIntegrationProvider"/>
 
         <annotator
                 language="Typst"
@@ -96,23 +85,6 @@
 
         <notificationGroup id="Typst" displayType="BALLOON" bundle="messages.TypilotBundle"
                            key="notification.group.typilot"/>
-    </extensions>
-
-    <extensions defaultExtensionNs="com.redhat.devtools.lsp4ij">
-        <server id="tinymistServer"
-                name="Typst Language Server"
-                factoryClass="com.github.ixmoyren.typilot.lsp.TypstLanguageServerFactory">
-            <description><![CDATA[
-            Provides Typst language intelligence via the tinymist LSP.
-            ]]></description>
-        </server>
-        <languageMapping language="Typst"
-                         serverId="tinymistServer"
-                         languageId="typst"/>
-
-        <fileNamePatternMapping patterns="*.typ"
-                                serverId="tinymistServer"
-                                languageId="typst"/>
     </extensions>
 
     <actions resource-bundle="messages.TypilotBundle">

@@ -2,13 +2,6 @@
   "id": "tinymist-installer",
   "name": "Tinymist(Typst Language Server)",
   "executeOnStartServer": false,
-  "check": {
-    "exec": {
-      "name": "Check tinymist installation",
-      "command": "${server.command}",
-      "timeout": 3000
-    }
-  },
   "run": {
     "download": {
       "name": "Download tinymist from GitHub",
@@ -29,26 +22,6 @@
             "x86_64": "tinymist-darwin-x64",
             "aarch64": "tinymist-darwin-arm64"
           }
-        }
-      },
-      "output": {
-        "dir": "$USER_HOME$/.lsp4ij/lsp/tinymist",
-        "file": {
-          "name": {
-            "windows": "tinymist.exe",
-            "default": "tinymist"
-          },
-          "executable": true
-        }
-      },
-      "onSuccess": {
-        "configureServer": {
-          "name": "Configure tinymist server command",
-          "command": {
-            "windows": "$USER_HOME$/.lsp4ij/lsp/tinymist/tinymist.exe lsp",
-            "default": "$USER_HOME$/.lsp4ij/lsp/tinymist/tinymist lsp"
-          },
-          "update": true
         }
       }
     }

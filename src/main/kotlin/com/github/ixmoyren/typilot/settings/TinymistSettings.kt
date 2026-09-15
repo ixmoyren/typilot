@@ -1,5 +1,6 @@
 package com.github.ixmoyren.typilot.settings
 
+import com.github.ixmoyren.typilot.lsp.config.TinymistServerConfiguration
 import com.intellij.openapi.components.*
 import com.intellij.util.xmlb.XmlSerializerUtil.copyBean
 
@@ -8,6 +9,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil.copyBean
 class TinymistSettings : PersistentStateComponent<TinymistSettings.State> {
     data class State(
         var tinymistPath: String = "",
+        var serverConfiguration: String = TinymistServerConfiguration.DEFAULT_CONFIGURATION,
     )
 
     private var state = State()
@@ -16,6 +18,12 @@ class TinymistSettings : PersistentStateComponent<TinymistSettings.State> {
         get() = state.tinymistPath
         set(value) {
             state.tinymistPath = value
+        }
+
+    var serverConfiguration: String
+        get() = state.serverConfiguration.ifBlank { TinymistServerConfiguration.DEFAULT_CONFIGURATION }
+        set(value) {
+            state.serverConfiguration = value
         }
 
     override fun getState(): State = state

@@ -2,6 +2,8 @@ package com.github.ixmoyren.typilot
 
 import com.github.ixmoyren.typilot.lsp.config.TINYMIST_GITHUB_DOWNLOAD_URL
 import com.github.ixmoyren.typilot.lsp.config.TINYMIST_INSTALLER_CONFIG
+import com.github.ixmoyren.typilot.lsp.config.TinymistServerConfiguration
+import com.google.gson.JsonObject
 import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.xml.XmlFile
@@ -45,6 +47,14 @@ class MyPluginTest : BasePlatformTestCase() {
             assertTrue(url.contains("https://github.com/Myriad-Dreamin/tinymist/releases/download"))
             assertTrue(url.contains("tinymist-linux-x64"))
         }
+    }
+
+    fun testTinymistServerConfigurationIsValid() {
+        val configuration = TinymistServerConfiguration.parse()
+        assertTrue(configuration is JsonObject)
+        val json = configuration as JsonObject
+        assertEquals("enable", json.get("semanticTokens").asString)
+        assertEquals("typstyle", json.get("formatterMode").asString)
     }
 
     override fun getTestDataPath() = "src/test/testData/rename"

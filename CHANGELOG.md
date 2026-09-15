@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- **LSP client** — replaced the `lsp4ij` dependency with IntelliJ IDEA 2026.2's built-in LSP client (`com.intellij.modules.lsp`). Folding, structure view, breadcrumbs, parameter info, code vision and semantic highlighting are now provided by the platform.
+- **tinymist configuration** — the JSON configuration is sent as LSP `initializationOptions` and is editable in Settings | Tools | Typst.
+
+### Removed
+
+- Removed the `lsp4ij` plugin dependency.
+
 ## [0.3.2] - 2026-07-08
 
 ### Added

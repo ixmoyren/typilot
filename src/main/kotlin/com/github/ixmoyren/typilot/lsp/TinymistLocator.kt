@@ -1,7 +1,6 @@
 package com.github.ixmoyren.typilot.lsp
 
 import com.github.ixmoyren.typilot.TypalizeUtils.isBinaryExecutable
-import com.github.ixmoyren.typilot.lsp.config.TinymistInstaller
 import com.github.ixmoyren.typilot.settings.TinymistSettings
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.util.ExecUtil
@@ -18,15 +17,12 @@ fun interface TinymistLocator {
     }
 }
 
-class TinymistInstallerLocator(private val installer: TinymistInstaller) : TinymistLocator {
-    override fun locate(): String? = installer.commandLine
-}
-
 @Service(Service.Level.APP)
 class ConfigureLocator : TinymistLocator {
-    private val configuredPath = TinymistSettings.getInstance().tinymistPath
-
-    override fun locate(): String? = configuredPath.takeIf { it.isNotBlank() && isBinaryExecutable(File(it)) }
+    override fun locate(): String? {
+        val configuredPath = TinymistSettings.getInstance().tinymistPath
+        return configuredPath.takeIf { it.isNotBlank() && isBinaryExecutable(File(it)) }
+    }
 
     companion object {
         fun getInstance(): ConfigureLocator = ApplicationManager.getApplication().getService(ConfigureLocator::class.java)

@@ -2,7 +2,7 @@
 
 ![Build](https://github.com/ixmoyren/typilot/workflows/Build/badge.svg)
 
-基于 `typst-syntax`、`endive`、`tinymist` 和 `lsp4ij` 构建的 [Typst](https://typst.org/) 语言 IntelliJ IDEA 插件。
+基于 `typst-syntax`、`endive`、`tinymist` 和 IDE 内置 LSP 客户端构建的 [Typst](https://typst.org/) 语言 IntelliJ IDEA 插件。
 
 ## 功能特性
 
@@ -20,7 +20,7 @@
 ┌───────────────────────────────────────────────────────┐
 │                 IntelliJ IDEA Plugin                  │
 │  ┌──────────────┐ ┌───────────┐ ┌──────────────────┐  │
-│  │ PSI/词法分析  │ │ 预览       │ │ LSP（via LSP4IJ）│  │
+│  │ PSI/词法分析  │ │ 预览       │ │ LSP（built-in）   │  │
 │  │ (WASM/JVM)   │ │ (JCEF)    │ │ (tinymist 进程)  │  │
 │  └──────┬───────┘ └───────────┘ └─────────┬─────────┘ │
 └─────────┼─────────────────────────────────┼───────────┘
@@ -38,7 +38,7 @@
 
 2. **WASM → Java 桥接** — 使用 [Endive](https://endive.run/)（基于 endive 的 WASM 转 Java 工具链）将 WASM 二进制文件编译为 Java 字节码。 `Core` 接口提供 `tokenize()`、`parse()`、`version()` 方法，可直接在 JVM 语言中调用。
 
-3. **插件** — 调用封装的 Java API 实现词法分析（`TypstLexer`）和语法解析（`TypstParser`），构建完整的 PSI 树。LSP 功能通过 LSP4IJ 委托给外部的 `tinymist` 进程处理。预览功能通过 JCEF 连接 tinymist 的预览端点。
+3. **插件** — 调用封装的 Java API 实现词法分析（`TypstLexer`）和语法解析（`TypstParser`），构建完整的 PSI 树。LSP 功能通过 IDE 内置的 LSP 客户端委托给外部的 `tinymist` 进程处理。预览功能通过 JCEF 连接 tinymist 的预览端点。
 
 ## 环境要求
 
@@ -115,7 +115,7 @@ cargo xtask generate
               │   IntelliJ IDEA Plugin           │
               │   - TypstLexer → tokenize()      │
               │   - TypstParser → parse()        │
-              │   - LSP4IJ → tinymist            │
+              │   - Built-in LSP → tinymist       │
               └──────────────────────────────────┘
 ```
 

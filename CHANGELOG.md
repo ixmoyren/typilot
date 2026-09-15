@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **Built-in function navigation** — "Go to Declaration" on a standard library function such as `text` or `page` now opens its page in the Typst documentation. `tinymist` returns no definition for built-ins because they are not declared in any source file.
+
 ### Changed
 
 - **LSP client** — replaced the `lsp4ij` dependency with IntelliJ IDEA 2026.2's built-in LSP client (`com.intellij.modules.lsp`). Folding, structure view, breadcrumbs, parameter info, code vision and semantic highlighting are now provided by the platform.

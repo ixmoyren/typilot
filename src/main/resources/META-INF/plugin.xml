@@ -53,6 +53,10 @@
                 language="Typst"
                 implementationClass="com.github.ixmoyren.typilot.highlight.TypstHighlightAnnotator"/>
 
+        <!-- Built-in functions have no definition in any source file, so tinymist cannot navigate to them. This provider opens their page in the Typst documentation instead. -->
+        <lang.directNavigationProvider
+                implementation="com.github.ixmoyren.typilot.navigation.TypstBuiltinNavigationProvider"/>
+
         <colorSettingsPage
                 implementation="com.github.ixmoyren.typilot.highlight.TypstColorSettingsPage"/>
 

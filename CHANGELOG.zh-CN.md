@@ -8,6 +8,10 @@
 
 ## [未发布]
 
+### 新增
+
+- **内置函数跳转** — 对 `text`、`page` 等标准库函数执行 “Go to Declaration” 时会打开 Typst 官方文档对应页面。由于内置函数没有源文件声明位置，`tinymist` 不会返回其定义。
+
 ### 变更
 
 - **LSP 客户端** — 移除 `lsp4ij` 依赖，迁移到 IntelliJ IDEA 2026.2 内置的 LSP 客户端（`com.intellij.modules.lsp`）。折叠、结构视图、面包屑、参数信息、代码透镜和语义高亮改由平台提供。

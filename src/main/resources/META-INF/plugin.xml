@@ -57,6 +57,12 @@
         <lang.directNavigationProvider
                 implementation="com.github.ixmoyren.typilot.navigation.TypstBuiltinNavigationProvider"/>
 
+        <!-- Resolves Go To Declaration for user-defined Typst functions directly through the built-in LSP client. Runs before other handlers so a full IDE's LSP plugins cannot pre-empt it. -->
+        <gotoDeclarationHandler
+                id="TypstLspGotoDeclarationHandler"
+                order="first"
+                implementation="com.github.ixmoyren.typilot.navigation.TypstLspGotoDeclarationHandler"/>
+
         <colorSettingsPage
                 implementation="com.github.ixmoyren.typilot.highlight.TypstColorSettingsPage"/>
 

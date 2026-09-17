@@ -3,6 +3,7 @@ package com.github.ixmoyren.typilot
 import com.github.ixmoyren.typilot.language.TypstFileType
 import com.github.ixmoyren.typilot.lsp.TypstLspClientDescriptor
 import com.github.ixmoyren.typilot.lsp.TypstLspIntegrationProvider
+import com.github.ixmoyren.typilot.lsp.isTypstFile
 import com.github.ixmoyren.typilot.lsp.services.TinymistFindService
 import com.intellij.platform.lsp.api.LspClient
 import com.intellij.platform.lsp.api.LspClientManager
@@ -19,10 +20,13 @@ import org.junit.Assume
 class TypstLspIntegrationTest : BasePlatformTestCase() {
 
     fun testTinymistServerStartsThroughBuiltInLspClient() {
-        Assume.assumeTrue("tinymist is not installed, skipping the integration test", TinymistFindService.getInstance().locate() != null)
+        Assume.assumeTrue(
+            "tinymist is not installed, skipping the integration test",
+            TinymistFindService.getInstance().locate() != null
+        )
 
         val file = myFixture.configureByText(TypstFileType, "#set page(width: 10cm)\n= Hello\n").virtualFile
-        assertTrue(TypstLspIntegrationProvider.isTypstFile(file))
+        assertTrue(isTypstFile(file))
 
         val client = awaitRunningClient()
         assertNotNull("tinymist did not reach the Running state", client)
@@ -45,10 +49,12 @@ class TypstLspIntegrationTest : BasePlatformTestCase() {
         PlatformTestUtil.waitWithEventsDispatching(
             "tinymist did not start in time",
             {
-                client = manager.getClients(TypstLspIntegrationProvider::class.java).firstOrNull { it.state == LspServerState.Running }
+                client = manager.getClients(TypstLspIntegrationProvider::class.java)
+                    .firstOrNull { it.state == LspServerState.Running }
                 client != null
             },
-            60)
+            60
+        )
         return client
     }
 }

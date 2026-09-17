@@ -12,7 +12,11 @@ import com.intellij.platform.lsp.api.lsWidget.LspClientWidgetItem
 /** Starts the `tinymist` language server through the IntelliJ Platform's built-in LSP client whenever a Typst file is opened in the editor. */
 class TypstLspIntegrationProvider : LspIntegrationProvider {
 
-    override fun fileOpened(project: Project, file: VirtualFile, clientStarter: LspIntegrationProvider.LspClientStarter) {
+    override fun fileOpened(
+        project: Project,
+        file: VirtualFile,
+        clientStarter: LspIntegrationProvider.LspClientStarter
+    ) {
         if (isTypstFile(file)) {
             clientStarter.ensureClientStarted(TypstLspClientDescriptor(project))
         }
@@ -21,7 +25,6 @@ class TypstLspIntegrationProvider : LspIntegrationProvider {
     override fun createWidgetItem(lspClient: LspClient, currentFile: VirtualFile?): LspClientWidgetItem =
         LspClientWidgetItem(lspClient, currentFile, TypstFileIcon.FILE, TinymistConfigurable::class.java)
 
-    companion object {
-        fun isTypstFile(file: VirtualFile): Boolean = file.fileType == TypstFileType
-    }
 }
+
+fun isTypstFile(file: VirtualFile): Boolean = file.fileType == TypstFileType

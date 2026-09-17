@@ -1,18 +1,7 @@
 package com.github.ixmoyren.typilot.navigation
 
 import com.github.ixmoyren.typalize.TypstSyntaxKind
-import com.github.ixmoyren.typilot.psi.TypstClosurePsiElement
-import com.github.ixmoyren.typilot.psi.TypstDestructuringPsiElement
-import com.github.ixmoyren.typilot.psi.TypstForLoopPsiElement
-import com.github.ixmoyren.typilot.psi.TypstFuncCallPsiElement
-import com.github.ixmoyren.typilot.psi.TypstImportItemPathPsiElement
-import com.github.ixmoyren.typilot.psi.TypstLetBindingPsiElement
-import com.github.ixmoyren.typilot.psi.TypstParamsPsiElement
-import com.github.ixmoyren.typilot.psi.TypstRenamedImportItemPsiElement
-import com.github.ixmoyren.typilot.psi.TypstSetRulePsiElement
-import com.github.ixmoyren.typilot.psi.TypstShowRulePsiElement
-import com.github.ixmoyren.typilot.psi.TypstSpreadPsiElement
-import com.github.ixmoyren.typilot.psi.TypstTokenType
+import com.github.ixmoyren.typilot.psi.*
 import com.intellij.navigation.DirectNavigationProvider
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
@@ -25,6 +14,7 @@ import com.intellij.psi.PsiRecursiveElementWalkingVisitor
  * documentation page is the closest equivalent of jumping to a definition. The provider only takes over when the identifier is a function call of a documented built-in and that
  * name is not declared in the current file, so user-defined and imported functions keep their regular LSP navigation.
  */
+@Suppress("UnstableApiUsage")
 class TypstBuiltinNavigationProvider : DirectNavigationProvider {
 
     override fun getNavigationElement(element: PsiElement): PsiElement? {
@@ -37,15 +27,15 @@ class TypstBuiltinNavigationProvider : DirectNavigationProvider {
     /** True when [element] names a function in a call such as `text(...)`, or a set/show rule such as `set text(...)` and `show text: ...`. */
     private fun isBuiltinFunctionIdentifier(element: PsiElement): Boolean {
         val kind = (element.node?.elementType as? TypstTokenType)?.kind
-        if (kind != TypstSyntaxKind.Ident()) return false
-        return when (val parent = element.parent) {
-            is TypstFuncCallPsiElement -> parent.getIndentPsiElement()?.textRange == element.textRange
+        return kind == TypstSyntaxKind.Ident() &&
+            when (val parent = element.parent) {
+                is TypstFuncCallPsiElement -> parent.getIndentPsiElement()?.textRange == element.textRange
 
-            is TypstSetRulePsiElement,
-            is TypstShowRulePsiElement -> firstIdentChild(parent)?.textRange == element.textRange
+                is TypstSetRulePsiElement,
+                is TypstShowRulePsiElement -> firstIdentChild(parent)?.textRange == element.textRange
 
-            else -> false
-        }
+                else -> false
+            }
     }
 
     private fun firstIdentChild(element: PsiElement): PsiElement? =

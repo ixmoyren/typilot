@@ -17,8 +17,8 @@ import java.awt.BorderLayout
 import javax.swing.JPanel
 
 /**
- * A JSON editor for the tinymist configuration. Its underlying in-memory file is named [TinymistJsonSchemaFileProvider.JSON_FILE_NAME], so the JSON plugin associates it with the
- * tinymist JSON schema and provides syntax highlighting, validation and completion.
+ * A JSON editor for the tinymist configuration. Its underlying in-memory file gets a name from [TinymistJsonSchemaFileProvider.uniqueFileName], so the JSON plugin associates it
+ * with the tinymist JSON schema and provides syntax highlighting, validation and completion.
  */
 class TinymistConfigurationJsonTextField(private val project: Project) : JPanel(BorderLayout()), Disposable {
 
@@ -65,7 +65,7 @@ class TinymistConfigurationJsonTextField(private val project: Project) : JPanel(
 
     private fun applySchemaFileName() {
         val file = FileDocumentManager.getInstance().getFile(editorTextField.document) ?: return
-        if (file.name == TinymistJsonSchemaFileProvider.JSON_FILE_NAME) return
-        runCatching { file.rename(this, TinymistJsonSchemaFileProvider.JSON_FILE_NAME) }
+        if (TinymistJsonSchemaFileProvider.isTinymistSettingsFile(file)) return
+        runCatching { file.rename(this, TinymistJsonSchemaFileProvider.uniqueFileName()) }
     }
 }

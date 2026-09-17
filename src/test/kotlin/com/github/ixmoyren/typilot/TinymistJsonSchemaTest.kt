@@ -24,8 +24,10 @@ class TinymistJsonSchemaTest : BasePlatformTestCase() {
         val provider = TinymistJsonSchemaFileProvider()
 
         val matching = myFixture.tempDirFixture.createFile(TinymistJsonSchemaFileProvider.JSON_FILE_NAME, "{}")
+        val unique = myFixture.tempDirFixture.createFile(TinymistJsonSchemaFileProvider.uniqueFileName(), "{}")
         val other = myFixture.tempDirFixture.createFile("unrelated.json", "{}")
         assertTrue(provider.isAvailable(matching))
+        assertTrue(provider.isAvailable(unique))
         assertFalse(provider.isAvailable(other))
 
         val schemaFile = provider.schemaFile
@@ -42,10 +44,26 @@ class TinymistJsonSchemaTest : BasePlatformTestCase() {
 
         val file = editor.underlyingFile
         assertNotNull("The JSON editor is not backed by a file", file)
-        assertEquals(TinymistJsonSchemaFileProvider.JSON_FILE_NAME, file!!.name)
+        assertTrue("Unexpected editor file name: ${file!!.name}", TinymistJsonSchemaFileProvider.isTinymistSettingsFile(file))
 
         val schemaFiles = JsonSchemaService.Impl.get(project).getSchemaFilesForFile(file)
         assertTrue("The tinymist schema is not associated with the editor. Found: ${schemaFiles.map { it.name }}", schemaFiles.any { it.name == "tinymist.settings.schema.json" })
+    }
+
+    fun testJsonEditorUsesUniqueLightFilePerEditor() {
+        val first = TinymistConfigurationJsonTextField(project)
+        val second = TinymistConfigurationJsonTextField(project)
+        Disposer.register(testRootDisposable, first)
+        Disposer.register(testRootDisposable, second)
+
+        val firstFile = first.underlyingFile
+        val secondFile = second.underlyingFile
+        assertNotNull(firstFile)
+        assertNotNull(secondFile)
+        assertTrue(TinymistJsonSchemaFileProvider.isTinymistSettingsFile(firstFile!!))
+        assertTrue(TinymistJsonSchemaFileProvider.isTinymistSettingsFile(secondFile!!))
+        assertNotSame("editors must not share a light file", firstFile, secondFile)
+        assertFalse("editors must not share a light file name", firstFile.name == secondFile.name)
     }
 
     fun testRestoreDefaultConfigurationResetsEditor() {

@@ -61,10 +61,10 @@ object TinymistCommands {
     fun killPreview(project: Project, taskId: String) {
         val client = findRunningClient(project) ?: return
         runCatching {
-                client.sendNotification {
-                    it.workspaceService.executeCommand(ExecuteCommandParams(KILL_PREVIEW_COMMAND, listOf(taskId)))
-                }
+            client.sendNotification {
+                it.workspaceService.executeCommand(ExecuteCommandParams(KILL_PREVIEW_COMMAND, listOf(taskId)))
             }
+        }
             .onFailure { e -> logger.warn("Failed to stop tinymist preview task $taskId: ${e.message}") }
     }
 

@@ -19,11 +19,11 @@ object TypstSyntaxKindUtils {
             }
             .mapNotNull { clazz ->
                 runCatching {
-                        val builderClass = Class.forName($$"$${clazz.name}$Builder")
-                        val builder = builderClass.getDeclaredConstructor().newInstance()
-                        val buildMethod = builderClass.getDeclaredMethod("build")
-                        buildMethod.invoke(builder) as TypstSyntaxKind
-                    }
+                    val builderClass = Class.forName($$"$${clazz.name}$Builder")
+                    val builder = builderClass.getDeclaredConstructor().newInstance()
+                    val buildMethod = builderClass.getDeclaredMethod("build")
+                    buildMethod.invoke(builder) as TypstSyntaxKind
+                }
                     .getOrNull()
             }
             .associateBy { it::class.java.simpleName }

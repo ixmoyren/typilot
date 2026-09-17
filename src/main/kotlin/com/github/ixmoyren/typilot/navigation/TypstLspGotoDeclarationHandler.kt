@@ -42,8 +42,8 @@ class TypstLspGotoDeclarationHandler : GotoDeclarationHandler {
         val params = DefinitionParams(client.getDocumentIdentifier(sourceFile), position)
         val result =
             runCatching {
-                    client.sendRequestSync(REQUEST_TIMEOUT_MS) { server -> server.textDocumentService.definition(params) }
-                }
+                client.sendRequestSync(REQUEST_TIMEOUT_MS) { server -> server.textDocumentService.definition(params) }
+            }
                 .getOrNull() ?: return null
 
         val targets = mutableListOf<PsiElement>()

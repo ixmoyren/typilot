@@ -61,17 +61,16 @@ class TinymistSettingsForm : JPanel(), Disposable {
 
                             button(TypilotBundle["settings.tinymist.panel.testButton"]) {
                                 var tinymistPath = tinymistTextFieldBrowseButton.text
-                                val version =
-                                    runCatching {
-                                            ApplicationManager.getApplication().runReadAction<String?> {
-                                                if (tinymistPath.isNotBlank()) {
-                                                    TinymistFindService.getInstance().version(tinymistPath)
-                                                } else {
-                                                    TinymistLocateService.getInstance().version
-                                                }
-                                            }
+                                val version = runCatching {
+                                    ApplicationManager.getApplication().runReadAction<String?> {
+                                        if (tinymistPath.isNotBlank()) {
+                                            TinymistFindService.getInstance().version(tinymistPath)
+                                        } else {
+                                            TinymistLocateService.getInstance().version
                                         }
-                                        .getOrNull()
+                                    }
+                                }
+                                    .getOrNull()
 
                                 ApplicationManager.getApplication().invokeLater {
                                     tinymistVersionHint.applyToComponent {
@@ -111,8 +110,8 @@ class TinymistSettingsForm : JPanel(), Disposable {
                     .align(AlignX.RIGHT)
             }
             row {
-                    cell(serverConfigurationEditor).align(Align.FILL).comment(TypilotBundle["settings.serverConfiguration.panel.comment"])
-                }
+                cell(serverConfigurationEditor).align(Align.FILL).comment(TypilotBundle["settings.serverConfiguration.panel.comment"])
+            }
                 .resizableRow()
         }
     }

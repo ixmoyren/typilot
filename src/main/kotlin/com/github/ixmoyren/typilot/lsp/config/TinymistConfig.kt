@@ -11,9 +11,9 @@ const val TINYMIST_INSTALLER_CONFIG_JSON: String = "/lsp/installer.json"
 
 val TINYMIST_INSTALLER_CONFIG: TinymistInstallerConfig? by lazy {
     runCatching {
-            val text = TinymistInstallerConfig::class.java.getResourceAsStream(TINYMIST_INSTALLER_CONFIG_JSON)?.use { it.readBytes().toString(Charsets.UTF_8) } ?: return@lazy null
-            json.decodeFromString<TinymistInstallerConfig>(text)
-        }
+        val text = TinymistInstallerConfig::class.java.getResourceAsStream(TINYMIST_INSTALLER_CONFIG_JSON)?.use { it.readBytes().toString(Charsets.UTF_8) } ?: return@lazy null
+        json.decodeFromString<TinymistInstallerConfig>(text)
+    }
         .getOrNull()
 }
 
@@ -66,35 +66,34 @@ val IS_SUPPORTED_PLATFORM: Boolean by lazy {
  * Resolves the `browser_download_url` of [assetName] from the newest release of the repository that matches [prerelease]. This replaces the LSP4IJ `GitHubAssetFetcher`, which was
  * the only remaining LSP4IJ dependency of the plugin.
  */
-private fun fetchLatestGitHubAssetUrl(owner: String, repository: String, assetName: String, prerelease: Boolean): String? =
-    runCatching {
-            val url = "https://api.github.com/repos/$owner/$repository/releases"
-            val body =
-                try {
-                    HttpRequests.request(url).accept("application/vnd.github+json").userAgent("typilot-intellij-plugin").connectTimeout(10_000).readTimeout(10_000).readString()
-                } catch (e: HttpRequests.HttpStatusException) {
-                    LOG.warn("GitHub releases request for $owner/$repository returned HTTP ${e.statusCode}")
-                    return@runCatching null
-                }
-
-            val releases = json.parseToJsonElement(body).jsonArray
-            val release =
-                releases.firstOrNull { element ->
-                    val obj = element.jsonObject
-                    obj.booleanOrNull("prerelease") == prerelease && obj.booleanOrNull("draft") != true
-                } ?: return@runCatching null
-
-            val assets = release.jsonObject["assets"]?.jsonArray ?: return@runCatching null
-            assets
-                .firstOrNull {
-                    it.jsonObject["name"]?.jsonPrimitive?.contentOrNull == assetName
-                }
-                ?.jsonObject
-                ?.get("browser_download_url")
-                ?.jsonPrimitive
-                ?.contentOrNull
+private fun fetchLatestGitHubAssetUrl(owner: String, repository: String, assetName: String, prerelease: Boolean): String? = runCatching {
+    val url = "https://api.github.com/repos/$owner/$repository/releases"
+    val body =
+        try {
+            HttpRequests.request(url).accept("application/vnd.github+json").userAgent("typilot-intellij-plugin").connectTimeout(10_000).readTimeout(10_000).readString()
+        } catch (e: HttpRequests.HttpStatusException) {
+            LOG.warn("GitHub releases request for $owner/$repository returned HTTP ${e.statusCode}")
+            return@runCatching null
         }
-        .getOrNull()
+
+    val releases = json.parseToJsonElement(body).jsonArray
+    val release =
+        releases.firstOrNull { element ->
+            val obj = element.jsonObject
+            obj.booleanOrNull("prerelease") == prerelease && obj.booleanOrNull("draft") != true
+        } ?: return@runCatching null
+
+    val assets = release.jsonObject["assets"]?.jsonArray ?: return@runCatching null
+    assets
+        .firstOrNull {
+            it.jsonObject["name"]?.jsonPrimitive?.contentOrNull == assetName
+        }
+        ?.jsonObject
+        ?.get("browser_download_url")
+        ?.jsonPrimitive
+        ?.contentOrNull
+}
+    .getOrNull()
 
 private fun JsonObject.booleanOrNull(memberName: String): Boolean? = (get(memberName) as? JsonPrimitive)?.booleanOrNull
 

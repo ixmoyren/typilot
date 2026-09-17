@@ -20,10 +20,7 @@ import org.junit.Assume
 class TypstLspIntegrationTest : BasePlatformTestCase() {
 
     fun testTinymistServerStartsThroughBuiltInLspClient() {
-        Assume.assumeTrue(
-            "tinymist is not installed, skipping the integration test",
-            TinymistFindService.getInstance().locate() != null
-        )
+        Assume.assumeTrue("tinymist is not installed, skipping the integration test", TinymistFindService.getInstance().locate() != null)
 
         val file = myFixture.configureByText(TypstFileType, "#set page(width: 10cm)\n= Hello\n").virtualFile
         assertTrue(isTypstFile(file))
@@ -49,12 +46,10 @@ class TypstLspIntegrationTest : BasePlatformTestCase() {
         PlatformTestUtil.waitWithEventsDispatching(
             "tinymist did not start in time",
             {
-                client = manager.getClients(TypstLspIntegrationProvider::class.java)
-                    .firstOrNull { it.state == LspServerState.Running }
+                client = manager.getClients(TypstLspIntegrationProvider::class.java).firstOrNull { it.state == LspServerState.Running }
                 client != null
             },
-            60
-        )
+            60)
         return client
     }
 }

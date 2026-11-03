@@ -1,6 +1,6 @@
 [versions]
 # libraries
-endive = "1.1.0"
+endive = "1.2.0"
 junit4 = "4.13.2"
 
 # plugins
